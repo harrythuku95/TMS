@@ -156,6 +156,127 @@ function Sidebar({ location, structure }) {
           />
         )}
 
+        {hasPermission(currentUser, 'READ_USERS') && (
+          <SidebarLink
+            label='Users'
+            link='/admin/users'
+            location={location}
+            isSidebarOpened={isSidebarOpenedWrapper}
+            icon={<CoreIcon />}
+            toggleDrawer={toggleDrawer(true)}
+          />
+        )}
+
+        {hasPermission(currentUser, 'READ_AGENTS') && (
+          <SidebarLink
+            label='Agents'
+            link='/admin/agents'
+            location={location}
+            isSidebarOpened={isSidebarOpenedWrapper}
+            icon={<CoreIcon />}
+            toggleDrawer={toggleDrawer(true)}
+          />
+        )}
+
+        {hasPermission(currentUser, 'READ_ATTACHMENTS') && (
+          <SidebarLink
+            label='Attachments'
+            link='/admin/attachments'
+            location={location}
+            isSidebarOpened={isSidebarOpenedWrapper}
+            icon={<CoreIcon />}
+            toggleDrawer={toggleDrawer(true)}
+          />
+        )}
+
+        {hasPermission(currentUser, 'READ_CUSTOMERS') && (
+          <SidebarLink
+            label='Customers'
+            link='/admin/customers'
+            location={location}
+            isSidebarOpened={isSidebarOpenedWrapper}
+            icon={<CoreIcon />}
+            toggleDrawer={toggleDrawer(true)}
+          />
+        )}
+
+        {hasPermission(currentUser, 'READ_FOLDERS') && (
+          <SidebarLink
+            label='Folders'
+            link='/admin/folders'
+            location={location}
+            isSidebarOpened={isSidebarOpenedWrapper}
+            icon={<CoreIcon />}
+            toggleDrawer={toggleDrawer(true)}
+          />
+        )}
+
+        {hasPermission(currentUser, 'READ_MAILBOXES') && (
+          <SidebarLink
+            label='Mailboxes'
+            link='/admin/mailboxes'
+            location={location}
+            isSidebarOpened={isSidebarOpenedWrapper}
+            icon={<CoreIcon />}
+            toggleDrawer={toggleDrawer(true)}
+          />
+        )}
+
+        {hasPermission(currentUser, 'READ_MESSAGES') && (
+          <SidebarLink
+            label='Messages'
+            link='/admin/messages'
+            location={location}
+            isSidebarOpened={isSidebarOpenedWrapper}
+            icon={<CoreIcon />}
+            toggleDrawer={toggleDrawer(true)}
+          />
+        )}
+
+        {hasPermission(currentUser, 'READ_TICKET_COUNTS') && (
+          <SidebarLink
+            label='Ticket counts'
+            link='/admin/ticket_counts'
+            location={location}
+            isSidebarOpened={isSidebarOpenedWrapper}
+            icon={<CoreIcon />}
+            toggleDrawer={toggleDrawer(true)}
+          />
+        )}
+
+        {hasPermission(currentUser, 'READ_TICKET_LABELS') && (
+          <SidebarLink
+            label='Ticket labels'
+            link='/admin/ticket_labels'
+            location={location}
+            isSidebarOpened={isSidebarOpenedWrapper}
+            icon={<CoreIcon />}
+            toggleDrawer={toggleDrawer(true)}
+          />
+        )}
+
+        {hasPermission(currentUser, 'READ_TICKETS') && (
+          <SidebarLink
+            label='Tickets'
+            link='/admin/tickets'
+            location={location}
+            isSidebarOpened={isSidebarOpenedWrapper}
+            icon={<CoreIcon />}
+            toggleDrawer={toggleDrawer(true)}
+          />
+        )}
+
+        {hasPermission(currentUser, 'READ_WEBHOOKS') && (
+          <SidebarLink
+            label='Webhooks'
+            link='/admin/webhooks'
+            location={location}
+            isSidebarOpened={isSidebarOpenedWrapper}
+            icon={<CoreIcon />}
+            toggleDrawer={toggleDrawer(true)}
+          />
+        )}
+
         {hasPermission(currentUser, 'READ_API_DOCS') && (
           <SidebarLink
             label='API docs'
