@@ -40,6 +40,50 @@ import PermissionsFormPage from 'pages/CRUD/Permissions/form/PermissionsFormPage
 import PermissionsFormPageView from 'pages/CRUD/Permissions/form/PermissionsFormPageView';
 import PermissionsTablePage from 'pages/CRUD/Permissions/table/PermissionsTablePage';
 
+import UsersFormPage from 'pages/CRUD/Users/form/UsersFormPage';
+import UsersFormPageView from 'pages/CRUD/Users/form/UsersFormPageView';
+import UsersTablePage from 'pages/CRUD/Users/table/UsersTablePage';
+
+import AgentsFormPage from 'pages/CRUD/Agents/form/AgentsFormPage';
+import AgentsFormPageView from 'pages/CRUD/Agents/form/AgentsFormPageView';
+import AgentsTablePage from 'pages/CRUD/Agents/table/AgentsTablePage';
+
+import AttachmentsFormPage from 'pages/CRUD/Attachments/form/AttachmentsFormPage';
+import AttachmentsFormPageView from 'pages/CRUD/Attachments/form/AttachmentsFormPageView';
+import AttachmentsTablePage from 'pages/CRUD/Attachments/table/AttachmentsTablePage';
+
+import CustomersFormPage from 'pages/CRUD/Customers/form/CustomersFormPage';
+import CustomersFormPageView from 'pages/CRUD/Customers/form/CustomersFormPageView';
+import CustomersTablePage from 'pages/CRUD/Customers/table/CustomersTablePage';
+
+import FoldersFormPage from 'pages/CRUD/Folders/form/FoldersFormPage';
+import FoldersFormPageView from 'pages/CRUD/Folders/form/FoldersFormPageView';
+import FoldersTablePage from 'pages/CRUD/Folders/table/FoldersTablePage';
+
+import MailboxesFormPage from 'pages/CRUD/Mailboxes/form/MailboxesFormPage';
+import MailboxesFormPageView from 'pages/CRUD/Mailboxes/form/MailboxesFormPageView';
+import MailboxesTablePage from 'pages/CRUD/Mailboxes/table/MailboxesTablePage';
+
+import MessagesFormPage from 'pages/CRUD/Messages/form/MessagesFormPage';
+import MessagesFormPageView from 'pages/CRUD/Messages/form/MessagesFormPageView';
+import MessagesTablePage from 'pages/CRUD/Messages/table/MessagesTablePage';
+
+import Ticket_countsFormPage from 'pages/CRUD/Ticket_counts/form/Ticket_countsFormPage';
+import Ticket_countsFormPageView from 'pages/CRUD/Ticket_counts/form/Ticket_countsFormPageView';
+import Ticket_countsTablePage from 'pages/CRUD/Ticket_counts/table/Ticket_countsTablePage';
+
+import Ticket_labelsFormPage from 'pages/CRUD/Ticket_labels/form/Ticket_labelsFormPage';
+import Ticket_labelsFormPageView from 'pages/CRUD/Ticket_labels/form/Ticket_labelsFormPageView';
+import Ticket_labelsTablePage from 'pages/CRUD/Ticket_labels/table/Ticket_labelsTablePage';
+
+import TicketsFormPage from 'pages/CRUD/Tickets/form/TicketsFormPage';
+import TicketsFormPageView from 'pages/CRUD/Tickets/form/TicketsFormPageView';
+import TicketsTablePage from 'pages/CRUD/Tickets/table/TicketsTablePage';
+
+import WebhooksFormPage from 'pages/CRUD/Webhooks/form/WebhooksFormPage';
+import WebhooksFormPageView from 'pages/CRUD/Webhooks/form/WebhooksFormPageView';
+import WebhooksTablePage from 'pages/CRUD/Webhooks/table/WebhooksTablePage';
+
 const Redirect = (props) => {
   useEffect(() => window.location.replace(props.url));
   return <span>Redirecting...</span>;
@@ -132,6 +176,205 @@ function Layout(props) {
             path={'/admin/permissions/:id/show'}
             exact
             component={PermissionsFormPageView}
+          />
+
+          <Route path={'/admin/users'} exact component={UsersTablePage} />
+          <Route path={'/admin/users/new'} exact component={UsersFormPage} />
+          <Route
+            path={'/admin/users/:id/edit'}
+            exact
+            component={UsersFormPage}
+          />
+          <Route
+            path={'/admin/users/:id/show'}
+            exact
+            component={UsersFormPageView}
+          />
+
+          <Route path={'/admin/agents'} exact component={AgentsTablePage} />
+          <Route path={'/admin/agents/new'} exact component={AgentsFormPage} />
+          <Route
+            path={'/admin/agents/:id/edit'}
+            exact
+            component={AgentsFormPage}
+          />
+          <Route
+            path={'/admin/agents/:id/show'}
+            exact
+            component={AgentsFormPageView}
+          />
+
+          <Route
+            path={'/admin/attachments'}
+            exact
+            component={AttachmentsTablePage}
+          />
+          <Route
+            path={'/admin/attachments/new'}
+            exact
+            component={AttachmentsFormPage}
+          />
+          <Route
+            path={'/admin/attachments/:id/edit'}
+            exact
+            component={AttachmentsFormPage}
+          />
+          <Route
+            path={'/admin/attachments/:id/show'}
+            exact
+            component={AttachmentsFormPageView}
+          />
+
+          <Route
+            path={'/admin/customers'}
+            exact
+            component={CustomersTablePage}
+          />
+          <Route
+            path={'/admin/customers/new'}
+            exact
+            component={CustomersFormPage}
+          />
+          <Route
+            path={'/admin/customers/:id/edit'}
+            exact
+            component={CustomersFormPage}
+          />
+          <Route
+            path={'/admin/customers/:id/show'}
+            exact
+            component={CustomersFormPageView}
+          />
+
+          <Route path={'/admin/folders'} exact component={FoldersTablePage} />
+          <Route
+            path={'/admin/folders/new'}
+            exact
+            component={FoldersFormPage}
+          />
+          <Route
+            path={'/admin/folders/:id/edit'}
+            exact
+            component={FoldersFormPage}
+          />
+          <Route
+            path={'/admin/folders/:id/show'}
+            exact
+            component={FoldersFormPageView}
+          />
+
+          <Route
+            path={'/admin/mailboxes'}
+            exact
+            component={MailboxesTablePage}
+          />
+          <Route
+            path={'/admin/mailboxes/new'}
+            exact
+            component={MailboxesFormPage}
+          />
+          <Route
+            path={'/admin/mailboxes/:id/edit'}
+            exact
+            component={MailboxesFormPage}
+          />
+          <Route
+            path={'/admin/mailboxes/:id/show'}
+            exact
+            component={MailboxesFormPageView}
+          />
+
+          <Route path={'/admin/messages'} exact component={MessagesTablePage} />
+          <Route
+            path={'/admin/messages/new'}
+            exact
+            component={MessagesFormPage}
+          />
+          <Route
+            path={'/admin/messages/:id/edit'}
+            exact
+            component={MessagesFormPage}
+          />
+          <Route
+            path={'/admin/messages/:id/show'}
+            exact
+            component={MessagesFormPageView}
+          />
+
+          <Route
+            path={'/admin/ticket_counts'}
+            exact
+            component={Ticket_countsTablePage}
+          />
+          <Route
+            path={'/admin/ticket_counts/new'}
+            exact
+            component={Ticket_countsFormPage}
+          />
+          <Route
+            path={'/admin/ticket_counts/:id/edit'}
+            exact
+            component={Ticket_countsFormPage}
+          />
+          <Route
+            path={'/admin/ticket_counts/:id/show'}
+            exact
+            component={Ticket_countsFormPageView}
+          />
+
+          <Route
+            path={'/admin/ticket_labels'}
+            exact
+            component={Ticket_labelsTablePage}
+          />
+          <Route
+            path={'/admin/ticket_labels/new'}
+            exact
+            component={Ticket_labelsFormPage}
+          />
+          <Route
+            path={'/admin/ticket_labels/:id/edit'}
+            exact
+            component={Ticket_labelsFormPage}
+          />
+          <Route
+            path={'/admin/ticket_labels/:id/show'}
+            exact
+            component={Ticket_labelsFormPageView}
+          />
+
+          <Route path={'/admin/tickets'} exact component={TicketsTablePage} />
+          <Route
+            path={'/admin/tickets/new'}
+            exact
+            component={TicketsFormPage}
+          />
+          <Route
+            path={'/admin/tickets/:id/edit'}
+            exact
+            component={TicketsFormPage}
+          />
+          <Route
+            path={'/admin/tickets/:id/show'}
+            exact
+            component={TicketsFormPageView}
+          />
+
+          <Route path={'/admin/webhooks'} exact component={WebhooksTablePage} />
+          <Route
+            path={'/admin/webhooks/new'}
+            exact
+            component={WebhooksFormPage}
+          />
+          <Route
+            path={'/admin/webhooks/:id/edit'}
+            exact
+            component={WebhooksFormPage}
+          />
+          <Route
+            path={'/admin/webhooks/:id/show'}
+            exact
+            component={WebhooksFormPageView}
           />
         </Switch>
         <Fab

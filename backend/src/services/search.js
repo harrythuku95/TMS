@@ -42,6 +42,28 @@ module.exports = class SearchService {
       }
       const tableColumns = {
         users: ['firstName', 'lastName', 'phoneNumber', 'email'],
+
+        users: ['firstName', 'lastName', 'phoneNumber', 'email'],
+
+        agents: ['agent_id'],
+
+        attachments: ['attachment_id'],
+
+        customers: ['customer_id'],
+
+        folders: ['folder_id'],
+
+        mailboxes: ['mailbox_id'],
+
+        messages: ['message_id'],
+
+        ticket_counts: ['count_id'],
+
+        ticket_labels: ['label_id'],
+
+        tickets: ['ticket_id'],
+
+        webhooks: ['webhook_id'],
       };
       const columnsInt = {};
 

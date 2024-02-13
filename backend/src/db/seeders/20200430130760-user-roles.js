@@ -67,7 +67,23 @@ module.exports = {
       ];
     }
 
-    const entities = ['users', 'roles', 'permissions', ,];
+    const entities = [
+      'users',
+      'roles',
+      'permissions',
+      'users',
+      'agents',
+      'attachments',
+      'customers',
+      'folders',
+      'mailboxes',
+      'messages',
+      'ticket_counts',
+      'ticket_labels',
+      'tickets',
+      'webhooks',
+      ,
+    ];
     await queryInterface.bulkInsert(
       'permissions',
       entities.flatMap(createPermissions),
@@ -123,6 +139,281 @@ primary key ("roles_permissionsId", "permissionId")
         updatedAt,
         roles_permissionsId: getId('User'),
         permissionId: getId('DELETE_USERS'),
+      },
+
+      {
+        createdAt,
+        updatedAt,
+        roles_permissionsId: getId('User'),
+        permissionId: getId('CREATE_USERS'),
+      },
+      {
+        createdAt,
+        updatedAt,
+        roles_permissionsId: getId('User'),
+        permissionId: getId('READ_USERS'),
+      },
+      {
+        createdAt,
+        updatedAt,
+        roles_permissionsId: getId('User'),
+        permissionId: getId('UPDATE_USERS'),
+      },
+      {
+        createdAt,
+        updatedAt,
+        roles_permissionsId: getId('User'),
+        permissionId: getId('DELETE_USERS'),
+      },
+
+      {
+        createdAt,
+        updatedAt,
+        roles_permissionsId: getId('User'),
+        permissionId: getId('CREATE_AGENTS'),
+      },
+      {
+        createdAt,
+        updatedAt,
+        roles_permissionsId: getId('User'),
+        permissionId: getId('READ_AGENTS'),
+      },
+      {
+        createdAt,
+        updatedAt,
+        roles_permissionsId: getId('User'),
+        permissionId: getId('UPDATE_AGENTS'),
+      },
+      {
+        createdAt,
+        updatedAt,
+        roles_permissionsId: getId('User'),
+        permissionId: getId('DELETE_AGENTS'),
+      },
+
+      {
+        createdAt,
+        updatedAt,
+        roles_permissionsId: getId('User'),
+        permissionId: getId('CREATE_ATTACHMENTS'),
+      },
+      {
+        createdAt,
+        updatedAt,
+        roles_permissionsId: getId('User'),
+        permissionId: getId('READ_ATTACHMENTS'),
+      },
+      {
+        createdAt,
+        updatedAt,
+        roles_permissionsId: getId('User'),
+        permissionId: getId('UPDATE_ATTACHMENTS'),
+      },
+      {
+        createdAt,
+        updatedAt,
+        roles_permissionsId: getId('User'),
+        permissionId: getId('DELETE_ATTACHMENTS'),
+      },
+
+      {
+        createdAt,
+        updatedAt,
+        roles_permissionsId: getId('User'),
+        permissionId: getId('CREATE_CUSTOMERS'),
+      },
+      {
+        createdAt,
+        updatedAt,
+        roles_permissionsId: getId('User'),
+        permissionId: getId('READ_CUSTOMERS'),
+      },
+      {
+        createdAt,
+        updatedAt,
+        roles_permissionsId: getId('User'),
+        permissionId: getId('UPDATE_CUSTOMERS'),
+      },
+      {
+        createdAt,
+        updatedAt,
+        roles_permissionsId: getId('User'),
+        permissionId: getId('DELETE_CUSTOMERS'),
+      },
+
+      {
+        createdAt,
+        updatedAt,
+        roles_permissionsId: getId('User'),
+        permissionId: getId('CREATE_FOLDERS'),
+      },
+      {
+        createdAt,
+        updatedAt,
+        roles_permissionsId: getId('User'),
+        permissionId: getId('READ_FOLDERS'),
+      },
+      {
+        createdAt,
+        updatedAt,
+        roles_permissionsId: getId('User'),
+        permissionId: getId('UPDATE_FOLDERS'),
+      },
+      {
+        createdAt,
+        updatedAt,
+        roles_permissionsId: getId('User'),
+        permissionId: getId('DELETE_FOLDERS'),
+      },
+
+      {
+        createdAt,
+        updatedAt,
+        roles_permissionsId: getId('User'),
+        permissionId: getId('CREATE_MAILBOXES'),
+      },
+      {
+        createdAt,
+        updatedAt,
+        roles_permissionsId: getId('User'),
+        permissionId: getId('READ_MAILBOXES'),
+      },
+      {
+        createdAt,
+        updatedAt,
+        roles_permissionsId: getId('User'),
+        permissionId: getId('UPDATE_MAILBOXES'),
+      },
+      {
+        createdAt,
+        updatedAt,
+        roles_permissionsId: getId('User'),
+        permissionId: getId('DELETE_MAILBOXES'),
+      },
+
+      {
+        createdAt,
+        updatedAt,
+        roles_permissionsId: getId('User'),
+        permissionId: getId('CREATE_MESSAGES'),
+      },
+      {
+        createdAt,
+        updatedAt,
+        roles_permissionsId: getId('User'),
+        permissionId: getId('READ_MESSAGES'),
+      },
+      {
+        createdAt,
+        updatedAt,
+        roles_permissionsId: getId('User'),
+        permissionId: getId('UPDATE_MESSAGES'),
+      },
+      {
+        createdAt,
+        updatedAt,
+        roles_permissionsId: getId('User'),
+        permissionId: getId('DELETE_MESSAGES'),
+      },
+
+      {
+        createdAt,
+        updatedAt,
+        roles_permissionsId: getId('User'),
+        permissionId: getId('CREATE_TICKET_COUNTS'),
+      },
+      {
+        createdAt,
+        updatedAt,
+        roles_permissionsId: getId('User'),
+        permissionId: getId('READ_TICKET_COUNTS'),
+      },
+      {
+        createdAt,
+        updatedAt,
+        roles_permissionsId: getId('User'),
+        permissionId: getId('UPDATE_TICKET_COUNTS'),
+      },
+      {
+        createdAt,
+        updatedAt,
+        roles_permissionsId: getId('User'),
+        permissionId: getId('DELETE_TICKET_COUNTS'),
+      },
+
+      {
+        createdAt,
+        updatedAt,
+        roles_permissionsId: getId('User'),
+        permissionId: getId('CREATE_TICKET_LABELS'),
+      },
+      {
+        createdAt,
+        updatedAt,
+        roles_permissionsId: getId('User'),
+        permissionId: getId('READ_TICKET_LABELS'),
+      },
+      {
+        createdAt,
+        updatedAt,
+        roles_permissionsId: getId('User'),
+        permissionId: getId('UPDATE_TICKET_LABELS'),
+      },
+      {
+        createdAt,
+        updatedAt,
+        roles_permissionsId: getId('User'),
+        permissionId: getId('DELETE_TICKET_LABELS'),
+      },
+
+      {
+        createdAt,
+        updatedAt,
+        roles_permissionsId: getId('User'),
+        permissionId: getId('CREATE_TICKETS'),
+      },
+      {
+        createdAt,
+        updatedAt,
+        roles_permissionsId: getId('User'),
+        permissionId: getId('READ_TICKETS'),
+      },
+      {
+        createdAt,
+        updatedAt,
+        roles_permissionsId: getId('User'),
+        permissionId: getId('UPDATE_TICKETS'),
+      },
+      {
+        createdAt,
+        updatedAt,
+        roles_permissionsId: getId('User'),
+        permissionId: getId('DELETE_TICKETS'),
+      },
+
+      {
+        createdAt,
+        updatedAt,
+        roles_permissionsId: getId('User'),
+        permissionId: getId('CREATE_WEBHOOKS'),
+      },
+      {
+        createdAt,
+        updatedAt,
+        roles_permissionsId: getId('User'),
+        permissionId: getId('READ_WEBHOOKS'),
+      },
+      {
+        createdAt,
+        updatedAt,
+        roles_permissionsId: getId('User'),
+        permissionId: getId('UPDATE_WEBHOOKS'),
+      },
+      {
+        createdAt,
+        updatedAt,
+        roles_permissionsId: getId('User'),
+        permissionId: getId('DELETE_WEBHOOKS'),
       },
 
       {
@@ -205,6 +496,281 @@ primary key ("roles_permissionsId", "permissionId")
         updatedAt,
         roles_permissionsId: getId('Administrator'),
         permissionId: getId('DELETE_PERMISSIONS'),
+      },
+
+      {
+        createdAt,
+        updatedAt,
+        roles_permissionsId: getId('Administrator'),
+        permissionId: getId('CREATE_USERS'),
+      },
+      {
+        createdAt,
+        updatedAt,
+        roles_permissionsId: getId('Administrator'),
+        permissionId: getId('READ_USERS'),
+      },
+      {
+        createdAt,
+        updatedAt,
+        roles_permissionsId: getId('Administrator'),
+        permissionId: getId('UPDATE_USERS'),
+      },
+      {
+        createdAt,
+        updatedAt,
+        roles_permissionsId: getId('Administrator'),
+        permissionId: getId('DELETE_USERS'),
+      },
+
+      {
+        createdAt,
+        updatedAt,
+        roles_permissionsId: getId('Administrator'),
+        permissionId: getId('CREATE_AGENTS'),
+      },
+      {
+        createdAt,
+        updatedAt,
+        roles_permissionsId: getId('Administrator'),
+        permissionId: getId('READ_AGENTS'),
+      },
+      {
+        createdAt,
+        updatedAt,
+        roles_permissionsId: getId('Administrator'),
+        permissionId: getId('UPDATE_AGENTS'),
+      },
+      {
+        createdAt,
+        updatedAt,
+        roles_permissionsId: getId('Administrator'),
+        permissionId: getId('DELETE_AGENTS'),
+      },
+
+      {
+        createdAt,
+        updatedAt,
+        roles_permissionsId: getId('Administrator'),
+        permissionId: getId('CREATE_ATTACHMENTS'),
+      },
+      {
+        createdAt,
+        updatedAt,
+        roles_permissionsId: getId('Administrator'),
+        permissionId: getId('READ_ATTACHMENTS'),
+      },
+      {
+        createdAt,
+        updatedAt,
+        roles_permissionsId: getId('Administrator'),
+        permissionId: getId('UPDATE_ATTACHMENTS'),
+      },
+      {
+        createdAt,
+        updatedAt,
+        roles_permissionsId: getId('Administrator'),
+        permissionId: getId('DELETE_ATTACHMENTS'),
+      },
+
+      {
+        createdAt,
+        updatedAt,
+        roles_permissionsId: getId('Administrator'),
+        permissionId: getId('CREATE_CUSTOMERS'),
+      },
+      {
+        createdAt,
+        updatedAt,
+        roles_permissionsId: getId('Administrator'),
+        permissionId: getId('READ_CUSTOMERS'),
+      },
+      {
+        createdAt,
+        updatedAt,
+        roles_permissionsId: getId('Administrator'),
+        permissionId: getId('UPDATE_CUSTOMERS'),
+      },
+      {
+        createdAt,
+        updatedAt,
+        roles_permissionsId: getId('Administrator'),
+        permissionId: getId('DELETE_CUSTOMERS'),
+      },
+
+      {
+        createdAt,
+        updatedAt,
+        roles_permissionsId: getId('Administrator'),
+        permissionId: getId('CREATE_FOLDERS'),
+      },
+      {
+        createdAt,
+        updatedAt,
+        roles_permissionsId: getId('Administrator'),
+        permissionId: getId('READ_FOLDERS'),
+      },
+      {
+        createdAt,
+        updatedAt,
+        roles_permissionsId: getId('Administrator'),
+        permissionId: getId('UPDATE_FOLDERS'),
+      },
+      {
+        createdAt,
+        updatedAt,
+        roles_permissionsId: getId('Administrator'),
+        permissionId: getId('DELETE_FOLDERS'),
+      },
+
+      {
+        createdAt,
+        updatedAt,
+        roles_permissionsId: getId('Administrator'),
+        permissionId: getId('CREATE_MAILBOXES'),
+      },
+      {
+        createdAt,
+        updatedAt,
+        roles_permissionsId: getId('Administrator'),
+        permissionId: getId('READ_MAILBOXES'),
+      },
+      {
+        createdAt,
+        updatedAt,
+        roles_permissionsId: getId('Administrator'),
+        permissionId: getId('UPDATE_MAILBOXES'),
+      },
+      {
+        createdAt,
+        updatedAt,
+        roles_permissionsId: getId('Administrator'),
+        permissionId: getId('DELETE_MAILBOXES'),
+      },
+
+      {
+        createdAt,
+        updatedAt,
+        roles_permissionsId: getId('Administrator'),
+        permissionId: getId('CREATE_MESSAGES'),
+      },
+      {
+        createdAt,
+        updatedAt,
+        roles_permissionsId: getId('Administrator'),
+        permissionId: getId('READ_MESSAGES'),
+      },
+      {
+        createdAt,
+        updatedAt,
+        roles_permissionsId: getId('Administrator'),
+        permissionId: getId('UPDATE_MESSAGES'),
+      },
+      {
+        createdAt,
+        updatedAt,
+        roles_permissionsId: getId('Administrator'),
+        permissionId: getId('DELETE_MESSAGES'),
+      },
+
+      {
+        createdAt,
+        updatedAt,
+        roles_permissionsId: getId('Administrator'),
+        permissionId: getId('CREATE_TICKET_COUNTS'),
+      },
+      {
+        createdAt,
+        updatedAt,
+        roles_permissionsId: getId('Administrator'),
+        permissionId: getId('READ_TICKET_COUNTS'),
+      },
+      {
+        createdAt,
+        updatedAt,
+        roles_permissionsId: getId('Administrator'),
+        permissionId: getId('UPDATE_TICKET_COUNTS'),
+      },
+      {
+        createdAt,
+        updatedAt,
+        roles_permissionsId: getId('Administrator'),
+        permissionId: getId('DELETE_TICKET_COUNTS'),
+      },
+
+      {
+        createdAt,
+        updatedAt,
+        roles_permissionsId: getId('Administrator'),
+        permissionId: getId('CREATE_TICKET_LABELS'),
+      },
+      {
+        createdAt,
+        updatedAt,
+        roles_permissionsId: getId('Administrator'),
+        permissionId: getId('READ_TICKET_LABELS'),
+      },
+      {
+        createdAt,
+        updatedAt,
+        roles_permissionsId: getId('Administrator'),
+        permissionId: getId('UPDATE_TICKET_LABELS'),
+      },
+      {
+        createdAt,
+        updatedAt,
+        roles_permissionsId: getId('Administrator'),
+        permissionId: getId('DELETE_TICKET_LABELS'),
+      },
+
+      {
+        createdAt,
+        updatedAt,
+        roles_permissionsId: getId('Administrator'),
+        permissionId: getId('CREATE_TICKETS'),
+      },
+      {
+        createdAt,
+        updatedAt,
+        roles_permissionsId: getId('Administrator'),
+        permissionId: getId('READ_TICKETS'),
+      },
+      {
+        createdAt,
+        updatedAt,
+        roles_permissionsId: getId('Administrator'),
+        permissionId: getId('UPDATE_TICKETS'),
+      },
+      {
+        createdAt,
+        updatedAt,
+        roles_permissionsId: getId('Administrator'),
+        permissionId: getId('DELETE_TICKETS'),
+      },
+
+      {
+        createdAt,
+        updatedAt,
+        roles_permissionsId: getId('Administrator'),
+        permissionId: getId('CREATE_WEBHOOKS'),
+      },
+      {
+        createdAt,
+        updatedAt,
+        roles_permissionsId: getId('Administrator'),
+        permissionId: getId('READ_WEBHOOKS'),
+      },
+      {
+        createdAt,
+        updatedAt,
+        roles_permissionsId: getId('Administrator'),
+        permissionId: getId('UPDATE_WEBHOOKS'),
+      },
+      {
+        createdAt,
+        updatedAt,
+        roles_permissionsId: getId('Administrator'),
+        permissionId: getId('DELETE_WEBHOOKS'),
       },
 
       {
