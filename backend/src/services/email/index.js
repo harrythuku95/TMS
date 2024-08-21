@@ -1,39 +1,28 @@
 const config = require('../../config');
-const assert = require('assert');
-const nodemailer = require('nodemailer');
+const sgMail = require('@sendgrid/mail');
+
+sgMail.setApiKey(config.sendgridApiKey);
 
 module.exports = class EmailSender {
-  constructor(email) {
-    this.email = email;
+  constructor(to, subject, text, html) {
+    this.to = to;
+    this.subject = subject;
+    this.text = text;
+    this.html = html;
   }
 
   async send() {
-    assert(this.email, 'email is required');
-    assert(this.email.to, 'email.to is required');
-    assert(this.email.subject, 'email.subject is required');
-    assert(this.email.html, 'email.html is required');
-
-    const transporter = nodemailer.createTransport(this.transportConfig);
-
-    const mailOptions = {
-      from: this.from,
-      to: this.email.to,
-      subject: this.email.subject,
-      html: this.email.html,
+    const msg = {
+      to: this.to,
+      from: config.emailFrom,
+      subject: this.subject,
+      text: this.text,
+      html: this.html,
     };
-
-    return transporter.sendMail(mailOptions);
+    await sgMail.send(msg);
   }
 
   static get isConfigured() {
-    return !!config.email?.auth?.pass && !!config.email?.auth?.user;
-  }
-
-  get transportConfig() {
-    return config.email;
-  }
-
-  get from() {
-    return config.email.from;
+    return !!config.sendgridApiKey;
   }
 };

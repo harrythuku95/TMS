@@ -13,11 +13,9 @@ module.exports = function (sequelize, DataTypes) {
         defaultValue: DataTypes.UUIDV4,
         primaryKey: true,
       },
-
       label_id: {
         type: DataTypes.TEXT,
       },
-
       importHash: {
         type: DataTypes.STRING(255),
         allowNull: true,
@@ -32,9 +30,10 @@ module.exports = function (sequelize, DataTypes) {
   );
 
   ticket_labels.associate = (db) => {
-    /// loop through entities and it's fields, and if ref === current e[name] and create relation has many on parent entity
-
-    //end loop
+    db.ticket_labels.belongsTo(db.tickets, {
+      as: 'ticket',
+      foreignKey: 'ticketId',
+    });
 
     db.ticket_labels.belongsTo(db.users, {
       as: 'createdBy',

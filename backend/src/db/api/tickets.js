@@ -1,6 +1,5 @@
 const db = require('../models');
 const FileDBApi = require('./file');
-const crypto = require('crypto');
 const Utils = require('../utils');
 
 const Sequelize = db.Sequelize;
@@ -14,13 +13,28 @@ module.exports = class TicketsDBApi {
     const tickets = await db.tickets.create(
       {
         id: data.id || undefined,
-
         ticket_id: data.ticket_id || null,
+        subject: data.subject || null,
+        priority: data.priority || null,
+        description: data.description || null,
+        status: data.status || 'pending',
+        assigneeId: data.assignee || null,
+        customerId: data.customer || null,
         importHash: data.importHash || null,
         createdById: currentUser.id,
         updatedById: currentUser.id,
       },
       { transaction },
+    );
+
+    await FileDBApi.replaceRelationFiles(
+      {
+        belongsTo: 'tickets',
+        belongsToColumn: 'files',
+        belongsToId: tickets.id,
+      },
+      data.files,
+      options,
     );
 
     return tickets;
@@ -30,21 +44,22 @@ module.exports = class TicketsDBApi {
     const currentUser = (options && options.currentUser) || { id: null };
     const transaction = (options && options.transaction) || undefined;
 
-    // Prepare data - wrapping individual data transformations in a map() method
     const ticketsData = data.map((item, index) => ({
       id: item.id || undefined,
-
       ticket_id: item.ticket_id || null,
+      subject: item.subject || null,
+      priority: item.priority || null,
+      description: item.description || null,
+      status: item.status || 'pending',
+      assigneeId: item.assignee || null,
+      customerId: item.customer || null,
       importHash: item.importHash || null,
       createdById: currentUser.id,
       updatedById: currentUser.id,
       createdAt: new Date(Date.now() + index * 1000),
     }));
 
-    // Bulk create items
     const tickets = await db.tickets.bulkCreate(ticketsData, { transaction });
-
-    // For each item created, replace relation files
 
     return tickets;
   }
@@ -58,6 +73,12 @@ module.exports = class TicketsDBApi {
     await tickets.update(
       {
         ticket_id: data.ticket_id || null,
+        subject: data.subject || null,
+        priority: data.priority || null,
+        description: data.description || null,
+        status: data.status || 'pending',
+        assigneeId: data.assignee || null,
+        customerId: data.customer || null,
         updatedById: currentUser.id,
       },
       { transaction },
@@ -130,18 +151,6 @@ module.exports = class TicketsDBApi {
         };
       }
 
-      if (
-        filter.active === true ||
-        filter.active === 'true' ||
-        filter.active === false ||
-        filter.active === 'false'
-      ) {
-        where = {
-          ...where,
-          active: filter.active === true || filter.active === 'true',
-        };
-      }
-
       if (filter.createdAtRange) {
         const [start, end] = filter.createdAtRange;
 
@@ -195,11 +204,6 @@ module.exports = class TicketsDBApi {
               : [['createdAt', 'desc']],
           transaction,
         });
-
-    //    rows = await this._fillWithRelationsAndFilesForRows(
-    //      rows,
-    //      options,
-    //    );
 
     return { rows, count };
   }

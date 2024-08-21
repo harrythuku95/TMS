@@ -14,8 +14,8 @@ module.exports = class AttachmentsDBApi {
     const attachments = await db.attachments.create(
       {
         id: data.id || undefined,
-
         attachment_id: data.attachment_id || null,
+        file_type: data.file_type || null,
         importHash: data.importHash || null,
         createdById: currentUser.id,
         updatedById: currentUser.id,
@@ -30,23 +30,19 @@ module.exports = class AttachmentsDBApi {
     const currentUser = (options && options.currentUser) || { id: null };
     const transaction = (options && options.transaction) || undefined;
 
-    // Prepare data - wrapping individual data transformations in a map() method
     const attachmentsData = data.map((item, index) => ({
       id: item.id || undefined,
-
       attachment_id: item.attachment_id || null,
+      file_type: item.file_type || null,
       importHash: item.importHash || null,
       createdById: currentUser.id,
       updatedById: currentUser.id,
       createdAt: new Date(Date.now() + index * 1000),
     }));
 
-    // Bulk create items
     const attachments = await db.attachments.bulkCreate(attachmentsData, {
       transaction,
     });
-
-    // For each item created, replace relation files
 
     return attachments;
   }
@@ -60,6 +56,7 @@ module.exports = class AttachmentsDBApi {
     await attachments.update(
       {
         attachment_id: data.attachment_id || null,
+        file_type: data.file_type || null,
         updatedById: currentUser.id,
       },
       { transaction },
@@ -204,11 +201,6 @@ module.exports = class AttachmentsDBApi {
               : [['createdAt', 'desc']],
           transaction,
         });
-
-    //    rows = await this._fillWithRelationsAndFilesForRows(
-    //      rows,
-    //      options,
-    //    );
 
     return { rows, count };
   }

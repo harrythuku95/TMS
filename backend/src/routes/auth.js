@@ -1,32 +1,30 @@
+// src/routes/auth.js
 const express = require('express');
 const passport = require('passport');
-
-const config = require('../config');
 const AuthService = require('../services/auth');
 const ForbiddenError = require('../services/notifications/errors/forbidden');
-const EmailSender = require('../services/email');
 const wrapAsync = require('../helpers').wrapAsync;
 
 const router = express.Router();
 
 /**
- *  @swagger
- *  components:
- *    schemas:
- *      Auth:
- *        type: object
- *        required:
- *          - email
- *          - password
- *        properties:
- *          email:
- *            type: string
- *            default: admin@flatlogic.com
- *            description: User email
- *          password:
- *            type: string
- *            default: password
- *            description: User password
+ * @swagger
+ * components:
+ *   schemas:
+ *     Auth:
+ *       type: object
+ *       required:
+ *         - email
+ *         - password
+ *       properties:
+ *         email:
+ *           type: string
+ *           default: admin@flatlogic.com
+ *           description: User email
+ *         password:
+ *           type: string
+ *           default: password
+ *           description: User password
  */
 
 /**
@@ -38,228 +36,113 @@ const router = express.Router();
 
 /**
  * @swagger
- *  /api/auth/signin/local:
- *    post:
- *      tags: [Auth]
- *      summary: Logs user into the system
- *      description: Logs user into the system
- *      requestBody:
- *        description: Set valid user email and password
- *        content:
- *          application/json:
- *            schema:
- *              $ref: "#/components/schemas/Auth"
- *      responses:
- *        200:
- *          description: Successful login
- *        400:
- *          description: Invalid username/password supplied
- *      x-codegen-request-body-name: body
+ * /api/auth/signin/local:
+ *   post:
+ *     tags: [Auth]
+ *     summary: Logs user into the system
+ *     description: Logs user into the system
+ *     requestBody:
+ *       description: Set valid user email and password
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: "#/components/schemas/Auth"
+ *     responses:
+ *       200:
+ *         description: Successful login
+ *       400:
+ *         description: Invalid username/password supplied
+ *     x-codegen-request-body-name: body
  */
-
 router.post(
   '/signin/local',
   wrapAsync(async (req, res) => {
-    const payload = await AuthService.signin(
-      req.body.email,
-      req.body.password,
-      req,
-    );
-    res.status(200).send(payload);
+    try {
+      const { email, password } = req.body;
+      if (!email || !password) {
+        return res.status(400).json({ error: 'Email and password are required.' });
+      }
+      const payload = await AuthService.signin(email, password, req);
+      res.status(200).send(payload);
+    } catch (error) {
+      console.error('Signin error:', error);
+      res.status(400).json({ error: error.message || 'Invalid email or password.' });
+    }
   }),
 );
+
 
 /**
  * @swagger
- *  /api/auth/me:
- *    get:
- *      security:
- *        - bearerAuth: []
- *      tags: [Auth]
- *      summary: Get current authorized user info
- *      description: Get current authorized user info
- *      responses:
- *        200:
- *          description: Successful retrieval of current authorized user data
- *        400:
- *          description: Invalid username/password supplied
- *      x-codegen-request-body-name: body
+ * /api/auth/signup:
+ *   post:
+ *     tags: [Auth]
+ *     summary: Register new user into the system
+ *     description: Register new user into the system
+ *     requestBody:
+ *       description: Set valid user email and password
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: "#/components/schemas/Auth"
+ *     responses:
+ *       200:
+ *         description: New user successfully signed up
+ *       400:
+ *         description: Invalid username/password supplied
+ *       500:
+ *         description: Some server error
+ *     x-codegen-request-body-name: body
  */
-
-router.get(
-  '/me',
-  passport.authenticate('jwt', { session: false }),
-  (req, res) => {
-    if (!req.currentUser || !req.currentUser.id) {
-      throw new ForbiddenError();
-    }
-
-    const payload = req.currentUser;
-    delete payload.password;
-    res.status(200).send(payload);
-  },
-);
-
-router.put(
-  '/password-reset',
-  wrapAsync(async (req, res) => {
-    const payload = await AuthService.passwordReset(
-      req.body.token,
-      req.body.password,
-      req,
-    );
-    res.status(200).send(payload);
-  }),
-);
-
-router.put(
-  '/password-update',
-  passport.authenticate('jwt', { session: false }),
-  wrapAsync(async (req, res) => {
-    const payload = await AuthService.passwordUpdate(
-      req.body.currentPassword,
-      req.body.newPassword,
-      req,
-    );
-    res.status(200).send(payload);
-  }),
-);
-
-router.post(
-  '/send-email-address-verification-email',
-  passport.authenticate('jwt', { session: false }),
-  wrapAsync(async (req, res) => {
-    if (!req.currentUser) {
-      throw new ForbiddenError();
-    }
-
-    await AuthService.sendEmailAddressVerificationEmail(req.currentUser.email);
-    const payload = true;
-    res.status(200).send(payload);
-  }),
-);
-
-router.post(
-  '/send-password-reset-email',
-  wrapAsync(async (req, res) => {
-    await AuthService.sendPasswordResetEmail(
-      req.body.email,
-      'register',
-      req.protocol + '://' + req.hostname + config.portUIProd,
-    );
-    const payload = true;
-    res.status(200).send(payload);
-  }),
-);
-
-/**
- * @swagger
- *  /api/auth/signup:
- *    post:
- *      tags: [Auth]
- *      summary: Register new user into the system
- *      description: Register new user into the system
- *      requestBody:
- *        description: Set valid user email and password
- *        content:
- *          application/json:
- *            schema:
- *              $ref: "#/components/schemas/Auth"
- *      responses:
- *        200:
- *          description: New user successfully signed up
- *        400:
- *          description: Invalid username/password supplied
- *        500:
- *          description: Some server error
- *      x-codegen-request-body-name: body
- */
-
 router.post(
   '/signup',
   wrapAsync(async (req, res) => {
-    const payload = await AuthService.signup(
-      req.body.email,
-      req.body.password,
-      req,
-      req.protocol + '://' + req.hostname + config.portUIProd,
-    );
-    res.status(200).send(payload);
-  }),
-);
-
-router.put(
-  '/profile',
-  passport.authenticate('jwt', { session: false }),
-  wrapAsync(async (req, res) => {
-    if (!req.currentUser || !req.currentUser.id) {
-      throw new ForbiddenError();
+    try {
+      const payload = await AuthService.signup(
+        req.body.email,
+        req.body.password,
+        { firstName: req.body.firstName, lastName: req.body.lastName },
+        req.protocol + '://' + req.get('host'),
+      );
+      res.status(200).send(payload);
+    } catch (error) {
+      console.error('Signup error:', error);
+      res.status(400).json({ error: error.message || 'Signup failed. Please try again.' });
     }
-
-    await AuthService.updateProfile(req.body.profile, req.currentUser);
-    const payload = true;
-    res.status(200).send(payload);
   }),
 );
 
-router.put(
-  '/verify-email',
+router.post(
+  '/send-email-verification',
   wrapAsync(async (req, res) => {
-    const payload = await AuthService.verifyEmail(
-      req.body.token,
-      req,
-      req.headers.referer,
-    );
-    res.status(200).send(payload);
+    const { email } = req.body;
+    if (!email) {
+      return res.status(400).json({ error: 'Email is required.' });
+    }
+    try {
+      await AuthService.sendEmailAddressVerificationEmail(email, req.protocol + '://' + req.get('host'));
+      res.status(200).json({ message: 'Verification email sent.' });
+    } catch (error) {
+      console.error('Email verification error:', error);
+      res.status(500).json({ error: 'Failed to send verification email.' });
+    }
   }),
 );
 
-router.get('/email-configured', (req, res) => {
-  const payload = EmailSender.isConfigured;
-  res.status(200).send(payload);
-});
-
-router.get('/signin/google', (req, res, next) => {
-  passport.authenticate('google', {
-    scope: ['profile', 'email'],
-    state: req.query.app,
-  })(req, res, next);
-});
 
 router.get(
-  '/signin/google/callback',
-  passport.authenticate('google', {
-    failureRedirect: '/login',
-    session: false,
-  }),
-
-  function (req, res) {
-    socialRedirect(res, req.query.state, req.user.token, config);
-  },
+  '/user',
+  passport.authenticate('jwt', { session: false }), 
+  wrapAsync(async (req, res) => {
+    const user = req.currentUser; 
+    if (!user) {
+      return res.status(404).json({ error: 'User not found.' });
+    }
+    res.status(200).json(user); 
+  })
 );
 
-router.get('/signin/microsoft', (req, res, next) => {
-  passport.authenticate('microsoft', {
-    scope: ['https://graph.microsoft.com/user.read openid'],
-    state: req.query.app,
-  })(req, res, next);
-});
-
-router.get(
-  '/signin/microsoft/callback',
-  passport.authenticate('microsoft', {
-    failureRedirect: '/login',
-    session: false,
-  }),
-  function (req, res) {
-    socialRedirect(res, req.query.state, req.user.token, config);
-  },
-);
 
 router.use('/', require('../helpers').commonErrorHandler);
-
-function socialRedirect(res, state, token, config) {
-  res.redirect(config.uiUrl + '/login?token=' + token);
-}
 
 module.exports = router;

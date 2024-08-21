@@ -14,8 +14,10 @@ module.exports = class MessagesDBApi {
     const messages = await db.messages.create(
       {
         id: data.id || undefined,
-
         message_id: data.message_id || null,
+        subject: data.subject || null,
+        body: data.body || null,
+        read: data.read || false,
         importHash: data.importHash || null,
         createdById: currentUser.id,
         updatedById: currentUser.id,
@@ -30,23 +32,21 @@ module.exports = class MessagesDBApi {
     const currentUser = (options && options.currentUser) || { id: null };
     const transaction = (options && options.transaction) || undefined;
 
-    // Prepare data - wrapping individual data transformations in a map() method
     const messagesData = data.map((item, index) => ({
       id: item.id || undefined,
-
       message_id: item.message_id || null,
+      subject: item.subject || null,
+      body: item.body || null,
+      read: item.read || false,
       importHash: item.importHash || null,
       createdById: currentUser.id,
       updatedById: currentUser.id,
       createdAt: new Date(Date.now() + index * 1000),
     }));
 
-    // Bulk create items
     const messages = await db.messages.bulkCreate(messagesData, {
       transaction,
     });
-
-    // For each item created, replace relation files
 
     return messages;
   }
@@ -60,6 +60,9 @@ module.exports = class MessagesDBApi {
     await messages.update(
       {
         message_id: data.message_id || null,
+        subject: data.subject || null,
+        body: data.body || null,
+        read: data.read || false,
         updatedById: currentUser.id,
       },
       { transaction },
@@ -132,15 +135,29 @@ module.exports = class MessagesDBApi {
         };
       }
 
+      if (filter.subject) {
+        where = {
+          ...where,
+          [Op.and]: Utils.ilike('messages', 'subject', filter.subject),
+        };
+      }
+
+      if (filter.body) {
+        where = {
+          ...where,
+          [Op.and]: Utils.ilike('messages', 'body', filter.body),
+        };
+      }
+
       if (
-        filter.active === true ||
-        filter.active === 'true' ||
-        filter.active === false ||
-        filter.active === 'false'
+        filter.read === true ||
+        filter.read === 'true' ||
+        filter.read === false ||
+        filter.read === 'false'
       ) {
         where = {
           ...where,
-          active: filter.active === true || filter.active === 'true',
+          read: filter.read === true || filter.read === 'true',
         };
       }
 
@@ -197,11 +214,6 @@ module.exports = class MessagesDBApi {
               : [['createdAt', 'desc']],
           transaction,
         });
-
-    //    rows = await this._fillWithRelationsAndFilesForRows(
-    //      rows,
-    //      options,
-    //    );
 
     return { rows, count };
   }

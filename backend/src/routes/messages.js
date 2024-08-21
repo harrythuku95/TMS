@@ -19,11 +19,18 @@ router.use(checkCrudPermissions('messages'));
  *      Messages:
  *        type: object
  *        properties:
-
  *          message_id:
  *            type: string
  *            default: message_id
-
+ *          subject:
+ *            type: string
+ *            default: subject
+ *          body:
+ *            type: string
+ *            default: body
+ *          read:
+ *            type: boolean
+ *            default: false
  */
 
 /**
@@ -222,7 +229,7 @@ router.get(
     const filetype = req.query.filetype;
     const payload = await MessagesDBApi.findAll(req.query);
     if (filetype && filetype === 'csv') {
-      const fields = ['id', 'message_id'];
+      const fields = ['id', 'message_id', 'subject', 'body', 'read'];
       const opts = { fields };
       try {
         const csv = parse(payload.rows, opts);

@@ -19,11 +19,15 @@ router.use(checkCrudPermissions('agents'));
  *      Agents:
  *        type: object
  *        properties:
-
  *          agent_id:
  *            type: string
  *            default: agent_id
-
+ *          name:
+ *            type: string
+ *            default: name
+ *          role:
+ *            type: string
+ *            default: role
  */
 
 /**
@@ -222,7 +226,7 @@ router.get(
     const filetype = req.query.filetype;
     const payload = await AgentsDBApi.findAll(req.query);
     if (filetype && filetype === 'csv') {
-      const fields = ['id', 'agent_id'];
+      const fields = ['id', 'agent_id', 'name', 'role'];
       const opts = { fields };
       try {
         const csv = parse(payload.rows, opts);

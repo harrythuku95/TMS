@@ -13,11 +13,19 @@ module.exports = function (sequelize, DataTypes) {
         defaultValue: DataTypes.UUIDV4,
         primaryKey: true,
       },
-
       message_id: {
         type: DataTypes.TEXT,
       },
-
+      subject: {
+        type: DataTypes.STRING,
+      },
+      body: {
+        type: DataTypes.TEXT,
+      },
+      read: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: false,
+      },
       importHash: {
         type: DataTypes.STRING(255),
         allowNull: true,
@@ -32,10 +40,6 @@ module.exports = function (sequelize, DataTypes) {
   );
 
   messages.associate = (db) => {
-    /// loop through entities and it's fields, and if ref === current e[name] and create relation has many on parent entity
-
-    //end loop
-
     db.messages.belongsTo(db.users, {
       as: 'createdBy',
     });

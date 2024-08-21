@@ -13,11 +13,13 @@ module.exports = function (sequelize, DataTypes) {
         defaultValue: DataTypes.UUIDV4,
         primaryKey: true,
       },
-
       customer_id: {
         type: DataTypes.TEXT,
       },
-
+      name: {
+        type: DataTypes.STRING(255),
+        allowNull: false,
+      },
       importHash: {
         type: DataTypes.STRING(255),
         allowNull: true,
@@ -32,16 +34,16 @@ module.exports = function (sequelize, DataTypes) {
   );
 
   customers.associate = (db) => {
-    /// loop through entities and it's fields, and if ref === current e[name] and create relation has many on parent entity
-
-    //end loop
-
     db.customers.belongsTo(db.users, {
       as: 'createdBy',
     });
 
     db.customers.belongsTo(db.users, {
       as: 'updatedBy',
+    });
+
+    db.customers.hasMany(db.tickets, {
+      as: 'tickets',
     });
   };
 

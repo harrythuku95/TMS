@@ -14,8 +14,8 @@ module.exports = class PermissionsDBApi {
     const permissions = await db.permissions.create(
       {
         id: data.id || undefined,
-
         name: data.name || null,
+        description: data.description || null,
         importHash: data.importHash || null,
         createdById: currentUser.id,
         updatedById: currentUser.id,

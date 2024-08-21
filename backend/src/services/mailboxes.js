@@ -30,7 +30,7 @@ module.exports = class MailboxesService {
       const bufferStream = new stream.PassThrough();
       const results = [];
 
-      await bufferStream.end(Buffer.from(req.file.buffer, 'utf-8')); // convert Buffer to Stream
+      await bufferStream.end(Buffer.from(req.file.buffer, 'utf-8'));
 
       await new Promise((resolve, reject) => {
         bufferStream

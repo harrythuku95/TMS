@@ -17,6 +17,16 @@ module.exports = function (sequelize, DataTypes) {
       folder_id: {
         type: DataTypes.TEXT,
       },
+      
+      name: {
+        type: DataTypes.STRING(255),
+        allowNull: false,
+      },
+
+      description: {
+        type: DataTypes.TEXT,
+        allowNull: true,
+      },
 
       importHash: {
         type: DataTypes.STRING(255),
@@ -32,10 +42,6 @@ module.exports = function (sequelize, DataTypes) {
   );
 
   folders.associate = (db) => {
-    /// loop through entities and it's fields, and if ref === current e[name] and create relation has many on parent entity
-
-    //end loop
-
     db.folders.belongsTo(db.users, {
       as: 'createdBy',
     });

@@ -19,11 +19,15 @@ router.use(checkCrudPermissions('mailboxes'));
  *      Mailboxes:
  *        type: object
  *        properties:
-
  *          mailbox_id:
  *            type: string
  *            default: mailbox_id
-
+ *          name:
+ *            type: string
+ *            default: name
+ *          type:
+ *            type: string
+ *            default: type
  */
 
 /**
@@ -222,7 +226,7 @@ router.get(
     const filetype = req.query.filetype;
     const payload = await MailboxesDBApi.findAll(req.query);
     if (filetype && filetype === 'csv') {
-      const fields = ['id', 'mailbox_id'];
+      const fields = ['id', 'mailbox_id', 'name', 'type'];
       const opts = { fields };
       try {
         const csv = parse(payload.rows, opts);

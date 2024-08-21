@@ -1,13 +1,10 @@
 const express = require('express');
-
 const UsersService = require('../services/users');
 const UsersDBApi = require('../db/api/users');
 const wrapAsync = require('../helpers').wrapAsync;
 
 const router = express.Router();
-
 const { parse } = require('json2csv');
-
 const { checkCrudPermissions } = require('../middlewares/check-permissions');
 
 router.use(checkCrudPermissions('users'));
@@ -19,7 +16,6 @@ router.use(checkCrudPermissions('users'));
  *      Users:
  *        type: object
  *        properties:
-
  *          firstName:
  *            type: string
  *            default: firstName
@@ -32,7 +28,6 @@ router.use(checkCrudPermissions('users'));
  *          email:
  *            type: string
  *            default: email
-
  */
 
 /**
@@ -275,7 +270,6 @@ router.get(
   '/count',
   wrapAsync(async (req, res) => {
     const payload = await UsersDBApi.findAll(req.query, { countOnly: true });
-
     res.status(200).send(payload);
   }),
 );
@@ -361,3 +355,4 @@ router.get(
 router.use('/', require('../helpers').commonErrorHandler);
 
 module.exports = router;
+

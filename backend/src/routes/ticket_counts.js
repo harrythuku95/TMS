@@ -19,11 +19,15 @@ router.use(checkCrudPermissions('ticket_counts'));
  *      Ticket_counts:
  *        type: object
  *        properties:
-
  *          count_id:
  *            type: string
  *            default: count_id
-
+ *          count_type:
+ *            type: string
+ *            default: count_type
+ *          count_value:
+ *            type: integer
+ *            default: 0
  */
 
 /**
@@ -80,6 +84,7 @@ router.post(
     res.status(200).send(payload);
   }),
 );
+
 
 router.post(
   '/bulk-import',

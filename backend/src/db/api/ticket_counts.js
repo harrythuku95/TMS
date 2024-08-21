@@ -14,8 +14,9 @@ module.exports = class Ticket_countsDBApi {
     const ticket_counts = await db.ticket_counts.create(
       {
         id: data.id || undefined,
-
         count_id: data.count_id || null,
+        count_type: data.count_type || null,
+        count_value: data.count_value || 0,
         importHash: data.importHash || null,
         createdById: currentUser.id,
         updatedById: currentUser.id,

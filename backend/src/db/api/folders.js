@@ -16,6 +16,8 @@ module.exports = class FoldersDBApi {
         id: data.id || undefined,
 
         folder_id: data.folder_id || null,
+        name: data.name || null,
+        description: data.description || null,
         importHash: data.importHash || null,
         createdById: currentUser.id,
         updatedById: currentUser.id,
@@ -30,21 +32,19 @@ module.exports = class FoldersDBApi {
     const currentUser = (options && options.currentUser) || { id: null };
     const transaction = (options && options.transaction) || undefined;
 
-    // Prepare data - wrapping individual data transformations in a map() method
     const foldersData = data.map((item, index) => ({
       id: item.id || undefined,
 
       folder_id: item.folder_id || null,
+      name: item.name || null,
+      description: item.description || null,
       importHash: item.importHash || null,
       createdById: currentUser.id,
       updatedById: currentUser.id,
       createdAt: new Date(Date.now() + index * 1000),
     }));
 
-    // Bulk create items
     const folders = await db.folders.bulkCreate(foldersData, { transaction });
-
-    // For each item created, replace relation files
 
     return folders;
   }
@@ -58,6 +58,8 @@ module.exports = class FoldersDBApi {
     await folders.update(
       {
         folder_id: data.folder_id || null,
+        name: data.name || null,
+        description: data.description || null,
         updatedById: currentUser.id,
       },
       { transaction },
@@ -130,6 +132,20 @@ module.exports = class FoldersDBApi {
         };
       }
 
+      if (filter.name) {
+        where = {
+          ...where,
+          [Op.and]: Utils.ilike('folders', 'name', filter.name),
+        };
+      }
+
+      if (filter.description) {
+        where = {
+          ...where,
+          [Op.and]: Utils.ilike('folders', 'description', filter.description),
+        };
+      }
+
       if (
         filter.active === true ||
         filter.active === 'true' ||
@@ -195,11 +211,6 @@ module.exports = class FoldersDBApi {
               : [['createdAt', 'desc']],
           transaction,
         });
-
-    //    rows = await this._fillWithRelationsAndFilesForRows(
-    //      rows,
-    //      options,
-    //    );
 
     return { rows, count };
   }

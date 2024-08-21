@@ -1,3 +1,4 @@
+// src/services/auth.js
 const UsersDBApi = require('../db/api/users');
 const ValidationError = require('./notifications/errors/validation');
 const ForbiddenError = require('./notifications/errors/forbidden');
@@ -13,10 +14,11 @@ class Auth {
   static async signup(email, password, options = {}, host) {
     const user = await UsersDBApi.findBy({ email });
 
-    const hashedPassword = await bcrypt.hash(
-      password,
-      config.bcrypt.saltRounds,
-    );
+    const hashedPassword = await bcrypt.hash(password, config.bcrypt.saltRounds);
+    console.log('Original password:', password);
+    console.log('Hashed password:', hashedPassword);
+
+
 
     if (user) {
       if (user.authenticationUid) {
@@ -27,9 +29,9 @@ class Auth {
         throw new ValidationError('auth.userDisabled');
       }
 
-      await UsersDBApi.updatePassword(user.id, hashedPassword, options);
+      await UsersDBApi.updatePassword(user.id, password, options);
 
-      if (EmailSender.isConfigured) {
+      if (process.env.NODE_ENV !== 'development' && EmailSender.isConfigured) {
         await this.sendEmailAddressVerificationEmail(user.email, host);
       }
 
@@ -40,19 +42,20 @@ class Auth {
         },
       };
 
-      return helpers.jwtSign(data);
+      return { token: helpers.jwtSign(data) };
     }
 
     const newUser = await UsersDBApi.createFromAuth(
       {
-        firstName: email.split('@')[0],
-        password: hashedPassword,
+        firstName: options.firstName || email.split('@')[0],
+        lastName: options.lastName || '',
+        password: password,
         email: email,
       },
       options,
     );
 
-    if (EmailSender.isConfigured) {
+    if (process.env.NODE_ENV !== 'development' && EmailSender.isConfigured) {
       await this.sendEmailAddressVerificationEmail(newUser.email, host);
     }
 
@@ -63,48 +66,66 @@ class Auth {
       },
     };
 
-    return helpers.jwtSign(data);
+    return { token: helpers.jwtSign(data) };
   }
 
   static async signin(email, password, options = {}) {
-    const user = await UsersDBApi.findBy({ email });
+    try {
+      // Find the user by email
+      const user = await UsersDBApi.findBy({ email });
 
-    if (!user) {
-      throw new ValidationError('auth.userNotFound');
+      // Log retrieved user for debugging
+      console.log('Retrieved user:', user);
+
+      // Check if user exists
+      if (!user) {
+        throw new ValidationError('User not found. Please check your email and try again.');
+      }
+
+      // Check if user is disabled
+      if (user.disabled) {
+        throw new ValidationError('Your account has been disabled. Please contact support.');
+      }
+
+      // Check if the user has a password (in case of social login users without a password)
+      if (!user.password) {
+        throw new ValidationError('No password found for this user.');
+      }
+
+      // Compare the provided password with the stored hashed password
+      // Remove double Hash
+      const passwordsMatch = await bcrypt.compare(password, user.password);
+      console.log('Provided password:', password);
+      console.log('Stored password:', user.password);
+      console.log('Passwords match:', passwordsMatch);
+      
+      if (!passwordsMatch) {
+        throw new ValidationError('Invalid password. Please try again.');
+      }
+
+      // Create JWT payload with user details
+      const data = {
+        user: {
+          id: user.id,
+          email: user.email,
+        },
+      };
+
+      // Sign and return the JWT token
+      const token = helpers.jwtSign(data);
+      console.log('Generated JWT token:', token);
+
+      // Return the token along with the user details
+      return { token, user: data.user };
+
+    } catch (error) {
+      // Log and rethrow the error with a validation message
+      console.error('Signin error:', error);
+      throw new ValidationError('Sign-in failed. Please try again.');
     }
-
-    if (user.disabled) {
-      throw new ValidationError('auth.userDisabled');
-    }
-
-    if (!user.password) {
-      throw new ValidationError('auth.wrongPassword');
-    }
-
-    if (!EmailSender.isConfigured) {
-      user.emailVerified = true;
-    }
-
-    if (!user.emailVerified) {
-      throw new ValidationError('auth.userNotVerified');
-    }
-
-    const passwordsMatch = await bcrypt.compare(password, user.password);
-
-    if (!passwordsMatch) {
-      throw new ValidationError('auth.wrongPassword');
-    }
-
-    const data = {
-      user: {
-        id: user.id,
-        email: user.email,
-      },
-    };
-
-    return helpers.jwtSign(data);
   }
 
+  
   static async sendEmailAddressVerificationEmail(email, host) {
     let link;
     try {
@@ -149,9 +170,7 @@ class Auth {
     const user = await UsersDBApi.findByEmailVerificationToken(token, options);
 
     if (!user) {
-      throw new ValidationError(
-        'auth.emailAddressVerificationEmail.invalidToken',
-      );
+      throw new ValidationError('auth.emailAddressVerificationEmail.invalidToken');
     }
 
     return UsersDBApi.markEmailVerified(user.id, options);

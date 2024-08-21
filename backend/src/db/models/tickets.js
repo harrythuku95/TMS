@@ -1,3 +1,4 @@
+// src/db/models/tickets.js
 const config = require('../../config');
 const providers = config.providers;
 const crypto = require('crypto');
@@ -13,11 +14,27 @@ module.exports = function (sequelize, DataTypes) {
         defaultValue: DataTypes.UUIDV4,
         primaryKey: true,
       },
-
       ticket_id: {
         type: DataTypes.TEXT,
+        allowNull: false,
       },
-
+      subject: {
+        type: DataTypes.STRING(255),
+        allowNull: false,
+      },
+      priority: {
+        type: DataTypes.STRING(255),
+        allowNull: false,
+      },
+      description: {
+        type: DataTypes.TEXT,
+        allowNull: false,
+      },
+      status: {
+        type: DataTypes.STRING(255),
+        allowNull: false,
+        defaultValue: 'pending',
+      },
       importHash: {
         type: DataTypes.STRING(255),
         allowNull: true,
@@ -32,16 +49,34 @@ module.exports = function (sequelize, DataTypes) {
   );
 
   tickets.associate = (db) => {
-    /// loop through entities and it's fields, and if ref === current e[name] and create relation has many on parent entity
-
-    //end loop
-
     db.tickets.belongsTo(db.users, {
       as: 'createdBy',
     });
 
     db.tickets.belongsTo(db.users, {
       as: 'updatedBy',
+    });
+
+    db.tickets.belongsTo(db.users, {
+      as: 'assignee',
+    });
+
+    db.tickets.belongsTo(db.customers, {
+      as: 'customer',
+    });
+
+    db.tickets.hasMany(db.file, {
+      as: 'files',
+      foreignKey: 'belongsToId',
+      constraints: false,
+      scope: {
+        belongsTo: 'tickets',
+      },
+    });
+
+    db.tickets.hasOne(db.closeRequest, {
+      as: 'closeRequest',
+      foreignKey: 'ticketId',
     });
   };
 

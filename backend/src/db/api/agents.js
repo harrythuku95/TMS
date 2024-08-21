@@ -14,8 +14,9 @@ module.exports = class AgentsDBApi {
     const agents = await db.agents.create(
       {
         id: data.id || undefined,
-
         agent_id: data.agent_id || null,
+        name: data.name || null,
+        role: data.role || null,
         importHash: data.importHash || null,
         createdById: currentUser.id,
         updatedById: currentUser.id,
@@ -30,21 +31,18 @@ module.exports = class AgentsDBApi {
     const currentUser = (options && options.currentUser) || { id: null };
     const transaction = (options && options.transaction) || undefined;
 
-    // Prepare data - wrapping individual data transformations in a map() method
     const agentsData = data.map((item, index) => ({
       id: item.id || undefined,
-
       agent_id: item.agent_id || null,
+      name: item.name || null,
+      role: item.role || null,
       importHash: item.importHash || null,
       createdById: currentUser.id,
       updatedById: currentUser.id,
       createdAt: new Date(Date.now() + index * 1000),
     }));
 
-    // Bulk create items
     const agents = await db.agents.bulkCreate(agentsData, { transaction });
-
-    // For each item created, replace relation files
 
     return agents;
   }
@@ -58,6 +56,8 @@ module.exports = class AgentsDBApi {
     await agents.update(
       {
         agent_id: data.agent_id || null,
+        name: data.name || null,
+        role: data.role || null,
         updatedById: currentUser.id,
       },
       { transaction },
@@ -130,6 +130,20 @@ module.exports = class AgentsDBApi {
         };
       }
 
+      if (filter.name) {
+        where = {
+          ...where,
+          [Op.and]: Utils.ilike('agents', 'name', filter.name),
+        };
+      }
+
+      if (filter.role) {
+        where = {
+          ...where,
+          [Op.and]: Utils.ilike('agents', 'role', filter.role),
+        };
+      }
+
       if (
         filter.active === true ||
         filter.active === 'true' ||
@@ -196,11 +210,6 @@ module.exports = class AgentsDBApi {
           transaction,
         });
 
-    //    rows = await this._fillWithRelationsAndFilesForRows(
-    //      rows,
-    //      options,
-    //    );
-
     return { rows, count };
   }
 
@@ -211,21 +220,21 @@ module.exports = class AgentsDBApi {
       where = {
         [Op.or]: [
           { ['id']: Utils.uuid(query) },
-          Utils.ilike('agents', 'id', query),
+          Utils.ilike('agents', 'agent_id', query),
         ],
       };
     }
 
     const records = await db.agents.findAll({
-      attributes: ['id', 'id'],
+      attributes: ['id', 'name'],
       where,
       limit: limit ? Number(limit) : undefined,
-      orderBy: [['id', 'ASC']],
+      orderBy: [['name', 'ASC']],
     });
 
     return records.map((record) => ({
       id: record.id,
-      label: record.id,
+      label: record.name,
     }));
   }
 };

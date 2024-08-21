@@ -22,6 +22,20 @@ module.exports = class UsersService {
         if (user) {
           throw new ValidationError('iam.errors.userAlreadyExists');
         } else {
+          // Check if an admin user already exists
+          const adminRole = await db.roles.findOne({ where: { name: 'admin' } });
+          const existingAdmin = await db.users.findOne({ where: { app_roleId: adminRole.id } });
+
+          // Assign role based on the existence of an admin user
+          let role;
+          if (existingAdmin) {
+            role = await db.roles.findOne({ where: { name: 'agent' } });
+          } else {
+            role = adminRole;
+          }
+
+          data.app_role = role.id;
+
           await UsersDBApi.create(
             { data },
             {

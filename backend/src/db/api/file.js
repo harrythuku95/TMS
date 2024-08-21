@@ -7,25 +7,25 @@ module.exports = class FileDBApi {
     assert(relation.belongsTo, 'belongsTo is required');
     assert(relation.belongsToColumn, 'belongsToColumn is required');
     assert(relation.belongsToId, 'belongsToId is required');
-
+  
     let files = [];
-
+  
     if (Array.isArray(rawFiles)) {
       files = rawFiles;
     } else {
       files = rawFiles ? [rawFiles] : [];
     }
-
+  
     await this._removeLegacyFiles(relation, files, options);
     await this._addFiles(relation, files, options);
   }
-
+  
   static async _addFiles(relation, files, options) {
     const transaction = (options && options.transaction) || undefined;
     const currentUser = (options && options.currentUser) || { id: null };
-
+  
     const inexistentFiles = files.filter((file) => !!file.new);
-
+  
     for (const file of inexistentFiles) {
       await db.file.create(
         {
@@ -45,10 +45,10 @@ module.exports = class FileDBApi {
       );
     }
   }
-
+  
   static async _removeLegacyFiles(relation, files, options) {
     const transaction = (options && options.transaction) || undefined;
-
+  
     const filesToDelete = await db.file.findAll({
       where: {
         belongsTo: relation.belongsTo,
@@ -62,7 +62,7 @@ module.exports = class FileDBApi {
       },
       transaction,
     });
-
+  
     for (let file of filesToDelete) {
       await services.deleteGCloud(file.privateUrl);
       await file.destroy({

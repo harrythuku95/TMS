@@ -19,11 +19,15 @@ router.use(checkCrudPermissions('folders'));
  *      Folders:
  *        type: object
  *        properties:
-
  *          folder_id:
  *            type: string
  *            default: folder_id
-
+ *          name:
+ *            type: string
+ *            default: name
+ *          description:
+ *            type: string
+ *            default: description
  */
 
 /**
@@ -222,7 +226,7 @@ router.get(
     const filetype = req.query.filetype;
     const payload = await FoldersDBApi.findAll(req.query);
     if (filetype && filetype === 'csv') {
-      const fields = ['id', 'folder_id'];
+      const fields = ['id', 'folder_id', 'name', 'description'];
       const opts = { fields };
       try {
         const csv = parse(payload.rows, opts);

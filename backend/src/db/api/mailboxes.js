@@ -14,8 +14,9 @@ module.exports = class MailboxesDBApi {
     const mailboxes = await db.mailboxes.create(
       {
         id: data.id || undefined,
-
         mailbox_id: data.mailbox_id || null,
+        name: data.name || null,
+        type: data.type || null,
         importHash: data.importHash || null,
         createdById: currentUser.id,
         updatedById: currentUser.id,
@@ -30,23 +31,20 @@ module.exports = class MailboxesDBApi {
     const currentUser = (options && options.currentUser) || { id: null };
     const transaction = (options && options.transaction) || undefined;
 
-    // Prepare data - wrapping individual data transformations in a map() method
     const mailboxesData = data.map((item, index) => ({
       id: item.id || undefined,
-
       mailbox_id: item.mailbox_id || null,
+      name: item.name || null,
+      type: item.type || null,
       importHash: item.importHash || null,
       createdById: currentUser.id,
       updatedById: currentUser.id,
       createdAt: new Date(Date.now() + index * 1000),
     }));
 
-    // Bulk create items
     const mailboxes = await db.mailboxes.bulkCreate(mailboxesData, {
       transaction,
     });
-
-    // For each item created, replace relation files
 
     return mailboxes;
   }
@@ -60,6 +58,8 @@ module.exports = class MailboxesDBApi {
     await mailboxes.update(
       {
         mailbox_id: data.mailbox_id || null,
+        name: data.name || null,
+        type: data.type || null,
         updatedById: currentUser.id,
       },
       { transaction },
@@ -132,6 +132,20 @@ module.exports = class MailboxesDBApi {
         };
       }
 
+      if (filter.name) {
+        where = {
+          ...where,
+          [Op.and]: Utils.ilike('mailboxes', 'name', filter.name),
+        };
+      }
+
+      if (filter.type) {
+        where = {
+          ...where,
+          [Op.and]: Utils.ilike('mailboxes', 'type', filter.type),
+        };
+      }
+
       if (
         filter.active === true ||
         filter.active === 'true' ||
@@ -198,11 +212,6 @@ module.exports = class MailboxesDBApi {
           transaction,
         });
 
-    //    rows = await this._fillWithRelationsAndFilesForRows(
-    //      rows,
-    //      options,
-    //    );
-
     return { rows, count };
   }
 
@@ -219,15 +228,15 @@ module.exports = class MailboxesDBApi {
     }
 
     const records = await db.mailboxes.findAll({
-      attributes: ['id', 'id'],
+      attributes: ['id', 'name'],
       where,
       limit: limit ? Number(limit) : undefined,
-      orderBy: [['id', 'ASC']],
+      orderBy: [['name', 'ASC']],
     });
 
     return records.map((record) => ({
       id: record.id,
-      label: record.id,
+      label: record.name,
     }));
   }
 };

@@ -13,15 +13,12 @@ module.exports = function (sequelize, DataTypes) {
         defaultValue: DataTypes.UUIDV4,
         primaryKey: true,
       },
-
       name: {
         type: DataTypes.TEXT,
       },
-
       role_customization: {
         type: DataTypes.TEXT,
       },
-
       importHash: {
         type: DataTypes.STRING(255),
         allowNull: true,
@@ -45,8 +42,6 @@ module.exports = function (sequelize, DataTypes) {
       through: 'rolesPermissionsPermissions',
     });
 
-    /// loop through entities and it's fields, and if ref === current e[name] and create relation has many on parent entity
-
     db.roles.hasMany(db.users, {
       as: 'users_app_role',
       foreignKey: {
@@ -54,8 +49,6 @@ module.exports = function (sequelize, DataTypes) {
       },
       constraints: false,
     });
-
-    //end loop
 
     db.roles.belongsTo(db.users, {
       as: 'createdBy',

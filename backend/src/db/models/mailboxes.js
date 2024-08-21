@@ -13,11 +13,17 @@ module.exports = function (sequelize, DataTypes) {
         defaultValue: DataTypes.UUIDV4,
         primaryKey: true,
       },
-
       mailbox_id: {
         type: DataTypes.TEXT,
       },
-
+      name: {
+        type: DataTypes.STRING,
+        allowNull: false,
+      },
+      type: {
+        type: DataTypes.STRING,
+        allowNull: false,
+      },
       importHash: {
         type: DataTypes.STRING(255),
         allowNull: true,
@@ -32,10 +38,6 @@ module.exports = function (sequelize, DataTypes) {
   );
 
   mailboxes.associate = (db) => {
-    /// loop through entities and it's fields, and if ref === current e[name] and create relation has many on parent entity
-
-    //end loop
-
     db.mailboxes.belongsTo(db.users, {
       as: 'createdBy',
     });

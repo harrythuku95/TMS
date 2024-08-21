@@ -26,24 +26,29 @@ module.exports = function (sequelize, DataTypes) {
         type: DataTypes.TEXT,
       },
 
-      email: {
-        type: DataTypes.TEXT,
-      },
-
       disabled: {
         type: DataTypes.BOOLEAN,
-
         allowNull: false,
         defaultValue: false,
       },
-
-      password: {
-        type: DataTypes.TEXT,
+      email: {
+        type: DataTypes.STRING, // Change from TEXT to STRING for proper handling
+        allowNull: false, // Ensure email is required
+        unique: true, // Emails should be unique
+        validate: {
+          isEmail: true, // Validate format
+        },
       },
+      password: {
+        type: DataTypes.STRING, // Change from TEXT to STRING
+        allowNull: false,
+        validate: {
+          len: [6, 100], // Ensure password length is reasonable
+        },
+      },      
 
       emailVerified: {
         type: DataTypes.BOOLEAN,
-
         allowNull: false,
         defaultValue: false,
       },
@@ -91,10 +96,6 @@ module.exports = function (sequelize, DataTypes) {
       through: 'usersCustom_permissionsPermissions',
     });
 
-    /// loop through entities and it's fields, and if ref === current e[name] and create relation has many on parent entity
-
-    //end loop
-
     db.users.belongsTo(db.roles, {
       as: 'app_role',
       foreignKey: {
@@ -119,6 +120,12 @@ module.exports = function (sequelize, DataTypes) {
 
     db.users.belongsTo(db.users, {
       as: 'updatedBy',
+    });
+    users.belongsToMany(db.closeRequest, {
+      as: 'approvedCloseRequests',
+      through: 'CloseRequestApprovers',
+      foreignKey: 'userId',
+      otherKey: 'closeRequestId',
     });
   };
 

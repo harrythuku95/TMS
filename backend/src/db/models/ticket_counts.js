@@ -13,11 +13,16 @@ module.exports = function (sequelize, DataTypes) {
         defaultValue: DataTypes.UUIDV4,
         primaryKey: true,
       },
-
       count_id: {
         type: DataTypes.TEXT,
       },
-
+      count_type: {
+        type: DataTypes.STRING,
+      },
+      count_value: {
+        type: DataTypes.INTEGER,
+        defaultValue: 0,
+      },
       importHash: {
         type: DataTypes.STRING(255),
         allowNull: true,
@@ -32,9 +37,10 @@ module.exports = function (sequelize, DataTypes) {
   );
 
   ticket_counts.associate = (db) => {
-    /// loop through entities and it's fields, and if ref === current e[name] and create relation has many on parent entity
-
-    //end loop
+    db.ticket_counts.belongsTo(db.tickets, {
+      as: 'ticket',
+      foreignKey: 'ticketId',
+    });
 
     db.ticket_counts.belongsTo(db.users, {
       as: 'createdBy',

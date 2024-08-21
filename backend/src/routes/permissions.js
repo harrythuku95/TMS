@@ -19,11 +19,12 @@ router.use(checkCrudPermissions('permissions'));
  *      Permissions:
  *        type: object
  *        properties:
-
  *          name:
  *            type: string
  *            default: name
-
+ *          description:
+ *            type: string
+ *            default: description
  */
 
 /**
@@ -80,6 +81,7 @@ router.post(
     res.status(200).send(payload);
   }),
 );
+
 
 router.post(
   '/bulk-import',

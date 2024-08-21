@@ -19,11 +19,12 @@ router.use(checkCrudPermissions('attachments'));
  *      Attachments:
  *        type: object
  *        properties:
-
  *          attachment_id:
  *            type: string
  *            default: attachment_id
-
+ *          file_type:
+ *            type: string
+ *            default: file_type
  */
 
 /**
@@ -226,7 +227,7 @@ router.get(
     const filetype = req.query.filetype;
     const payload = await AttachmentsDBApi.findAll(req.query);
     if (filetype && filetype === 'csv') {
-      const fields = ['id', 'attachment_id'];
+      const fields = ['id', 'attachment_id', 'file_type'];
       const opts = { fields };
       try {
         const csv = parse(payload.rows, opts);

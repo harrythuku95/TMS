@@ -18,6 +18,10 @@ module.exports = function (sequelize, DataTypes) {
         type: DataTypes.TEXT,
       },
 
+      file_type: {
+        type: DataTypes.STRING(255),
+      },
+
       importHash: {
         type: DataTypes.STRING(255),
         allowNull: true,
@@ -32,10 +36,6 @@ module.exports = function (sequelize, DataTypes) {
   );
 
   attachments.associate = (db) => {
-    /// loop through entities and it's fields, and if ref === current e[name] and create relation has many on parent entity
-
-    //end loop
-
     db.attachments.belongsTo(db.users, {
       as: 'createdBy',
     });
