@@ -22,6 +22,23 @@ module.exports = class CustomersService {
     }
   }
 
+  static async getCount() {
+    try {
+      return await CustomersDBApi.getCount();
+    } catch (error) {
+      console.error('Error in CustomersService.getCount:', error);
+      throw error;
+    }
+  }
+
+    static async findAll(filter, options) {
+      return CustomersDBApi.findAll(filter, options);
+    }
+    
+    static async count(filter, options) {
+      return CustomersDBApi.findAll(filter, { ...options, countOnly: true });
+    }
+
   static async bulkImport(req, res, sendInvitationEmails = true, host) {
     const transaction = await db.sequelize.transaction();
 

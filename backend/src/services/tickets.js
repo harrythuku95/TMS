@@ -1,6 +1,7 @@
 const db = require('../db/models');
 const FileDBApi = require('../db/api/file');
 const Utils = require('../db/utils');
+const TicketsDBApi = require('../db/api/tickets');
 const Sequelize = db.Sequelize;
 const Op = Sequelize.Op;
 
@@ -83,6 +84,15 @@ module.exports = class TicketsService {
     } catch (error) {
       console.error('Error creating ticket:', error);
       await transaction.rollback();
+      throw error;
+    }
+  }
+
+  static async getStats() {
+    try {
+      return await TicketsDBApi.getStats();
+    } catch (error) {
+      console.error('Error in TicketsService.getStats:', error);
       throw error;
     }
   }

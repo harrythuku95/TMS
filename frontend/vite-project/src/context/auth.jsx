@@ -19,43 +19,35 @@ export const AuthProvider = ({ children }) => {
       try {
         const token = localStorage.getItem('authToken');
         if (token) {
-          console.log('Using token:', token);
-          const response = await axios.get('http://localhost:8080/api/auth/user', {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          });
-          console.log('Fetch user response:', response);
-          setUser(response.data); // Store the user data in state
+          axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+          const response = await axios.get('http://localhost:8080/api/auth/user');
+          setUser(response.data);
         } else {
-          console.warn('No token found in localStorage');
           setUser(null);
         }
       } catch (error) {
         console.error('Error fetching user:', error);
-        setUser(null); // Ensure user is null on error
+        setUser(null);
       } finally {
         setLoading(false);
       }
-    };    
+    };
   
     fetchUser();
   }, []);
-  
 
   const login = async (email, password) => {
     try {
       const response = await axios.post('http://localhost:8080/api/auth/signin/local', { email, password });
       localStorage.setItem('authToken', response.data.token);
-      setUser(response.data.user); // Store the user details in state
+      axios.defaults.headers.common['Authorization'] = `Bearer ${response.data.token}`;
+      setUser(response.data.user);
       navigate('/');
     } catch (error) {
       console.error('Error logging in:', error);
       throw error;
     }
   };
-  
-
   
   const signup = async (email, password, firstName, lastName) => {
     try {
@@ -69,16 +61,22 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const logout = async () => {
-    try {
-      await axios.post('http://localhost:8080/api/auth/logout');
-      localStorage.removeItem('authToken');
-      setUser(null);
-      navigate('/login');
-    } catch (error) {
-      console.error('Error logging out:', error);
-    }
-  };
+
+const logout = async () => {
+  try {
+    await axios.post('http://localhost:8080/api/auth/logout');
+    localStorage.removeItem('authToken');
+    delete axios.defaults.headers.common['Authorization'];
+    setUser(null);
+    navigate('/login');
+  } catch (error) {
+    console.error('Error logging out:', error);
+    localStorage.removeItem('authToken');
+    delete axios.defaults.headers.common['Authorization'];
+    setUser(null);
+    navigate('/login');
+  }
+};
 
   const value = {
     user,

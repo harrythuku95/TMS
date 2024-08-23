@@ -129,6 +129,16 @@ router.get(
   }),
 );
 
+router.get('/stats', wrapAsync(async (req, res) => {
+  try {
+    const stats = await TicketsService.getStats();
+    res.json(stats);
+  } catch (error) {
+    console.error('Error fetching ticket stats:', error);
+    res.status(500).json({ error: 'An error occurred while fetching ticket stats' });
+  }
+}));
+
 /**
  * @swagger
  * /api/tickets/{id}:

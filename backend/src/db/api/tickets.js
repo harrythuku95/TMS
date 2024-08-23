@@ -40,6 +40,23 @@ module.exports = class TicketsDBApi {
     return tickets;
   }
 
+  static async getStats() {
+    try {
+      const openCount = await db.tickets.count({ where: { status: 'open' } });
+      const closedCount = await db.tickets.count({ where: { status: 'closed' } });
+      const pendingCount = await db.tickets.count({ where: { status: 'pending' } });
+
+      return {
+        open: openCount,
+        closed: closedCount,
+        pending: pendingCount
+      };
+    } catch (error) {
+      console.error('Error in TicketsDBApi.getStats:', error);
+      throw error;
+    }
+  }
+
   static async bulkImport(data, options) {
     const currentUser = (options && options.currentUser) || { id: null };
     const transaction = (options && options.transaction) || undefined;

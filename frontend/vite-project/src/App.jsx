@@ -1,6 +1,7 @@
 import React from 'react';
 import { Route, Routes } from 'react-router-dom';
 import { AuthProvider } from './context/auth';
+import { BrowserRouter as Router } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import Sidebar from './components/Sidebar';
@@ -20,6 +21,7 @@ import withAgentProtection from './hoc/withAgentProtection';
 
 const App = () => {
   return (
+  <Router>
   <AuthProvider>
     <>
       <Navbar />
@@ -44,6 +46,7 @@ const App = () => {
       <Footer />
     </>
     </AuthProvider>
+    </Router>
   );
 };
 

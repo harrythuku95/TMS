@@ -87,21 +87,15 @@ module.exports = function (sequelize, DataTypes) {
   );
 
   users.associate = (db) => {
-    db.users.belongsToMany(db.permissions, {
-      as: 'custom_permissions',
-      foreignKey: {
-        name: 'users_custom_permissionsId',
-      },
-      constraints: false,
-      through: 'usersCustom_permissionsPermissions',
-    });
-
     db.users.belongsTo(db.roles, {
       as: 'app_role',
-      foreignKey: {
-        name: 'app_roleId',
-      },
-      constraints: false,
+      foreignKey: 'app_roleId',
+    });
+  
+    db.users.belongsToMany(db.permissions, {
+      as: 'custom_permissions',
+      through: 'usersCustom_permissionsPermissions',
+      foreignKey: 'users_custom_permissionsId',
     });
 
     db.users.hasMany(db.file, {

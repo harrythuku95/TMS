@@ -12,14 +12,12 @@ const Login = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setError('');
     try {
-      await login(email, password); // Ensure `password` is the raw value from the input
+      await login(email, password);
+      // If login is successful, it will automatically navigate in the auth context
     } catch (err) {
-      if (err.response && err.response.data && err.response.data.error) {
-        setError(err.response.data.error); // Display specific error from backend
-      } else {
-        setError('An unexpected error occurred. Please try again.');
-      }
+      setError('Failed to log in. Please check your credentials.');
     }
   };
   

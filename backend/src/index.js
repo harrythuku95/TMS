@@ -1,7 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const app = express();
-const passport = require('passport');
+const passport = require('./auth/auth');
 const path = require('path');
 const fs = require('fs');
 const bodyParser = require('body-parser');
@@ -71,6 +71,8 @@ const options = {
   apis: ['./src/routes/*.js'],
 };
 
+app.use(passport.initialize());
+
 const specs = swaggerJsDoc(options);
 app.use(
   '/api-docs',
@@ -123,6 +125,8 @@ app.use('/api/tickets', passport.authenticate('jwt', { session: false }), ticket
 app.use('/api/webhooks', passport.authenticate('jwt', { session: false }), webhooksRoutes);
 app.use('/api/openai', passport.authenticate('jwt', { session: false }), openaiRoutes);
 app.use('/api/search', passport.authenticate('jwt', { session: false }), searchRoutes);
+app.use('/api/tickets', ticketsRoutes);
+app.use('/api/customers', customersRoutes);
 
 // Serve static files
 const publicDir = path.join(__dirname, '../public');
@@ -138,7 +142,7 @@ if (fs.existsSync(publicDir)) {
 // Global error handler
 app.use((err, req, res, next) => {
   console.error(err.stack);
-  res.status(500).send('Something broke!');
+  res.status(500).json({ error: 'An unexpected error occurred', details: err.message });
 });
 
 const PORT = process.env.PORT || 8080;

@@ -4,6 +4,7 @@ const passport = require('passport');
 const AuthService = require('../services/auth');
 const ForbiddenError = require('../services/notifications/errors/forbidden');
 const wrapAsync = require('../helpers').wrapAsync;
+const UsersDBApi = require('../db/api/users');
 
 const router = express.Router();
 
@@ -132,16 +133,15 @@ router.post(
 
 router.get(
   '/user',
-  passport.authenticate('jwt', { session: false }), 
+  passport.authenticate('jwt', { session: false }),
   wrapAsync(async (req, res) => {
-    const user = req.currentUser; 
+    const user = await UsersDBApi.findBy({ id: req.user.id });
     if (!user) {
-      return res.status(404).json({ error: 'User not found.' });
+      return res.status(404).json({ error: 'User not found' });
     }
-    res.status(200).json(user); 
+    res.status(200).json(user);
   })
 );
-
 
 router.use('/', require('../helpers').commonErrorHandler);
 

@@ -26,6 +26,15 @@ module.exports = class CustomersDBApi {
     return customers;
   }
 
+  static async getCount() {
+    try {
+      return await db.customers.count();
+    } catch (error) {
+      console.error('Error in CustomersDBApi.getCount:', error);
+      throw error;
+    }
+  }
+
   static async bulkImport(data, options) {
     const currentUser = (options && options.currentUser) || { id: null };
     const transaction = (options && options.transaction) || undefined;
@@ -170,22 +179,9 @@ module.exports = class CustomersDBApi {
     }
 
     let { rows, count } = options?.countOnly
-      ? {
-          rows: [],
-          count: await db.customers.count({
-            where,
-            include,
-            distinct: true,
-            limit: limit ? Number(limit) : undefined,
-            offset: offset ? Number(offset) : undefined,
-            order:
-              filter.field && filter.sort
-                ? [[filter.field, filter.sort]]
-                : [['createdAt', 'desc']],
-            transaction,
-          }),
-        }
-      : await db.customers.findAndCountAll({
+    ? {
+        rows: [],
+        count: await db.customers.count({
           where,
           include,
           distinct: true,
@@ -196,14 +192,22 @@ module.exports = class CustomersDBApi {
               ? [[filter.field, filter.sort]]
               : [['createdAt', 'desc']],
           transaction,
-        });
+        }),
+      }
+    : await db.customers.findAndCountAll({
+        where,
+        include,
+        distinct: true,
+        limit: limit ? Number(limit) : undefined,
+        offset: offset ? Number(offset) : undefined,
+        order:
+          filter.field && filter.sort
+            ? [[filter.field, filter.sort]]
+            : [['createdAt', 'desc']],
+        transaction,
+      });
 
-    //    rows = await this._fillWithRelationsAndFilesForRows(
-    //      rows,
-    //      options,
-    //    );
-
-    return { rows, count };
+  return { rows, count };
   }
 
   static async findAllAutocomplete(query, limit) {

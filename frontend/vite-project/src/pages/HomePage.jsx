@@ -1,18 +1,18 @@
 import React, { useEffect, useState } from 'react';
-import { Container, Typography, Box, Grid, Paper } from '@mui/material';
+import { Alert, Container, Typography, Box, Grid, Paper, Button } from '@mui/material';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import withAgentProtection from '../hoc/withAgentProtection';
+import { useAuth } from '../context/auth';
 
 const HomePage = () => {
-  const [ticketStats, setTicketStats] = useState({
-    open: 0,
-    closed: 0,
-    pending: 0,
-  });
+
+  const [ticketStats, setTicketStats] = useState({ open: 0, closed: 0, pending: 0 });
   const [customerCount, setCustomerCount] = useState(0);
-  const authToken = localStorage.getItem('authToken');
+  const [error, setError] = useState(null);
   const navigate = useNavigate();
+  const { user } = useAuth(); // Use the auth context to get the user
+
 
   useEffect(() => {
     fetchStats();
@@ -20,23 +20,27 @@ const HomePage = () => {
 
   const fetchStats = async () => {
     try {
+      const authToken = localStorage.getItem('authToken');
       const [ticketResponse, customerResponse] = await Promise.all([
         axios.get('http://localhost:8080/api/tickets/stats', {
-          headers: {
-            Authorization: `Bearer ${authToken}`,
-          },
+          headers: { Authorization: `Bearer ${authToken}` }
         }),
         axios.get('http://localhost:8080/api/customers/count', {
-          headers: {
-            Authorization: `Bearer ${authToken}`,
-          },
-        }),
+          headers: { Authorization: `Bearer ${authToken}` }
+        })
       ]);
 
       setTicketStats(ticketResponse.data);
       setCustomerCount(customerResponse.data.count);
+      setError(null); // Clear any previous errors
     } catch (error) {
       console.error('Error fetching stats:', error);
+      if (error.response && error.response.status === 401) {
+        // Unauthorized, redirect to login
+        navigate('/login');
+      } else {
+        setError('Failed to load dashboard data. Please try again later.');
+      }
     }
   };
 
@@ -50,6 +54,11 @@ const HomePage = () => {
 
   return (
     <Container maxWidth="lg">
+      {error && (
+        <Alert severity="error" sx={{ mt: 2, mb: 2 }}>
+          {error}
+        </Alert>
+      )}
       <Typography variant="h3" gutterBottom>
         Dashboard
       </Typography>

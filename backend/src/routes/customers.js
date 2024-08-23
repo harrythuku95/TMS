@@ -81,6 +81,16 @@ router.post(
   }),
 );
 
+router.get(
+  '/count',
+  wrapAsync(async (req, res) => {
+    const payload = await CustomersService.count(req.query, {
+      currentUser: req.currentUser,
+    });
+    res.status(200).send(payload);
+  }),
+);
+
 router.post(
   '/bulk-import',
   wrapAsync(async (req, res) => {

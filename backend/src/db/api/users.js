@@ -187,30 +187,39 @@ module.exports = class UsersDBApi {
       throw error;
     }
   }
-
+  
   static async findBy(where, options) {
     const transaction = (options && options.transaction) || undefined;
-
+    
     try {
-      const users = await db.users.findOne({ where }, { transaction });
+      const user = await db.users.findOne({
+        where,
+        include: [
+          {
+            model: db.roles,
+            as: 'app_role',
+          },
+        ],
+        transaction,
+      });
 
-      if (!users) {
+      if (!user) {
         return null;
       }
 
-      const output = users.get({ plain: true });
+      const output = user.get({ plain: true });
 
-      output.avatar = await users.getAvatar({ transaction });
-      output.app_role = await users.getApp_role({ transaction });
+      output.avatar = await user.getAvatar({ transaction });
 
       if (output.app_role) {
         output.app_role_permissions = await output.app_role.getPermissions({ transaction });
       }
 
-      output.custom_permissions = await users.getCustom_permissions({ transaction });
+      output.custom_permissions = await user.getCustom_permissions({ transaction });
 
       return output;
     } catch (error) {
+      console.error('Error in UsersDBApi.findBy:', error);
       throw error;
     }
   }
