@@ -12,7 +12,7 @@ const rootElement = document.getElementById('root');
 axios.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('authToken');
-    if (token && !config.headers['Authorization']) {
+    if (token) {
       config.headers['Authorization'] = `Bearer ${token}`;
     }
     return config;
@@ -20,7 +20,18 @@ axios.interceptors.request.use(
   (error) => {
     return Promise.reject(error);
   }
-)
+);
+
+axios.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response && error.response.status === 401) {
+      localStorage.removeItem('authToken');
+      window.location = '/login';
+    }
+    return Promise.reject(error);
+  }
+);
 
 ReactDOM.createRoot(rootElement).render(
   <React.StrictMode>

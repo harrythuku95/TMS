@@ -1,4 +1,3 @@
-// src/hoc/withAdminProtection.jsx
 import React, { useEffect } from 'react';
 import { useAuth } from '../context/auth';
 import { useNavigate } from 'react-router-dom';
@@ -9,12 +8,14 @@ const withAdminProtection = (Component) => {
     const navigate = useNavigate();
 
     useEffect(() => {
-      if (!user || user.app_role.name !== 'admin') {
+      if (!user) {
         navigate('/login');
+      } else if (user.role !== 'Admin') {
+        navigate('/');
       }
     }, [user, navigate]);
 
-    return user && user.app_role.name === 'admin' ? <Component {...props} /> : null;
+    return user && user.role === 'Admin' ? <Component {...props} /> : null;
   };
 };
 

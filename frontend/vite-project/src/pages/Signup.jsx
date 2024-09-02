@@ -15,6 +15,7 @@ const Signup = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setError('');
   
     if (password !== confirmPassword) {
       setError('Passwords do not match');
@@ -23,8 +24,9 @@ const Signup = () => {
   
     try {
       await signup(email, password, firstName, lastName);
+      navigate('/');
     } catch (err) {
-      setError('Signup failed. Please try again.');
+      setError(err.response?.data?.error || 'Signup failed. Please try again.');
     }
   };
   

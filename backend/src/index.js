@@ -1,3 +1,5 @@
+require('dotenv').config();
+
 const express = require('express');
 const cors = require('cors');
 const app = express();
@@ -13,17 +15,11 @@ const swaggerJsDoc = require('swagger-jsdoc');
 const rateLimit = require('express-rate-limit');
 const morgan = require('morgan');
 
-// Load environment variables
-require('dotenv').config();
-
 const authRoutes = require('./routes/auth');
 const fileRoutes = require('./routes/file');
 const searchRoutes = require('./routes/search');
-const openaiRoutes = require('./routes/openai');
 const usersRoutes = require('./routes/users');
-const rolesRoutes = require('./routes/roles');
 const permissionsRoutes = require('./routes/permissions');
-const agentsRoutes = require('./routes/agents');
 const attachmentsRoutes = require('./routes/attachments');
 const customersRoutes = require('./routes/customers');
 const foldersRoutes = require('./routes/folders');
@@ -111,9 +107,7 @@ require('./auth/auth');
 app.use('/api/auth', authRoutes);
 app.use('/api/file', fileRoutes);
 app.use('/api/users', passport.authenticate('jwt', { session: false }), usersRoutes);
-app.use('/api/roles', passport.authenticate('jwt', { session: false }), rolesRoutes);
 app.use('/api/permissions', passport.authenticate('jwt', { session: false }), permissionsRoutes);
-app.use('/api/agents', passport.authenticate('jwt', { session: false }), agentsRoutes);
 app.use('/api/attachments', passport.authenticate('jwt', { session: false }), attachmentsRoutes);
 app.use('/api/customers', passport.authenticate('jwt', { session: false }), customersRoutes);
 app.use('/api/folders', passport.authenticate('jwt', { session: false }), foldersRoutes);
@@ -123,10 +117,7 @@ app.use('/api/ticket_counts', passport.authenticate('jwt', { session: false }), 
 app.use('/api/ticket_labels', passport.authenticate('jwt', { session: false }), ticket_labelsRoutes);
 app.use('/api/tickets', passport.authenticate('jwt', { session: false }), ticketsRoutes);
 app.use('/api/webhooks', passport.authenticate('jwt', { session: false }), webhooksRoutes);
-app.use('/api/openai', passport.authenticate('jwt', { session: false }), openaiRoutes);
 app.use('/api/search', passport.authenticate('jwt', { session: false }), searchRoutes);
-app.use('/api/tickets', ticketsRoutes);
-app.use('/api/customers', customersRoutes);
 
 // Serve static files
 const publicDir = path.join(__dirname, '../public');
@@ -147,10 +138,19 @@ app.use((err, req, res, next) => {
 
 const PORT = process.env.PORT || 8080;
 
+console.log('Database config:', {
+  username: config.development.username,
+  password: config.development.password ? '[REDACTED]' : 'null',
+  database: config.development.database,
+  host: config.development.host,
+});
+
 db.sequelize.sync().then(function () {
   app.listen(PORT, () => {
     console.log(`Listening on port ${PORT}`);
   });
+}).catch(error => {
+  console.error('Unable to connect to the database:', error);
 });
 
 module.exports = app;

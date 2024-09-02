@@ -7,23 +7,17 @@ const CreateTicketPage = () => {
   const [ticketName, setTicketName] = useState('');
   const [subject, setSubject] = useState('');
   const [priority, setPriority] = useState('');
-  const [assignee, setAssignee] = useState('');
   const [description, setDescription] = useState('');
   const [customer, setCustomer] = useState('');
   const [status, setStatus] = useState('');
-  const [labels, setLabels] = useState('');
   const [files, setFiles] = useState([]);
   const [customerOptions, setCustomerOptions] = useState([]);
-  const [assigneeOptions, setAssigneeOptions] = useState([]); // New state for assignees
-  const [labelOptions, setLabelOptions] = useState([]); // New state for labels
   
   const navigate = useNavigate();
   const authToken = localStorage.getItem('authToken');
 
   useEffect(() => {
     fetchCustomers();
-    fetchAssignees(); // Fetch available assignees
-    fetchLabels(); // Fetch available labels
   }, []);
 
   const fetchCustomers = async () => {
@@ -33,35 +27,9 @@ const CreateTicketPage = () => {
           Authorization: `Bearer ${authToken}`,
         },
       });
-      setCustomerOptions(response.data.rows);
+      setCustomerOptions(response.data.rows || []);
     } catch (error) {
       console.error('Error fetching customers:', error);
-    }
-  };
-
-  const fetchAssignees = async () => {
-    try {
-      const response = await axios.get('http://localhost:8080/api/users', {
-        headers: {
-          Authorization: `Bearer ${authToken}`,
-        },
-      });
-      setAssigneeOptions(response.data.rows);
-    } catch (error) {
-      console.error('Error fetching assignees:', error);
-    }
-  };
-
-  const fetchLabels = async () => {
-    try {
-      const response = await axios.get('http://localhost:8080/api/ticket_labels', {
-        headers: {
-          Authorization: `Bearer ${authToken}`,
-        },
-      });
-      setLabelOptions(response.data.rows);
-    } catch (error) {
-      console.error('Error fetching labels:', error);
     }
   };
 
@@ -78,14 +46,9 @@ const CreateTicketPage = () => {
     formData.append('ticketName', ticketName);
     formData.append('subject', subject);
     formData.append('priority', priority);
-    formData.append('assignee', assignee);
     formData.append('description', description);
     formData.append('customer', customer);
     formData.append('status', status);
-
-    if (labels) {
-      formData.append('labels', labels);
-    }
 
     files.forEach(file => {
       formData.append('files', file);
@@ -147,19 +110,6 @@ const CreateTicketPage = () => {
             <MenuItem value="Low">Low</MenuItem>
           </Select>
         </FormControl>
-        <FormControl required>
-          <InputLabel>Assignee</InputLabel>
-          <Select
-            value={assignee}
-            onChange={(e) => setAssignee(e.target.value)}
-          >
-            {assigneeOptions.map(option => (
-              <MenuItem key={option.id} value={option.id}>
-                {option.firstName} {option.lastName}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
         <TextField
           label="Description"
           value={description}
@@ -192,21 +142,6 @@ const CreateTicketPage = () => {
             <MenuItem value="Resolved">Resolved</MenuItem>
           </Select>
         </FormControl>
-        <Autocomplete
-          multiple
-          options={labelOptions}
-          getOptionLabel={(option) => option.label_id || ''}
-          renderInput={(params) => (
-            <TextField
-              {...params}
-              label="Labels (optional)"
-              helperText="Select labels for the ticket"
-            />
-          )}
-          onChange={(event, newValue) => {
-            setLabels(newValue.map(label => label.id).join(','));
-          }}
-        />
         <input
           type="file"
           multiple

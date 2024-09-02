@@ -15,7 +15,6 @@ const Login = () => {
     setError('');
     try {
       await login(email, password);
-      // If login is successful, it will automatically navigate in the auth context
     } catch (err) {
       setError('Failed to log in. Please check your credentials.');
     }

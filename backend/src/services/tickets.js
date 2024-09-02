@@ -9,6 +9,29 @@ module.exports = class TicketsService {
   static async create(data, currentUser) {
     const transaction = await db.sequelize.transaction();
     try {
+      // Find all users with the role of 'Agent'
+      const agents = await db.users.findAll({
+        include: [{
+          model: db.roles,
+          as: 'app_role',
+          where: { name: 'Agent' }
+        }]
+      });
+  
+      if (agents.length === 0) {
+        throw new Error('No agents available for assignment');
+      }
+  
+      // Find the agent with the least number of assigned tickets
+      const agentAssignments = await Promise.all(agents.map(async (agent) => {
+        const ticketCount = await db.tickets.count({ where: { assigneeId: agent.id } });
+        return { agent, ticketCount };
+      }));
+  
+      const { agent: selectedAgent } = agentAssignments.reduce((min, current) => 
+        (current.ticketCount < min.ticketCount) ? current : min
+      );
+  
       // Step 1: Create the ticket
       const ticket = await db.tickets.create(
         {
@@ -18,7 +41,7 @@ module.exports = class TicketsService {
           priority: data.priority || null,
           description: data.description || null,
           status: data.status || 'pending',
-          assigneeId: data.assignee || null,
+          assigneeId: selectedAgent.id, // Assign to the selected agent
           customerId: data.customer || null,
           importHash: data.importHash || null,
           createdById: currentUser.id,
@@ -26,7 +49,7 @@ module.exports = class TicketsService {
         },
         { transaction },
       );
-
+  
       // Step 2: Handle files (upload and association with the ticket)
       if (data.files && data.files.length > 0) {
         await FileDBApi.replaceRelationFiles(
@@ -39,7 +62,7 @@ module.exports = class TicketsService {
           { transaction, currentUser },
         );
       }
-
+  
       // Step 3: Handle labels if provided
       if (data.labels) {
         const labelsArray = data.labels.split(',').map(label_id => ({
@@ -48,7 +71,7 @@ module.exports = class TicketsService {
         }));
         await TicketLabelsService.bulkImport(labelsArray, currentUser);
       }
-
+  
       // Step 4: Handle counts if provided
       if (data.counts) {
         const countsArray = data.counts.split(',').map(count => {
@@ -63,7 +86,7 @@ module.exports = class TicketsService {
         });
         await TicketCountsService.bulkImport(countsArray, currentUser);
       }
-
+  
       // Step 5: Update related customer (if provided)
       if (data.customer) {
         const customer = await db.customers.findByPk(data.customer, {
@@ -73,11 +96,11 @@ module.exports = class TicketsService {
           // Increment ticket count or update last interaction date
           customer.ticketCount = (customer.ticketCount || 0) + 1;
           customer.lastTicketCreatedAt = new Date();
-
+  
           await customer.save({ transaction });
         }
       }
-
+  
       // Step 6: Commit the transaction
       await transaction.commit();
       return ticket;

@@ -78,8 +78,9 @@ router.post(
   '/',
   upload.array('files'),
   wrapAsync(async (req, res) => {
-    const { ticket_id, subject, priority, assignee, description, status, customer, labels, counts } = req.body;
-    const ticketData = { ticket_id, subject, priority, assignee, description, status, customer };
+    const { ticket_id, subject, priority, description, status, customer, labels, counts } = req.body;
+    const ticketData = { ticket_id, subject, priority, description, status, customer };
+    
     const files = req.files.map(file => ({
       name: file.filename,
       sizeInBytes: file.size,
@@ -103,10 +104,9 @@ router.post(
       await TicketCountsService.bulkImport(countsArray, req.currentUser);
     }
 
-    res.status(200).send(true);
+    res.status(200).send(ticket);
   }),
 );
-
 /**
  * @swagger
  * /api/tickets:

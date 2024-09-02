@@ -5,6 +5,7 @@ const AuthService = require('../services/auth');
 const ForbiddenError = require('../services/notifications/errors/forbidden');
 const wrapAsync = require('../helpers').wrapAsync;
 const UsersDBApi = require('../db/api/users');
+const helpers = require('../helpers');
 
 const router = express.Router();
 
@@ -95,23 +96,19 @@ router.post(
  *         description: Some server error
  *     x-codegen-request-body-name: body
  */
-router.post(
-  '/signup',
-  wrapAsync(async (req, res) => {
-    try {
-      const payload = await AuthService.signup(
-        req.body.email,
-        req.body.password,
-        { firstName: req.body.firstName, lastName: req.body.lastName },
-        req.protocol + '://' + req.get('host'),
-      );
-      res.status(200).send(payload);
-    } catch (error) {
-      console.error('Signup error:', error);
-      res.status(400).json({ error: error.message || 'Signup failed. Please try again.' });
-    }
-  }),
-);
+
+
+router.post('/signup', async (req, res) => {
+  try {
+    const { email, password, firstName, lastName } = req.body;
+    const user = await AuthService.signup(email, password, firstName, lastName);
+    const token = helpers.jwtSign({ id: user.id, email: user.email, role: user.role });
+    res.status(201).json({ user: { id: user.id, email: user.email, role: user.role }, token });
+  } catch (error) {
+    console.error('Signup error:', error);
+    res.status(400).json({ error: error.message || 'Signup failed. Please try again.' });
+  }
+});
 
 router.post(
   '/send-email-verification',

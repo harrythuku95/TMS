@@ -1,3 +1,4 @@
+import.meta.env.VITE_API_URL
 import React, { useEffect, useState } from 'react';
 import { Alert, Container, Typography, Box, Grid, Paper, Button } from '@mui/material';
 import axios from 'axios';
@@ -15,29 +16,33 @@ const HomePage = () => {
 
 
   useEffect(() => {
+    console.log("Testing Fetch Stats");
     fetchStats();
   }, []);
 
   const fetchStats = async () => {
+    const API_URL = import.meta.env.VITE_API_URL;
     try {
+      console.log("test log");
       const authToken = localStorage.getItem('authToken');
+
       const [ticketResponse, customerResponse] = await Promise.all([
-        axios.get('http://localhost:8080/api/tickets/stats', {
+        axios.get(`${API_URL}/tickets/stats`, {
           headers: { Authorization: `Bearer ${authToken}` }
         }),
-        axios.get('http://localhost:8080/api/customers/count', {
+        axios.get(`${API_URL}/customers/count`, {
           headers: { Authorization: `Bearer ${authToken}` }
         })
       ]);
-
       setTicketStats(ticketResponse.data);
       setCustomerCount(customerResponse.data.count);
-      setError(null); // Clear any previous errors
+      setError(null);
+      console.log("test log");
+      
     } catch (error) {
       console.error('Error fetching stats:', error);
+      console.log("test error");
       if (error.response && error.response.status === 401) {
-        // Unauthorized, redirect to login
-        navigate('/login');
       } else {
         setError('Failed to load dashboard data. Please try again later.');
       }

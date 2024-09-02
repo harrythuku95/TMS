@@ -9,7 +9,7 @@ module.exports = class TicketsDBApi {
   static async create(data, options) {
     const currentUser = (options && options.currentUser) || { id: null };
     const transaction = (options && options.transaction) || undefined;
-
+  
     const tickets = await db.tickets.create(
       {
         id: data.id || undefined,
@@ -18,7 +18,7 @@ module.exports = class TicketsDBApi {
         priority: data.priority || null,
         description: data.description || null,
         status: data.status || 'pending',
-        assigneeId: data.assignee || null,
+        assigneeId: data.assigneeId || null,  // This will be set by the service layer
         customerId: data.customer || null,
         importHash: data.importHash || null,
         createdById: currentUser.id,
@@ -26,17 +26,19 @@ module.exports = class TicketsDBApi {
       },
       { transaction },
     );
-
-    await FileDBApi.replaceRelationFiles(
-      {
-        belongsTo: 'tickets',
-        belongsToColumn: 'files',
-        belongsToId: tickets.id,
-      },
-      data.files,
-      options,
-    );
-
+  
+    if (data.files && data.files.length > 0) {
+      await FileDBApi.replaceRelationFiles(
+        {
+          belongsTo: 'tickets',
+          belongsToColumn: 'files',
+          belongsToId: tickets.id,
+        },
+        data.files,
+        options,
+      );
+    }
+  
     return tickets;
   }
 

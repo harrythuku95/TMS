@@ -1,56 +1,61 @@
 import React from 'react';
-import { Drawer, List, ListItem, ListItemText, ListItemIcon } from '@mui/material';
-import { Home as HomeIcon, List as ListIcon, People as PeopleIcon, Add as AddIcon, ExitToApp as ExitToAppIcon, PersonAdd as PersonAddIcon, LockOpen as LockOpenIcon } from '@mui/icons-material';
+import { Drawer, List, ListItem, ListItemIcon, ListItemText } from '@mui/material';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/auth';
+import DashboardIcon from '@mui/icons-material/Dashboard';
+import ConfirmationNumberIcon from '@mui/icons-material/ConfirmationNumber';
+import AddIcon from '@mui/icons-material/Add';
+import PeopleIcon from '@mui/icons-material/People';
+import SupervisorAccountIcon from '@mui/icons-material/SupervisorAccount';
 
 const Sidebar = () => {
-  const { user, logout } = useAuth();
+  const { user } = useAuth();
+
+  const menuItems = [
+    { title: 'Dashboard', icon: <DashboardIcon />, path: '/', roles: ['Admin', 'Agent', 'User'] },
+    { title: 'Tickets', icon: <ConfirmationNumberIcon />, path: '/tickets', roles: ['Admin', 'Agent', 'User'] },
+    { title: 'Create Ticket', icon: <AddIcon />, path: '/new-ticket', roles: ['Admin', 'Agent', 'User'] },
+    { title: 'Customers', icon: <PeopleIcon />, path: '/customers', roles: ['Admin', 'Agent'] },
+    { title: 'User Management', icon: <SupervisorAccountIcon />, path: '/user-management', roles: ['Admin'] },
+  ];
+
+  if (!user) {
+    return null;
+  }
 
   return (
-    <Drawer variant="permanent" anchor="left">
+    <Drawer
+      variant="permanent"
+      sx={{
+        width: 240,
+        flexShrink: 0,
+        '& .MuiDrawer-paper': {
+          width: 240,
+          boxSizing: 'border-box',
+          top: 64,
+          height: 'calc(100% - 64px)',
+        },
+      }}
+    >
       <List>
-        <ListItem button component={Link} to="/">
-          <ListItemIcon><HomeIcon /></ListItemIcon>
-          <ListItemText primary="Home" />
-        </ListItem>
-        <ListItem button component={Link} to="/tickets">
-          <ListItemIcon><ListIcon /></ListItemIcon>
-          <ListItemText primary="Tickets" />
-        </ListItem>
-        {user && user.role === 'Admin' && (
-          <>
-            <ListItem button component={Link} to="/customers">
-              <ListItemIcon><PeopleIcon /></ListItemIcon>
-              <ListItemText primary="Customers" />
+        {menuItems.map((item) => (
+          item.roles.includes(user.role) && (
+            <ListItem
+              button
+              component={Link}
+              to={item.path}
+              key={item.title}
+              sx={{
+                '&:hover': {
+                  backgroundColor: 'rgba(0, 0, 0, 0.04)',
+                },
+              }}
+            >
+              <ListItemIcon>{item.icon}</ListItemIcon>
+              <ListItemText primary={item.title} />
             </ListItem>
-            <ListItem button component={Link} to="/add-customer">
-              <ListItemIcon><AddIcon /></ListItemIcon>
-              <ListItemText primary="Add Customer" />
-            </ListItem>
-            <ListItem button component={Link} to="/user-management">
-              <ListItemIcon><PersonAddIcon /></ListItemIcon>
-              <ListItemText primary="User Management" />
-            </ListItem>
-          </>
-        )}
-        {!user ? (
-          <>
-            <ListItem button component={Link} to="/login">
-              <ListItemIcon><LockOpenIcon /></ListItemIcon>
-              <ListItemText primary="Login" />
-            </ListItem>
-            <ListItem button component={Link} to="/signup">
-              <ListItemIcon><PersonAddIcon /></ListItemIcon>
-              <ListItemText primary="Signup" />
-            </ListItem>
-          </>
-        ) : (
-          <ListItem button onClick={logout}>
-            <ListItemIcon><ExitToAppIcon /></ListItemIcon>
-            <ListItemText primary="Logout" />
-          </ListItem>
-        )}
+          )
+        ))}
       </List>
     </Drawer>
   );

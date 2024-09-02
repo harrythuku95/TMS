@@ -1,19 +1,20 @@
-const config = require('../config');
-const providers = config.providers;
-const helpers = require('../helpers');
-const db = require('../db/models');
 const passport = require('passport');
 const JWTstrategy = require('passport-jwt').Strategy;
 const ExtractJWT = require('passport-jwt').ExtractJwt;
+const config = require('../config');
 const UsersDBApi = require('../db/api/users');
 
-passport.use(new JWTstrategy({
-  secretOrKey: config.secret_key,
-  jwtFromRequest: ExtractJWT.fromAuthHeaderAsBearerToken()
-}, async (jwt_payload, done) => {
+const options = {
+  jwtFromRequest: ExtractJWT.fromAuthHeaderAsBearerToken(),
+  secretOrKey: config.secret_key
+};
+
+passport.use(new JWTstrategy(options, async (jwt_payload, done) => {
   try {
-    const user = await UsersDBApi.findBy({ id: jwt_payload.user.id });
+    const user = await UsersDBApi.findBy({ id: jwt_payload.id });
+    console.log(`JWT Payload: ${JSON.stringify(jwt_payload)}`);
     if (user) {
+      console.log(`${user.firstName}: Logging the First name of the user from the passport initialisation code to confirm that Passport is communicating successfully with UsersDBApi`);
       return done(null, user);
     } else {
       return done(null, false);
@@ -22,50 +23,5 @@ passport.use(new JWTstrategy({
     return done(error, false);
   }
 }));
-
-/*** 
-passport.use(
-  new GoogleStrategy(
-    {
-      clientID: config.google.clientId,
-      clientSecret: config.google.clientSecret,
-      callbackURL: `${config.apiUrl}/auth/signin/google/callback`,
-      passReqToCallback: true,
-    },
-    (request, accessToken, refreshToken, profile, done) => {
-      socialStrategy(profile.email, profile, providers.GOOGLE, done);
-    },
-  ),
-);
-
-passport.use(
-  new MicrosoftStrategy(
-    {
-      clientID: config.microsoft.clientId,
-      clientSecret: config.microsoft.clientSecret,
-      callbackURL: `${config.apiUrl}/auth/signin/microsoft/callback`,
-      passReqToCallback: true,
-    },
-    (request, accessToken, refreshToken, profile, done) => {
-      const email = profile._json.mail || profile._json.userPrincipalName;
-      socialStrategy(email, profile, providers.MICROSOFT, done);
-    },
-  ),
-);
-*/
-async function socialStrategy(email, profile, provider, done) {
-  try {
-    const [user, created] = await db.users.findOrCreate({ where: { email, provider } });
-    const body = {
-      id: user.id,
-      email: user.email,
-      name: profile.displayName,
-    };
-    const token = helpers.jwtSign({ user: body });
-    return done(null, { token });
-  } catch (error) {
-    return done(error);
-  }
-}
 
 module.exports = passport;

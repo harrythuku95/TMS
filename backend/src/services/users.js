@@ -13,50 +13,62 @@ const AuthService = require('./auth');
 
 module.exports = class UsersService {
   static async create(data, currentUser, sendInvitationEmails = true, host) {
-    let transaction = await db.sequelize.transaction();
-    let email = data.email;
-    let emailsToInvite = [];
+    const transaction = await db.sequelize.transaction();
     try {
-      if (email) {
-        let user = await UsersDBApi.findBy({ email }, { transaction });
-        if (user) {
-          throw new ValidationError('iam.errors.userAlreadyExists');
-        } else {
-          // Check if an admin user already exists
-          const adminRole = await db.roles.findOne({ where: { name: 'admin' } });
-          const existingAdmin = await db.users.findOne({ where: { app_roleId: adminRole.id } });
+      const userCount = await db.users.count();
+      const role = userCount === 0 ? 'Admin' : 'User';
 
-          // Assign role based on the existence of an admin user
-          let role;
-          if (existingAdmin) {
-            role = await db.roles.findOne({ where: { name: 'agent' } });
-          } else {
-            role = adminRole;
-          }
-
-          data.app_role = role.id;
-
-          await UsersDBApi.create(
-            { data },
-            {
-              currentUser,
-              transaction,
-            },
-          );
-          emailsToInvite.push(email);
+      const user = await UsersDBApi.create(
+        {
+          ...data,
+          role,
+        },
+        {
+          currentUser,
+          transaction,
         }
-      } else {
-        throw new ValidationError('iam.errors.emailRequired');
-      }
+      );
+
       await transaction.commit();
+
+      if (sendInvitationEmails) {
+        await AuthService.sendPasswordResetEmail(user.email, 'invitation', host);
+      }
+
+      return user;
     } catch (error) {
       await transaction.rollback();
       throw error;
     }
-    if (emailsToInvite && emailsToInvite.length) {
-      if (!sendInvitationEmails) return;
+  }
 
-      AuthService.sendPasswordResetEmail(email, 'invitation', host);
+  static async updateRole(userId, newRole, currentUser) {
+    const transaction = await db.sequelize.transaction();
+    try {
+      const user = await UsersDBApi.findBy({ id: userId }, { transaction });
+      if (!user) {
+        throw new Error('User not found');
+      }
+
+      if (currentUser.role !== 'Admin') {
+        throw new Error('Only admins can update user roles');
+      }
+
+      if (newRole !== 'Agent' && newRole !== 'User') {
+        throw new Error('Invalid role');
+      }
+
+      await UsersDBApi.update(
+        userId,
+        { role: newRole },
+        { currentUser, transaction }
+      );
+
+      await transaction.commit();
+      return user;
+    } catch (error) {
+      await transaction.rollback();
+      throw error;
     }
   }
 

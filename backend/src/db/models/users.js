@@ -45,8 +45,14 @@ module.exports = function (sequelize, DataTypes) {
         validate: {
           len: [6, 100], // Ensure password length is reasonable
         },
+      },
+      
+      role: {
+        type: DataTypes.ENUM('Admin', 'Agent', 'User'),
+        defaultValue: 'User',
+        allowNull: false,
       },      
-
+      
       emailVerified: {
         type: DataTypes.BOOLEAN,
         allowNull: false,
@@ -87,11 +93,7 @@ module.exports = function (sequelize, DataTypes) {
   );
 
   users.associate = (db) => {
-    db.users.belongsTo(db.roles, {
-      as: 'app_role',
-      foreignKey: 'app_roleId',
-    });
-  
+
     db.users.belongsToMany(db.permissions, {
       as: 'custom_permissions',
       through: 'usersCustom_permissionsPermissions',
