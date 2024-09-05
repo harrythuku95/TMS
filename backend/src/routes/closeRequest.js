@@ -1,24 +1,54 @@
-// src/routes/closeRequest.js
 const express = require('express');
 const CloseRequestService = require('../services/closeRequest');
 const wrapAsync = require('../helpers').wrapAsync;
-const { checkPermissions } = require('../middlewares/check-permissions');
 
 const router = express.Router();
 
 router.post(
-  '/create',
+  '/',
   wrapAsync(async (req, res) => {
-    const closeRequest = await CloseRequestService.createCloseRequest(req.body.ticketId, req.currentUser);
-    res.status(200).send(closeRequest);
+    const payload = await CloseRequestService.create(req.body, req.currentUser);
+    res.status(200).send(payload);
+  }),
+);
+
+router.put(
+  '/:id',
+  wrapAsync(async (req, res) => {
+    const payload = await CloseRequestService.update(req.params.id, req.body, req.currentUser);
+    res.status(200).send(payload);
+  }),
+);
+
+router.delete(
+  '/:id',
+  wrapAsync(async (req, res) => {
+    await CloseRequestService.remove(req.params.id, req.currentUser);
+    res.status(200).send({ id: req.params.id });
+  }),
+);
+
+router.get(
+  '/:id',
+  wrapAsync(async (req, res) => {
+    const payload = await CloseRequestService.findBy({ id: req.params.id });
+    res.status(200).send(payload);
+  }),
+);
+
+router.get(
+  '/',
+  wrapAsync(async (req, res) => {
+    const payload = await CloseRequestService.findAll(req.query);
+    res.status(200).send(payload);
   }),
 );
 
 router.post(
-  '/approve',
+  '/:id/approve',
   wrapAsync(async (req, res) => {
-    const closeRequest = await CloseRequestService.approveCloseRequest(req.body.closeRequestId, req.currentUser.id);
-    res.status(200).send(closeRequest);
+    const payload = await CloseRequestService.approve(req.params.id, req.currentUser.id);
+    res.status(200).send(payload);
   }),
 );
 

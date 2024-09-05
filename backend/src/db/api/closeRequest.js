@@ -4,88 +4,75 @@ const Utils = require('../utils');
 const Sequelize = db.Sequelize;
 const Op = Sequelize.Op;
 
-module.exports = class TicketLabelsDBApi {
+module.exports = class CloseRequestDBApi {
   static async create(data, options) {
     const currentUser = (options && options.currentUser) || { id: null };
     const transaction = (options && options.transaction) || undefined;
 
-    const ticket_labels = await db.ticket_labels.create(
+    const closeRequest = await db.closeRequest.create(
       {
-        id: data.id || undefined,
-        label_id: data.label_id || null,
-        ticketId: data.ticketId || null,
-        importHash: data.importHash || null,
+        ticketId: data.ticketId,
         createdById: currentUser.id,
-        updatedById: currentUser.id,
       },
       { transaction },
     );
 
-    return ticket_labels;
+    return closeRequest;
   }
 
   static async update(id, data, options) {
     const currentUser = (options && options.currentUser) || { id: null };
     const transaction = (options && options.transaction) || undefined;
 
-    const ticket_labels = await db.ticket_labels.findByPk(id, {}, { transaction });
+    const closeRequest = await db.closeRequest.findByPk(id, {}, { transaction });
 
-    await ticket_labels.update(
+    await closeRequest.update(
       {
-        label_id: data.label_id || null,
-        ticketId: data.ticketId || null,
-        updatedById: currentUser.id,
+        approved: data.approved,
+        number_of_approval_requests: data.number_of_approval_requests,
       },
       { transaction },
     );
 
-    return ticket_labels;
+    return closeRequest;
   }
 
   static async remove(id, options) {
     const currentUser = (options && options.currentUser) || { id: null };
     const transaction = (options && options.transaction) || undefined;
 
-    const ticket_labels = await db.ticket_labels.findByPk(id, options);
+    const closeRequest = await db.closeRequest.findByPk(id, options);
 
-    await ticket_labels.update({
-      deletedBy: currentUser.id
-    }, {
-      transaction,
-    });
+    await closeRequest.destroy({ transaction });
 
-    await ticket_labels.destroy({
-      transaction,
-    });
-
-    return ticket_labels;
+    return closeRequest;
   }
 
   static async findBy(where, options) {
     const transaction = (options && options.transaction) || undefined;
 
-    const ticket_labels = await db.ticket_labels.findOne(
-      { where },
+    const closeRequest = await db.closeRequest.findOne(
+      { where, include: ['ticket', 'approvers'] },
       { transaction },
     );
 
-    if (!ticket_labels) {
-      return ticket_labels;
+    if (!closeRequest) {
+      return closeRequest;
     }
 
-    const output = ticket_labels.get({ plain: true });
+    const output = closeRequest.get({ plain: true });
 
     return output;
   }
 
   static async findAll(filter, options) {
-    var limit = filter.limit || 0;
-    var offset = 0;
+    let limit = filter.limit || 0;
+    let offset = 0;
     const currentPage = +filter.page;
 
     offset = currentPage * limit;
 
-    var orderBy = null;
+    let orderBy = null;
 
     const transaction = (options && options.transaction) || undefined;
     let where = {};
@@ -94,6 +81,10 @@ module.exports = class TicketLabelsDBApi {
         model: db.tickets,
         as: 'ticket',
       },
+      {
+        model: db.users,
+        as: 'approvers',
+      },
     ];
 
     if (filter) {
@@ -101,17 +92,6 @@ module.exports = class TicketLabelsDBApi {
         where = {
           ...where,
           ['id']: Utils.uuid(filter.id),
-        };
-      }
-
-      if (filter.label_id) {
-        where = {
-          ...where,
-          [Op.and]: Utils.ilike(
-            'ticket_labels',
-            'label_id',
-            filter.label_id,
-          ),
         };
       }
 
@@ -140,9 +120,10 @@ module.exports = class TicketLabelsDBApi {
       }
     }
 
-    let { rows, count } = await db.ticket_labels.findAndCountAll({
+    let { rows, count } = await db.closeRequest.findAndCountAll({
       where,
       include,
+      distinct: true,
       limit: limit ? Number(limit) : undefined,
       offset: offset ? Number(offset) : undefined,
       order: orderBy,

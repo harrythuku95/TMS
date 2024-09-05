@@ -9,7 +9,7 @@ const config = {
   providers: {
     LOCAL: 'local',
   },
-  secret_key: 'HUEyqESqgQ1yTwzVlO6wprC9Kf1J1xuA',
+  secret_key: process.env.JWT_SECRET || 'HUEyqESqgQ1yTwzVlO6wprC9Kf1J1xuA',
   remote: '',
   port: process.env.NODE_ENV === 'production' ? '' : '8080',
   hostUI: process.env.NODE_ENV === 'production' ? '' : 'http://localhost',

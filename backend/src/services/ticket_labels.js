@@ -1,75 +1,27 @@
-const db = require('../db/models');
-const Ticket_labelsDBApi = require('../db/api/ticket_labels');
-const processFile = require('../middlewares/upload');
-const csv = require('csv-parser');
-const axios = require('axios');
-const config = require('../config');
-const stream = require('stream');
+const TicketLabelsDBApi = require('../db/api/ticket_labels');
+const TicketsDBApi = require('../db/api/tickets');
 
-module.exports = class Ticket_labelsService {
+module.exports = class TicketLabelsService {
   static async create(data, currentUser) {
     const transaction = await db.sequelize.transaction();
     try {
-      await Ticket_labelsDBApi.create(data, {
+      const ticket_labels = await TicketLabelsDBApi.create(data, {
         currentUser,
         transaction,
       });
 
       await transaction.commit();
+      return ticket_labels;
     } catch (error) {
       await transaction.rollback();
       throw error;
     }
   }
 
-  static async bulkImport(req, res, sendInvitationEmails = true, host) {
-    const transaction = await db.sequelize.transaction();
-
-    try {
-      await processFile(req, res);
-      const bufferStream = new stream.PassThrough();
-      const results = [];
-
-      await bufferStream.end(Buffer.from(req.file.buffer, 'utf-8')); // convert Buffer to Stream
-
-      await new Promise((resolve, reject) => {
-        bufferStream
-          .pipe(csv())
-          .on('data', (data) => results.push(data))
-          .on('end', async () => {
-            console.log('CSV results', results);
-            resolve();
-          })
-          .on('error', (error) => reject(error));
-      });
-
-      await Ticket_labelsDBApi.bulkImport(results, {
-        transaction,
-        ignoreDuplicates: true,
-        validate: true,
-        currentUser: req.currentUser,
-      });
-
-      await transaction.commit();
-    } catch (error) {
-      await transaction.rollback();
-      throw error;
-    }
-  }
-
-  static async update(data, id, currentUser) {
+  static async update(id, data, currentUser) {
     const transaction = await db.sequelize.transaction();
     try {
-      let ticket_labels = await Ticket_labelsDBApi.findBy(
-        { id },
-        { transaction },
-      );
-
-      if (!ticket_labels) {
-        throw new ValidationError('ticket_labelsNotFound');
-      }
-
-      await Ticket_labelsDBApi.update(id, data, {
+      const ticket_labels = await TicketLabelsDBApi.update(id, data, {
         currentUser,
         transaction,
       });
@@ -84,16 +36,44 @@ module.exports = class Ticket_labelsService {
 
   static async remove(id, currentUser) {
     const transaction = await db.sequelize.transaction();
-
     try {
-      if (currentUser.app_role?.name !== config.roles.admin) {
-        throw new ValidationError('errors.forbidden.message');
-      }
-
-      await Ticket_labelsDBApi.remove(id, {
+      await TicketLabelsDBApi.remove(id, {
         currentUser,
         transaction,
       });
+
+      await transaction.commit();
+    } catch (error) {
+      await transaction.rollback();
+      throw error;
+    }
+  }
+
+  static async findBy(where, options) {
+    const record = await TicketLabelsDBApi.findBy(where, options);
+    return record;
+  }
+
+  static async findAll(filter, options) {
+    return TicketLabelsDBApi.findAll(filter, options);
+  }
+
+  static async updateTicketLabels(ticketId, labels, currentUser) {
+    const transaction = await db.sequelize.transaction();
+    try {
+      // Remove existing labels
+      await TicketLabelsDBApi.remove({ ticketId }, {
+        currentUser,
+        transaction,
+      });
+
+      // Add new labels
+      for (const label of labels) {
+        await TicketLabelsDBApi.create({
+          ticketId,
+          label_id: label,
+        }, { currentUser, transaction });
+      }
 
       await transaction.commit();
     } catch (error) {

@@ -17,18 +17,13 @@ const morgan = require('morgan');
 
 const authRoutes = require('./routes/auth');
 const fileRoutes = require('./routes/file');
-const searchRoutes = require('./routes/search');
 const usersRoutes = require('./routes/users');
-const permissionsRoutes = require('./routes/permissions');
-const attachmentsRoutes = require('./routes/attachments');
 const customersRoutes = require('./routes/customers');
-const foldersRoutes = require('./routes/folders');
-const mailboxesRoutes = require('./routes/mailboxes');
-const messagesRoutes = require('./routes/messages');
 const ticket_countsRoutes = require('./routes/ticket_counts');
 const ticket_labelsRoutes = require('./routes/ticket_labels');
 const ticketsRoutes = require('./routes/tickets');
-const webhooksRoutes = require('./routes/webhooks');
+
+const { setCurrentUser } = require('./middlewares/checkRole');
 
 const options = {
   definition: {
@@ -103,21 +98,16 @@ app.use(limiter);
 // Passport authentication
 require('./auth/auth');
 
+app.use(setCurrentUser);
+
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/file', fileRoutes);
 app.use('/api/users', passport.authenticate('jwt', { session: false }), usersRoutes);
-app.use('/api/permissions', passport.authenticate('jwt', { session: false }), permissionsRoutes);
-app.use('/api/attachments', passport.authenticate('jwt', { session: false }), attachmentsRoutes);
 app.use('/api/customers', passport.authenticate('jwt', { session: false }), customersRoutes);
-app.use('/api/folders', passport.authenticate('jwt', { session: false }), foldersRoutes);
-app.use('/api/mailboxes', passport.authenticate('jwt', { session: false }), mailboxesRoutes);
-app.use('/api/messages', passport.authenticate('jwt', { session: false }), messagesRoutes);
 app.use('/api/ticket_counts', passport.authenticate('jwt', { session: false }), ticket_countsRoutes);
 app.use('/api/ticket_labels', passport.authenticate('jwt', { session: false }), ticket_labelsRoutes);
 app.use('/api/tickets', passport.authenticate('jwt', { session: false }), ticketsRoutes);
-app.use('/api/webhooks', passport.authenticate('jwt', { session: false }), webhooksRoutes);
-app.use('/api/search', passport.authenticate('jwt', { session: false }), searchRoutes);
 
 // Serve static files
 const publicDir = path.join(__dirname, '../public');

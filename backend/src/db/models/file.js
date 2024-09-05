@@ -42,10 +42,12 @@ module.exports = function (sequelize, DataTypes) {
   file.associate = (db) => {
     db.file.belongsTo(db.users, {
       as: 'createdBy',
+      foreignKey: 'createdById',
     });
 
     db.file.belongsTo(db.users, {
       as: 'updatedBy',
+      foreignKey: 'updatedById',
     });
   };
 

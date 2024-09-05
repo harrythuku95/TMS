@@ -1,9 +1,7 @@
-// src/pages/UserManagementPage.jsx
 import React, { useState, useEffect } from 'react';
-import { Table, TableBody, TableCell, TableHead, TableRow, Button } from '@mui/material';
+import { Container, Typography, Table, TableBody, TableCell, TableHead, TableRow, Button } from '@mui/material';
 import axios from 'axios';
-
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080/api';
+import withAdminProtection from '../hoc/withAdminProtection';
 
 const UserManagementPage = () => {
   const [users, setUsers] = useState([]);
@@ -14,7 +12,9 @@ const UserManagementPage = () => {
 
   const fetchUsers = async () => {
     try {
-      const response = await axios.get(`${API_URL}/users`);
+      const response = await axios.get('http://localhost:8080/api/users', {
+        headers: { Authorization: `Bearer ${localStorage.getItem('authToken')}` }
+      });
       setUsers(response.data.rows);
     } catch (error) {
       console.error('Error fetching users:', error);
@@ -23,16 +23,18 @@ const UserManagementPage = () => {
 
   const handleUpgradeToAgent = async (userId) => {
     try {
-      await axios.put(`${API_URL}/users/${userId}/role`, { role: 'Agent' });
-      fetchUsers(); // Refresh the user list
+      await axios.put(`http://localhost:8080/api/users/${userId}/role`, { role: 'Agent' }, {
+        headers: { Authorization: `Bearer ${localStorage.getItem('authToken')}` }
+      });
+      fetchUsers();
     } catch (error) {
       console.error('Error upgrading user to agent:', error);
     }
   };
 
   return (
-    <div>
-      <h1>User Management</h1>
+    <Container maxWidth="md">
+      <Typography variant="h4" gutterBottom>User Management</Typography>
       <Table>
         <TableHead>
           <TableRow>
@@ -59,8 +61,8 @@ const UserManagementPage = () => {
           ))}
         </TableBody>
       </Table>
-    </div>
+    </Container>
   );
 };
 
-export default UserManagementPage;
+export default withAdminProtection(UserManagementPage);

@@ -1,95 +1,53 @@
 const db = require('../db/models');
 const CustomersDBApi = require('../db/api/customers');
-const processFile = require('../middlewares/upload');
-const csv = require('csv-parser');
-const axios = require('axios');
-const config = require('../config');
-const stream = require('stream');
+const ValidationError = require('./notifications/errors/validation');
+const { v4: uuidv4 } = require('uuid'); 
 
 module.exports = class CustomersService {
   static async create(data, currentUser) {
-    const transaction = await db.sequelize.transaction();
-    try {
-      await CustomersDBApi.create(data, {
-        currentUser,
-        transaction,
-      });
-
-      await transaction.commit();
-    } catch (error) {
-      await transaction.rollback();
-      throw error;
-    }
-  }
-
-  static async getCount() {
-    try {
-      return await CustomersDBApi.getCount();
-    } catch (error) {
-      console.error('Error in CustomersService.getCount:', error);
-      throw error;
-    }
-  }
-
-    static async findAll(filter, options) {
-      return CustomersDBApi.findAll(filter, options);
-    }
+    console.log('Data received in service:', data);
+    console.log('Current user:', currentUser);
     
-    static async count(filter, options) {
-      return CustomersDBApi.findAll(filter, { ...options, countOnly: true });
+    if (!data) {
+      throw new ValidationError('No data provided for customer creation.');
     }
-
-  static async bulkImport(req, res, sendInvitationEmails = true, host) {
+  
     const transaction = await db.sequelize.transaction();
-
     try {
-      await processFile(req, res);
-      const bufferStream = new stream.PassThrough();
-      const results = [];
-
-      await bufferStream.end(Buffer.from(req.file.buffer, 'utf-8')); // convert Buffer to Stream
-
-      await new Promise((resolve, reject) => {
-        bufferStream
-          .pipe(csv())
-          .on('data', (data) => results.push(data))
-          .on('end', async () => {
-            console.log('CSV results', results);
-            resolve();
-          })
-          .on('error', (error) => reject(error));
-      });
-
-      await CustomersDBApi.bulkImport(results, {
-        transaction,
-        ignoreDuplicates: true,
-        validate: true,
-        currentUser: req.currentUser,
-      });
-
+      if (!data.name) {
+        throw new ValidationError('Customer name is required.');
+      }
+  
+      const record = await CustomersDBApi.create(
+        data,
+        {
+          currentUser,
+          transaction,
+        },
+      );
+  
       await transaction.commit();
+      return record;
     } catch (error) {
       await transaction.rollback();
       throw error;
     }
   }
 
-  static async update(data, id, currentUser) {
+  static async update(id, data, currentUser) {
     const transaction = await db.sequelize.transaction();
     try {
-      let customers = await CustomersDBApi.findBy({ id }, { transaction });
-
-      if (!customers) {
-        throw new ValidationError('customersNotFound');
-      }
-
-      await CustomersDBApi.update(id, data, {
-        currentUser,
-        transaction,
-      });
+      const record = await CustomersDBApi.update(
+        id,
+        data,
+        {
+          currentUser,
+          transaction,
+        },
+      );
 
       await transaction.commit();
-      return customers;
+      return record;
     } catch (error) {
       await transaction.rollback();
       throw error;
@@ -100,10 +58,6 @@ module.exports = class CustomersService {
     const transaction = await db.sequelize.transaction();
 
     try {
-      if (currentUser.app_role?.name !== config.roles.admin) {
-        throw new ValidationError('errors.forbidden.message');
-      }
-
       await CustomersDBApi.remove(id, {
         currentUser,
         transaction,
@@ -114,5 +68,32 @@ module.exports = class CustomersService {
       await transaction.rollback();
       throw error;
     }
+  }
+
+  static async findBy(where, options) {
+    const record = await CustomersDBApi.findBy(where, options);
+
+    if (!record) {
+      throw new ValidationError('Customer not found');
+    }
+
+    return record;
+  }
+
+  static async findAll(filter, options) {
+    console.log('CustomersService findAll called');
+    return CustomersDBApi.findAll(filter, options);
+  }
+
+  static async findAllAutocomplete(query, limit) {
+    return CustomersDBApi.findAllAutocomplete(query, limit);
+  }
+
+  static async count(filter) {
+    return CustomersDBApi.count(filter);
+  }
+
+  static async bulkImport(data, importOptions) {
+    return CustomersDBApi.bulkImport(data, importOptions);
   }
 };

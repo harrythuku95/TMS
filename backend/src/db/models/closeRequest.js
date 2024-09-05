@@ -1,6 +1,3 @@
-// src/db/models/closeRequest.js
-const config = require('../../config');
-
 module.exports = function (sequelize, DataTypes) {
   const closeRequest = sequelize.define(
     'closeRequest',
@@ -29,10 +26,12 @@ module.exports = function (sequelize, DataTypes) {
   closeRequest.associate = (db) => {
     closeRequest.belongsTo(db.tickets, {
       as: 'ticket',
+      foreignKey: 'ticketId',
     });
 
     closeRequest.belongsTo(db.users, {
       as: 'createdBy',
+      foreignKey: 'createdById',
     });
 
     closeRequest.belongsToMany(db.users, {

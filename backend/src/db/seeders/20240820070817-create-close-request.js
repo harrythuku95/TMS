@@ -1,41 +1,46 @@
 'use strict';
+const { v4: uuidv4 } = require('uuid');
 
 module.exports = {
   up: async (queryInterface, Sequelize) => {
-    const closeRequests = [
+    const tickets = await queryInterface.sequelize.query(
+      `SELECT id from tickets LIMIT 2;`,
+      { type: queryInterface.sequelize.QueryTypes.SELECT }
+    );
+
+    const users = await queryInterface.sequelize.query(
+      `SELECT id from users LIMIT 1;`,
+      { type: queryInterface.sequelize.QueryTypes.SELECT }
+    );
+
+    if (tickets.length === 0 || users.length === 0) {
+      console.log('No tickets or users found. Skipping closeRequest seeding.');
+      return;
+    }
+
+    await queryInterface.bulkInsert('closeRequest', [
       {
-        id: 'a1b2c3d4-5678-90ab-cdef-1234567890ab',
+        id: uuidv4(),
         approved: false,
         number_of_approval_requests: 2,
-        ticketId: '6a7b8c9d-0e1f-2345-6789-abcd01234567', // Replace with actual ticket IDs
-        importHash: null,
+        ticketId: tickets[0].id,
+        createdById: users[0].id,
         createdAt: new Date(),
-        updatedAt: new Date(),
+        updatedAt: new Date()
       },
       {
-        id: 'b2c3d4e5-6789-01ab-cdef-234567890abc',
+        id: uuidv4(),
         approved: true,
         number_of_approval_requests: 3,
-        ticketId: '7b8c9d0e-1f23-4567-89ab-cd0123456789', // Replace with actual ticket IDs
-        importHash: null,
+        ticketId: tickets[1].id,
+        createdById: users[0].id,
         createdAt: new Date(),
-        updatedAt: new Date(),
+        updatedAt: new Date()
       },
-      {
-        id: 'c3d4e5f6-7890-12ab-cdef-34567890abcd',
-        approved: false,
-        number_of_approval_requests: 1,
-        ticketId: '8c9d0e1f-2345-6789-abcd-0123456789ab', // Replace with actual ticket IDs
-        importHash: null,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      },
-    ];
-
-    await queryInterface.bulkInsert('close_requests', closeRequests, {});
+    ], {});
   },
 
   down: async (queryInterface, Sequelize) => {
-    await queryInterface.bulkDelete('close_requests', null, {});
-  },
+    await queryInterface.bulkDelete('closeRequest', null, {});
+  }
 };

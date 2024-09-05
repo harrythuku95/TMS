@@ -6,6 +6,8 @@ import { useNavigate } from 'react-router-dom';
 import withAdminProtection from '../hoc/withAdminProtection';
 
 const AddCustomerPage = () => {
+  console.log("AddCustomerPage is rendering");
+
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
@@ -14,17 +16,32 @@ const AddCustomerPage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+  
+    const customerData = {
+      name,
+      email,
+      phoneNumber,
+      address,
+    };
+  
     try {
-      await axios.post('http://localhost:8080/api/customers', {
-        name,
-        email,
-        phoneNumber,
-        address,
-      });
+      const token = localStorage.getItem('authToken');
+      console.log('Sending data:', customerData);
+      console.log('Sending data:', { name, email, phoneNumber, address });
+      const response = await axios.post(
+        'http://localhost:8080/api/customers',
+        customerData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          }
+        }
+      );
+      console.log('Response:', response.data);
       navigate('/customers');
     } catch (error) {
-      console.error('Error adding customer:', error);
+      console.error('Error adding customer:', error.response?.data || error.message);
     }
   };
 

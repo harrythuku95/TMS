@@ -2,14 +2,15 @@ import React, { useState, useEffect } from 'react';
 import { Container, Typography, Box, Button, Table, TableBody, TableCell, TableHead, TableRow, IconButton } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import { useAuth } from '../context/auth';
+import withAdminProtection from '../hoc/withAdminProtection';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
-import withAdminProtection from '../hoc/withAdminProtection';
 
 const CustomerManagementPage = () => {
   const [customers, setCustomers] = useState([]);
   const navigate = useNavigate();
-  const authToken = localStorage.getItem('authToken');
+  const { user } = useAuth();
 
   useEffect(() => {
     fetchCustomers();
@@ -18,32 +19,12 @@ const CustomerManagementPage = () => {
   const fetchCustomers = async () => {
     try {
       const response = await axios.get('http://localhost:8080/api/customers', {
-        headers: {
-          Authorization: `Bearer ${authToken}`,
-        },
+        headers: { Authorization: `Bearer ${localStorage.getItem('authToken')}` }
       });
+      console.log('Customers fetched:', response.data);
       setCustomers(response.data.rows);
     } catch (error) {
-      console.error('Error fetching customers:', error);
-    }
-  };
-
-  const handleEdit = (id) => {
-    navigate(`/edit-customer/${id}`);
-  };
-
-  const handleDelete = async (id) => {
-    if (window.confirm('Are you sure you want to delete this customer?')) {
-      try {
-        await axios.delete(`http://localhost:8080/api/customers/${id}`, {
-          headers: {
-            Authorization: `Bearer ${authToken}`,
-          },
-        });
-        fetchCustomers(); // Refresh the list after deletion
-      } catch (error) {
-        console.error('Error deleting customer:', error);
-      }
+      console.error('Error fetching customers:', error.response?.data || error.message);
     }
   };
 
@@ -55,9 +36,11 @@ const CustomerManagementPage = () => {
     <Container maxWidth="md">
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mt: 4 }}>
         <Typography variant="h4">Customer Management</Typography>
-        <Button variant="contained" color="primary" onClick={handleAddCustomer}>
-          Add Customer
-        </Button>
+        {(user.role === 'Admin' || user.role === 'Agent') && (
+          <Button variant="contained" color="primary" onClick={handleAddCustomer}>
+            Add Customer
+          </Button>
+        )}
       </Box>
       <Table sx={{ mt: 2 }}>
         <TableHead>
@@ -65,8 +48,7 @@ const CustomerManagementPage = () => {
             <TableCell>Name</TableCell>
             <TableCell>Email</TableCell>
             <TableCell>Phone</TableCell>
-            <TableCell>Address</TableCell>
-            <TableCell align="right">Actions</TableCell>
+            <TableCell>Actions</TableCell>
           </TableRow>
         </TableHead>
         <TableBody>

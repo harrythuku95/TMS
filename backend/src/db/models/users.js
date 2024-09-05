@@ -52,7 +52,14 @@ module.exports = function (sequelize, DataTypes) {
         defaultValue: 'User',
         allowNull: false,
       },      
-      
+      createdById: {
+        type: DataTypes.UUID,
+        allowNull: true,
+      },
+      updatedById: {
+        type: DataTypes.UUID,
+        allowNull: true,
+      },
       emailVerified: {
         type: DataTypes.BOOLEAN,
         allowNull: false,
@@ -93,12 +100,6 @@ module.exports = function (sequelize, DataTypes) {
   );
 
   users.associate = (db) => {
-
-    db.users.belongsToMany(db.permissions, {
-      as: 'custom_permissions',
-      through: 'usersCustom_permissionsPermissions',
-      foreignKey: 'users_custom_permissionsId',
-    });
 
     db.users.hasMany(db.file, {
       as: 'avatar',

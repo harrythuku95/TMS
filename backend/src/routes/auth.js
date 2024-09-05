@@ -2,60 +2,12 @@
 const express = require('express');
 const passport = require('passport');
 const AuthService = require('../services/auth');
-const ForbiddenError = require('../services/notifications/errors/forbidden');
 const wrapAsync = require('../helpers').wrapAsync;
 const UsersDBApi = require('../db/api/users');
 const helpers = require('../helpers');
 
 const router = express.Router();
 
-/**
- * @swagger
- * components:
- *   schemas:
- *     Auth:
- *       type: object
- *       required:
- *         - email
- *         - password
- *       properties:
- *         email:
- *           type: string
- *           default: admin@flatlogic.com
- *           description: User email
- *         password:
- *           type: string
- *           default: password
- *           description: User password
- */
-
-/**
- * @swagger
- * tags:
- *   name: Auth
- *   description: Authorization operations
- */
-
-/**
- * @swagger
- * /api/auth/signin/local:
- *   post:
- *     tags: [Auth]
- *     summary: Logs user into the system
- *     description: Logs user into the system
- *     requestBody:
- *       description: Set valid user email and password
- *       content:
- *         application/json:
- *           schema:
- *             $ref: "#/components/schemas/Auth"
- *     responses:
- *       200:
- *         description: Successful login
- *       400:
- *         description: Invalid username/password supplied
- *     x-codegen-request-body-name: body
- */
 router.post(
   '/signin/local',
   wrapAsync(async (req, res) => {
@@ -64,6 +16,8 @@ router.post(
       if (!email || !password) {
         return res.status(400).json({ error: 'Email and password are required.' });
       }
+      console.log(`Email:${email}`);
+      console.log(`Password${password}`)
       const payload = await AuthService.signin(email, password, req);
       res.status(200).send(payload);
     } catch (error) {
@@ -74,28 +28,6 @@ router.post(
 );
 
 
-/**
- * @swagger
- * /api/auth/signup:
- *   post:
- *     tags: [Auth]
- *     summary: Register new user into the system
- *     description: Register new user into the system
- *     requestBody:
- *       description: Set valid user email and password
- *       content:
- *         application/json:
- *           schema:
- *             $ref: "#/components/schemas/Auth"
- *     responses:
- *       200:
- *         description: New user successfully signed up
- *       400:
- *         description: Invalid username/password supplied
- *       500:
- *         description: Some server error
- *     x-codegen-request-body-name: body
- */
 
 
 router.post('/signup', async (req, res) => {

@@ -14,10 +14,6 @@ module.exports = function (sequelize, DataTypes) {
         defaultValue: DataTypes.UUIDV4,
         primaryKey: true,
       },
-      ticket_id: {
-        type: DataTypes.TEXT,
-        allowNull: false,
-      },
       subject: {
         type: DataTypes.STRING(255),
         allowNull: false,

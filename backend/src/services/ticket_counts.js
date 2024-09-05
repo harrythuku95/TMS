@@ -1,75 +1,28 @@
-const db = require('../db/models');
-const Ticket_countsDBApi = require('../db/api/ticket_counts');
-const processFile = require('../middlewares/upload');
-const csv = require('csv-parser');
-const axios = require('axios');
-const config = require('../config');
-const stream = require('stream');
+const TicketCountsDBApi = require('../db/api/ticket_counts');
+const TicketsDBApi = require('../db/api/tickets');
 
-module.exports = class Ticket_countsService {
+
+module.exports = class TicketCountsService {
   static async create(data, currentUser) {
     const transaction = await db.sequelize.transaction();
     try {
-      await Ticket_countsDBApi.create(data, {
+      const ticket_counts = await TicketCountsDBApi.create(data, {
         currentUser,
         transaction,
       });
 
       await transaction.commit();
+      return ticket_counts;
     } catch (error) {
       await transaction.rollback();
       throw error;
     }
   }
 
-  static async bulkImport(req, res, sendInvitationEmails = true, host) {
-    const transaction = await db.sequelize.transaction();
-
-    try {
-      await processFile(req, res);
-      const bufferStream = new stream.PassThrough();
-      const results = [];
-
-      await bufferStream.end(Buffer.from(req.file.buffer, 'utf-8')); // convert Buffer to Stream
-
-      await new Promise((resolve, reject) => {
-        bufferStream
-          .pipe(csv())
-          .on('data', (data) => results.push(data))
-          .on('end', async () => {
-            console.log('CSV results', results);
-            resolve();
-          })
-          .on('error', (error) => reject(error));
-      });
-
-      await Ticket_countsDBApi.bulkImport(results, {
-        transaction,
-        ignoreDuplicates: true,
-        validate: true,
-        currentUser: req.currentUser,
-      });
-
-      await transaction.commit();
-    } catch (error) {
-      await transaction.rollback();
-      throw error;
-    }
-  }
-
-  static async update(data, id, currentUser) {
+  static async update(id, data, currentUser) {
     const transaction = await db.sequelize.transaction();
     try {
-      let ticket_counts = await Ticket_countsDBApi.findBy(
-        { id },
-        { transaction },
-      );
-
-      if (!ticket_counts) {
-        throw new ValidationError('ticket_countsNotFound');
-      }
-
-      await Ticket_countsDBApi.update(id, data, {
+      const ticket_counts = await TicketCountsDBApi.update(id, data, {
         currentUser,
         transaction,
       });
@@ -84,16 +37,49 @@ module.exports = class Ticket_countsService {
 
   static async remove(id, currentUser) {
     const transaction = await db.sequelize.transaction();
-
     try {
-      if (currentUser.app_role?.name !== config.roles.admin) {
-        throw new ValidationError('errors.forbidden.message');
-      }
-
-      await Ticket_countsDBApi.remove(id, {
+      await TicketCountsDBApi.remove(id, {
         currentUser,
         transaction,
       });
+
+      await transaction.commit();
+    } catch (error) {
+      await transaction.rollback();
+      throw error;
+    }
+  }
+
+  static async findBy(where, options) {
+    const record = await TicketCountsDBApi.findBy(where, options);
+    return record;
+  }
+
+  static async findAll(filter, options) {
+    return TicketCountsDBApi.findAll(filter, options);
+  }
+
+  static async updateTicketCounts(ticketId, counts, currentUser) {
+    const transaction = await db.sequelize.transaction();
+    try {
+      for (const count of counts) {
+        const existingCount = await TicketCountsDBApi.findBy({ 
+          ticketId, 
+          count_type: count.count_type 
+        }, { transaction });
+
+        if (existingCount) {
+          await TicketCountsDBApi.update(existingCount.id, { 
+            count_value: count.count_value 
+          }, { currentUser, transaction });
+        } else {
+          await TicketCountsDBApi.create({
+            ticketId,
+            count_type: count.count_type,
+            count_value: count.count_value
+          }, { currentUser, transaction });
+        }
+      }
 
       await transaction.commit();
     } catch (error) {

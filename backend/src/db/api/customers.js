@@ -1,6 +1,4 @@
 const db = require('../models');
-const FileDBApi = require('./file');
-const crypto = require('crypto');
 const Utils = require('../utils');
 
 const Sequelize = db.Sequelize;
@@ -8,56 +6,98 @@ const Op = Sequelize.Op;
 
 module.exports = class CustomersDBApi {
   static async create(data, options) {
-    const currentUser = (options && options.currentUser) || { id: null };
-    const transaction = (options && options.transaction) || undefined;
+    const currentUser = options && options.currentUser;
+    const transaction = options && options.transaction;
 
-    const customers = await db.customers.create(
+    console.log(`Data from API: ${data}`)
+
+    const customer = await db.customers.create(
       {
         id: data.id || undefined,
-
-        customer_id: data.customer_id || null,
+        customer_id: data.name || null,
+        name: data.name,
         importHash: data.importHash || null,
-        createdById: currentUser.id,
-        updatedById: currentUser.id,
+        createdById: currentUser ? currentUser.id : null,
+        updatedById: currentUser ? currentUser.id : null,
       },
-      { transaction },
+      { transaction }
     );
 
-    return customers;
+    return customer;
   }
 
-  static async getCount() {
+  static async findAll(filter, options) {
+    console.log('CustomersDBApi findAll called with filter:', filter);
     try {
-      return await db.customers.count();
+      let limit = filter.limit || 0;
+      let offset = 0;
+      const currentPage = +filter.page;
+  
+      offset = currentPage * limit;
+  
+      let whereClause = {};
+      let include = [];
+  
+      if (filter) {
+        if (filter.id) {
+          whereClause = {
+            ...whereClause,
+            ['id']: Utils.uuid(filter.id),
+          };
+        }
+  
+        if (filter.name) {
+          whereClause = {
+            ...whereClause,
+            [Op.and]: Utils.ilike('customers', 'name', filter.name),
+          };
+        }
+  
+        if (filter.customer_id) {
+          whereClause = {
+            ...whereClause,
+            [Op.and]: Utils.ilike('customers', 'customer_id', filter.customer_id),
+          };
+        }
+      }
+  
+      let { rows, count } = await db.customers.findAndCountAll({
+        where: whereClause,
+        include,
+        limit: limit ? Number(limit) : undefined,
+        offset: offset ? Number(offset) : undefined,
+        order: [['createdAt', 'DESC']],
+      });
+  
+      console.log(`Found ${count} customers`);
+      return { rows, count };
     } catch (error) {
-      console.error('Error in CustomersDBApi.getCount:', error);
+      console.error('Error in CustomersDBApi.findAll:', error);
       throw error;
     }
   }
 
-  static async bulkImport(data, options) {
-    const currentUser = (options && options.currentUser) || { id: null };
-    const transaction = (options && options.transaction) || undefined;
+  static async count(filter, options) {
+    const whereClause = {};
 
-    // Prepare data - wrapping individual data transformations in a map() method
-    const customersData = data.map((item, index) => ({
-      id: item.id || undefined,
+    if (filter) {
+      if (filter.id) {
+        whereClause.id = Utils.uuid(filter.id);
+      }
 
-      customer_id: item.customer_id || null,
-      importHash: item.importHash || null,
-      createdById: currentUser.id,
-      updatedById: currentUser.id,
-      createdAt: new Date(Date.now() + index * 1000),
-    }));
+      if (filter.name) {
+        whereClause.name = { [Op.like]: `%${filter.name}%` };
+      }
 
-    // Bulk create items
-    const customers = await db.customers.bulkCreate(customersData, {
-      transaction,
+      if (filter.customer_id) {
+        whereClause.customer_id = { [Op.like]: `%${filter.customer_id}%` };
+      }
+    }
+
+    return db.customers.count({
+      where: whereClause,
+      transaction: (options && options.transaction) || undefined,
     });
-
-    // For each item created, replace relation files
-
-    return customers;
   }
 
   static async update(id, data, options) {
@@ -69,6 +109,7 @@ module.exports = class CustomersDBApi {
     await customers.update(
       {
         customer_id: data.customer_id || null,
+        name: data.name,
         updatedById: currentUser.id,
       },
       { transaction },
@@ -113,103 +154,6 @@ module.exports = class CustomersDBApi {
     return output;
   }
 
-  static async findAll(filter, options) {
-    var limit = filter.limit || 0;
-    var offset = 0;
-    const currentPage = +filter.page;
-
-    offset = currentPage * limit;
-
-    var orderBy = null;
-
-    const transaction = (options && options.transaction) || undefined;
-    let where = {};
-    let include = [];
-
-    if (filter) {
-      if (filter.id) {
-        where = {
-          ...where,
-          ['id']: Utils.uuid(filter.id),
-        };
-      }
-
-      if (filter.customer_id) {
-        where = {
-          ...where,
-          [Op.and]: Utils.ilike('customers', 'customer_id', filter.customer_id),
-        };
-      }
-
-      if (
-        filter.active === true ||
-        filter.active === 'true' ||
-        filter.active === false ||
-        filter.active === 'false'
-      ) {
-        where = {
-          ...where,
-          active: filter.active === true || filter.active === 'true',
-        };
-      }
-
-      if (filter.createdAtRange) {
-        const [start, end] = filter.createdAtRange;
-
-        if (start !== undefined && start !== null && start !== '') {
-          where = {
-            ...where,
-            ['createdAt']: {
-              ...where.createdAt,
-              [Op.gte]: start,
-            },
-          };
-        }
-
-        if (end !== undefined && end !== null && end !== '') {
-          where = {
-            ...where,
-            ['createdAt']: {
-              ...where.createdAt,
-              [Op.lte]: end,
-            },
-          };
-        }
-      }
-    }
-
-    let { rows, count } = options?.countOnly
-    ? {
-        rows: [],
-        count: await db.customers.count({
-          where,
-          include,
-          distinct: true,
-          limit: limit ? Number(limit) : undefined,
-          offset: offset ? Number(offset) : undefined,
-          order:
-            filter.field && filter.sort
-              ? [[filter.field, filter.sort]]
-              : [['createdAt', 'desc']],
-          transaction,
-        }),
-      }
-    : await db.customers.findAndCountAll({
-        where,
-        include,
-        distinct: true,
-        limit: limit ? Number(limit) : undefined,
-        offset: offset ? Number(offset) : undefined,
-        order:
-          filter.field && filter.sort
-            ? [[filter.field, filter.sort]]
-            : [['createdAt', 'desc']],
-        transaction,
-      });
-
-  return { rows, count };
-  }
-
   static async findAllAutocomplete(query, limit) {
     let where = {};
 
@@ -217,21 +161,21 @@ module.exports = class CustomersDBApi {
       where = {
         [Op.or]: [
           { ['id']: Utils.uuid(query) },
-          Utils.ilike('customers', 'id', query),
+          Utils.ilike('customers', 'name', query),
         ],
       };
     }
 
     const records = await db.customers.findAll({
-      attributes: ['id', 'id'],
+      attributes: ['id', 'name'],
       where,
       limit: limit ? Number(limit) : undefined,
-      orderBy: [['id', 'ASC']],
+      orderBy: [['name', 'ASC']],
     });
 
     return records.map((record) => ({
       id: record.id,
-      label: record.id,
+      label: record.name,
     }));
   }
 };

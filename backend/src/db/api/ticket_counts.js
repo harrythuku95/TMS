@@ -1,12 +1,10 @@
 const db = require('../models');
-const FileDBApi = require('./file');
-const crypto = require('crypto');
 const Utils = require('../utils');
 
 const Sequelize = db.Sequelize;
 const Op = Sequelize.Op;
 
-module.exports = class Ticket_countsDBApi {
+module.exports = class TicketCountsDBApi {
   static async create(data, options) {
     const currentUser = (options && options.currentUser) || { id: null };
     const transaction = (options && options.transaction) || undefined;
@@ -17,6 +15,7 @@ module.exports = class Ticket_countsDBApi {
         count_id: data.count_id || null,
         count_type: data.count_type || null,
         count_value: data.count_value || 0,
+        ticketId: data.ticketId || null,
         importHash: data.importHash || null,
         createdById: currentUser.id,
         updatedById: currentUser.id,
@@ -27,44 +26,18 @@ module.exports = class Ticket_countsDBApi {
     return ticket_counts;
   }
 
-  static async bulkImport(data, options) {
-    const currentUser = (options && options.currentUser) || { id: null };
-    const transaction = (options && options.transaction) || undefined;
-
-    // Prepare data - wrapping individual data transformations in a map() method
-    const ticket_countsData = data.map((item, index) => ({
-      id: item.id || undefined,
-
-      count_id: item.count_id || null,
-      importHash: item.importHash || null,
-      createdById: currentUser.id,
-      updatedById: currentUser.id,
-      createdAt: new Date(Date.now() + index * 1000),
-    }));
-
-    // Bulk create items
-    const ticket_counts = await db.ticket_counts.bulkCreate(ticket_countsData, {
-      transaction,
-    });
-
-    // For each item created, replace relation files
-
-    return ticket_counts;
-  }
-
   static async update(id, data, options) {
     const currentUser = (options && options.currentUser) || { id: null };
     const transaction = (options && options.transaction) || undefined;
 
-    const ticket_counts = await db.ticket_counts.findByPk(
-      id,
-      {},
-      { transaction },
-    );
+    const ticket_counts = await db.ticket_counts.findByPk(id, {}, { transaction });
 
     await ticket_counts.update(
       {
         count_id: data.count_id || null,
+        count_type: data.count_type || null,
+        count_value: data.count_value || 0,
+        ticketId: data.ticketId || null,
         updatedById: currentUser.id,
       },
       { transaction },
@@ -79,14 +52,11 @@ module.exports = class Ticket_countsDBApi {
 
     const ticket_counts = await db.ticket_counts.findByPk(id, options);
 
-    await ticket_counts.update(
-      {
-        deletedBy: currentUser.id,
-      },
-      {
-        transaction,
-      },
-    );
+    await ticket_counts.update({
+      deletedBy: currentUser.id
+    }, {
+      transaction,
+    });
 
     await ticket_counts.destroy({
       transaction,
@@ -123,7 +93,12 @@ module.exports = class Ticket_countsDBApi {
 
     const transaction = (options && options.transaction) || undefined;
     let where = {};
-    let include = [];
+    let include = [
+      {
+        model: db.tickets,
+        as: 'ticket',
+      },
+    ];
 
     if (filter) {
       if (filter.id) {
@@ -136,19 +111,22 @@ module.exports = class Ticket_countsDBApi {
       if (filter.count_id) {
         where = {
           ...where,
-          [Op.and]: Utils.ilike('ticket_counts', 'count_id', filter.count_id),
+          [Op.and]: Utils.ilike(
+            'ticket_counts',
+            'count_id',
+            filter.count_id,
+          ),
         };
       }
 
-      if (
-        filter.active === true ||
-        filter.active === 'true' ||
-        filter.active === false ||
-        filter.active === 'false'
-      ) {
+      if (filter.count_type) {
         where = {
           ...where,
-          active: filter.active === true || filter.active === 'true',
+          [Op.and]: Utils.ilike(
+            'ticket_counts',
+            'count_type',
+            filter.count_type,
+          ),
         };
       }
 
@@ -177,65 +155,15 @@ module.exports = class Ticket_countsDBApi {
       }
     }
 
-    let { rows, count } = options?.countOnly
-      ? {
-          rows: [],
-          count: await db.ticket_counts.count({
-            where,
-            include,
-            distinct: true,
-            limit: limit ? Number(limit) : undefined,
-            offset: offset ? Number(offset) : undefined,
-            order:
-              filter.field && filter.sort
-                ? [[filter.field, filter.sort]]
-                : [['createdAt', 'desc']],
-            transaction,
-          }),
-        }
-      : await db.ticket_counts.findAndCountAll({
-          where,
-          include,
-          distinct: true,
-          limit: limit ? Number(limit) : undefined,
-          offset: offset ? Number(offset) : undefined,
-          order:
-            filter.field && filter.sort
-              ? [[filter.field, filter.sort]]
-              : [['createdAt', 'desc']],
-          transaction,
-        });
-
-    //    rows = await this._fillWithRelationsAndFilesForRows(
-    //      rows,
-    //      options,
-    //    );
-
-    return { rows, count };
-  }
-
-  static async findAllAutocomplete(query, limit) {
-    let where = {};
-
-    if (query) {
-      where = {
-        [Op.or]: [
-          { ['id']: Utils.uuid(query) },
-          Utils.ilike('ticket_counts', 'id', query),
-        ],
-      };
-    }
-
-    const records = await db.ticket_counts.findAll({
-      attributes: ['id', 'id'],
+    let { rows, count } = await db.ticket_counts.findAndCountAll({
       where,
+      include,
       limit: limit ? Number(limit) : undefined,
-      orderBy: [['id', 'ASC']],
+      offset: offset ? Number(offset) : undefined,
+      order: orderBy,
+      transaction,
     });
 
-    return records.map((record) => ({
-      id: record.id,
-      label: record.id,
-    }));
+    return { rows, count };
   }
 };

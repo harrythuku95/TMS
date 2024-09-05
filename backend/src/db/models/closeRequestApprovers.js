@@ -1,29 +1,27 @@
-// src/db/models/closeRequestApprovers.js
 module.exports = function (sequelize, DataTypes) {
-    const closeRequestApprovers = sequelize.define(
-      'CloseRequestApprovers',
-      {
-        id: {
-          type: DataTypes.UUID,
-          defaultValue: DataTypes.UUIDV4,
-          primaryKey: true,
-        },
-        closeRequestId: {
-          type: DataTypes.UUID,
-          allowNull: false,
-        },
-        userId: {
-          type: DataTypes.UUID,
-          allowNull: false,
-        },
+  const closeRequestApprovers = sequelize.define(
+    'CloseRequestApprovers',
+    {
+      id: {
+        type: DataTypes.UUID,
+        defaultValue: DataTypes.UUIDV4,
+        primaryKey: true,
       },
-      {
-        timestamps: true,
-        paranoid: true,
-        freezeTableName: true,
+      closeRequestId: {
+        type: DataTypes.UUID,
+        allowNull: false,
       },
-    );
-  
-    return closeRequestApprovers;
-  };
-  
+      userId: {
+        type: DataTypes.UUID,
+        allowNull: false,
+      },
+    },
+    {
+      timestamps: true,
+      paranoid: true,
+      freezeTableName: true,
+    },
+  );
+
+  return closeRequestApprovers;
+};

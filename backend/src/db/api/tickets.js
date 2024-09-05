@@ -12,32 +12,17 @@ module.exports = class TicketsDBApi {
   
     const tickets = await db.tickets.create(
       {
-        id: data.id || undefined,
-        ticket_id: data.ticket_id || null,
         subject: data.subject || null,
         priority: data.priority || null,
         description: data.description || null,
         status: data.status || 'pending',
-        assigneeId: data.assigneeId || null,  // This will be set by the service layer
-        customerId: data.customer || null,
-        importHash: data.importHash || null,
+        assigneeId: data.assigneeId || null,
+        customerId: data.customerId || null,
         createdById: currentUser.id,
         updatedById: currentUser.id,
       },
       { transaction },
     );
-  
-    if (data.files && data.files.length > 0) {
-      await FileDBApi.replaceRelationFiles(
-        {
-          belongsTo: 'tickets',
-          belongsToColumn: 'files',
-          belongsToId: tickets.id,
-        },
-        data.files,
-        options,
-      );
-    }
   
     return tickets;
   }
@@ -59,30 +44,6 @@ module.exports = class TicketsDBApi {
     }
   }
 
-  static async bulkImport(data, options) {
-    const currentUser = (options && options.currentUser) || { id: null };
-    const transaction = (options && options.transaction) || undefined;
-
-    const ticketsData = data.map((item, index) => ({
-      id: item.id || undefined,
-      ticket_id: item.ticket_id || null,
-      subject: item.subject || null,
-      priority: item.priority || null,
-      description: item.description || null,
-      status: item.status || 'pending',
-      assigneeId: item.assignee || null,
-      customerId: item.customer || null,
-      importHash: item.importHash || null,
-      createdById: currentUser.id,
-      updatedById: currentUser.id,
-      createdAt: new Date(Date.now() + index * 1000),
-    }));
-
-    const tickets = await db.tickets.bulkCreate(ticketsData, { transaction });
-
-    return tickets;
-  }
-
   static async update(id, data, options) {
     const currentUser = (options && options.currentUser) || { id: null };
     const transaction = (options && options.transaction) || undefined;
@@ -91,13 +52,12 @@ module.exports = class TicketsDBApi {
 
     await tickets.update(
       {
-        ticket_id: data.ticket_id || null,
         subject: data.subject || null,
         priority: data.priority || null,
         description: data.description || null,
-        status: data.status || 'pending',
-        assigneeId: data.assignee || null,
-        customerId: data.customer || null,
+        status: data.status || null,
+        assigneeId: data.assigneeId || null,
+        customerId: data.customerId || null,
         updatedById: currentUser.id,
       },
       { transaction },
@@ -143,17 +103,28 @@ module.exports = class TicketsDBApi {
   }
 
   static async findAll(filter, options) {
-    var limit = filter.limit || 0;
-    var offset = 0;
+    let limit = filter.limit || 0;
+    let offset = 0;
     const currentPage = +filter.page;
 
     offset = currentPage * limit;
 
-    var orderBy = null;
+    let orderBy = null;
 
     const transaction = (options && options.transaction) || undefined;
     let where = {};
-    let include = [];
+    let include = [
+      {
+        model: db.users,
+        as: 'assignee',
+        attributes: ['id', 'firstName', 'lastName', 'email']
+      },
+      {
+        model: db.customers,
+        as: 'customer',
+        attributes: ['id', 'name']
+      }
+    ];
 
     if (filter) {
       if (filter.id) {
@@ -163,11 +134,15 @@ module.exports = class TicketsDBApi {
         };
       }
 
-      if (filter.ticket_id) {
+      if (filter.subject) {
         where = {
           ...where,
-          [Op.and]: Utils.ilike('tickets', 'ticket_id', filter.ticket_id),
+          [Op.and]: Utils.ilike('tickets', 'subject', filter.subject),
         };
+      }
+
+      if (filter.status) {
+        where.status = filter.status;
       }
 
       if (filter.createdAtRange) {
@@ -195,34 +170,17 @@ module.exports = class TicketsDBApi {
       }
     }
 
-    let { rows, count } = options?.countOnly
-      ? {
-          rows: [],
-          count: await db.tickets.count({
-            where,
-            include,
-            distinct: true,
-            limit: limit ? Number(limit) : undefined,
-            offset: offset ? Number(offset) : undefined,
-            order:
-              filter.field && filter.sort
-                ? [[filter.field, filter.sort]]
-                : [['createdAt', 'desc']],
-            transaction,
-          }),
-        }
-      : await db.tickets.findAndCountAll({
-          where,
-          include,
-          distinct: true,
-          limit: limit ? Number(limit) : undefined,
-          offset: offset ? Number(offset) : undefined,
-          order:
-            filter.field && filter.sort
-              ? [[filter.field, filter.sort]]
-              : [['createdAt', 'desc']],
-          transaction,
-        });
+    let { rows, count } = await db.tickets.findAndCountAll({
+      where,
+      include,
+      distinct: true,
+      limit: limit ? Number(limit) : undefined,
+      offset: offset ? Number(offset) : undefined,
+      order: (filter.field && filter.sort)
+        ? [[filter.field, filter.sort]]
+        : [['createdAt', 'desc']],
+      transaction,
+    });
 
     return { rows, count };
   }
@@ -234,21 +192,21 @@ module.exports = class TicketsDBApi {
       where = {
         [Op.or]: [
           { ['id']: Utils.uuid(query) },
-          Utils.ilike('tickets', 'id', query),
+          Utils.ilike('tickets', 'subject', query),
         ],
       };
     }
 
     const records = await db.tickets.findAll({
-      attributes: ['id', 'id'],
+      attributes: ['id', 'subject'],
       where,
       limit: limit ? Number(limit) : undefined,
-      orderBy: [['id', 'ASC']],
+      orderBy: [['subject', 'ASC']],
     });
 
     return records.map((record) => ({
       id: record.id,
-      label: record.id,
+      label: record.subject,
     }));
   }
 };

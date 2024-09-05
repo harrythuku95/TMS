@@ -22,17 +22,17 @@ const CreateTicketPage = () => {
 
   const fetchCustomers = async () => {
     try {
+      const token = localStorage.getItem('authToken'); 
       const response = await axios.get('http://localhost:8080/api/customers', {
         headers: {
-          Authorization: `Bearer ${authToken}`,
-        },
+          Authorization: `Bearer ${token}`
+        }
       });
       setCustomerOptions(response.data.rows || []);
     } catch (error) {
       console.error('Error fetching customers:', error);
     }
   };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
 

@@ -1,8 +1,4 @@
 const config = require('../../config');
-const providers = config.providers;
-const crypto = require('crypto');
-const bcrypt = require('bcrypt');
-const moment = require('moment');
 
 module.exports = function (sequelize, DataTypes) {
   const ticket_labels = sequelize.define(
@@ -37,10 +33,12 @@ module.exports = function (sequelize, DataTypes) {
 
     db.ticket_labels.belongsTo(db.users, {
       as: 'createdBy',
+      foreignKey: 'createdById',
     });
 
     db.ticket_labels.belongsTo(db.users, {
       as: 'updatedBy',
+      foreignKey: 'updatedById',
     });
   };
 

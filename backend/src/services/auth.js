@@ -29,6 +29,8 @@ class Auth {
       }, { transaction });
 
       await transaction.commit();
+      console.log(`Transaction:${transaction}`);
+      console.log(`User:${user}`);
       return user;
     } catch (error) {
       await transaction.rollback();

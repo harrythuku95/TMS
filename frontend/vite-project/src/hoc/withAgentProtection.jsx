@@ -1,4 +1,3 @@
-// src/hoc/withAgentProtection.jsx
 import React, { useEffect } from 'react';
 import { useAuth } from '../context/auth';
 import { useNavigate } from 'react-router-dom';

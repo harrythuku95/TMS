@@ -32,12 +32,12 @@ const App = () => {
                 <Route path="/" element={<HomePage />} />
                 <Route path="/tickets" element={<TicketListPage />} />
                 <Route path="/new-ticket" element={<CreateTicketPage />} />
-                <Route path="/customers" element={withAgentProtection(<CustomerManagementPage />)} />
-                <Route path="/add-customer" element={withAgentProtection(<AddCustomerPage />)} />
-                <Route path="/edit-customer/:id" element={withAgentProtection(<EditCustomerPage />)} />
+                <Route path="/customers" element={<CustomerManagementPage />} />
+                <Route path="/add-customer" element={<AddCustomerPage />} />
+                <Route path="/edit-customer/:id" element={<EditCustomerPage />} />
                 <Route path="/ticket-details/:id" element={<TicketDetailsPage />} />
-                <Route path="/user-management" element={withAdminProtection(<UserManagementPage />)} />
-                <Route path="/send-close-request" element={withAgentProtection(<SendCloseRequestPage />)} />
+                <Route path="/user-management" element={<UserManagementPage />} />
+                <Route path="/send-close-request" element={<SendCloseRequestPage />} />
                 <Route path="/login" element={<Login />} />
                 <Route path="/signup" element={<Signup />} />
               </Routes>

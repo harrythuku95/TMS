@@ -1,34 +1,33 @@
 const express = require('express');
-const config = require('../config');
-const path = require('path');
-const passport = require('passport');
-const services = require('../services/file');
+const FileService = require('../services/file');
+const FileDBApi = require('../db/api/file');
+const wrapAsync = require('../helpers').wrapAsync;
+
 const router = express.Router();
 
-router.get('/download', (req, res) => {
-  if (process.env.NODE_ENV == 'production') {
-    services.downloadGCloud(req, res);
-  } else {
-    services.downloadLocal(req, res);
-  }
-});
+router.post('/', wrapAsync(async (req, res) => {
+  const payload = await FileService.create(req.body.data, req.currentUser);
+  res.status(200).send(payload);
+}));
 
-router.post(
-  '/upload/:table/:field',
-  passport.authenticate('jwt', { session: false }),
-  (req, res) => {
-    const fileName = `${req.params.table}/${req.params.field}`;
+router.put('/:id', wrapAsync(async (req, res) => {
+  const payload = await FileService.update(req.params.id, req.body.data, req.currentUser);
+  res.status(200).send(payload);
+}));
 
-    if (process.env.NODE_ENV == 'production') {
-      services.uploadGCloud(fileName, req, res);
-    } else {
-      services.uploadLocal(fileName, {
-        entity: null,
-        maxFileSize: 10 * 1024 * 1024,
-        folderIncludesAuthenticationUid: false,
-      })(req, res);
-    }
-  },
-);
+router.delete('/:id', wrapAsync(async (req, res) => {
+  await FileService.remove(req.params.id, req.currentUser);
+  res.status(200).send({ id: req.params.id });
+}));
+
+router.get('/:id', wrapAsync(async (req, res) => {
+  const payload = await FileDBApi.findBy({ id: req.params.id });
+  res.status(200).send(payload);
+}));
+
+router.get('/', wrapAsync(async (req, res) => {
+  const payload = await FileDBApi.findAll(req.query);
+  res.status(200).send(payload);
+}));
 
 module.exports = router;
