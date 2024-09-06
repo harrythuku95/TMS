@@ -9,22 +9,28 @@ module.exports = class TicketsDBApi {
   static async create(data, options) {
     const currentUser = (options && options.currentUser) || { id: null };
     const transaction = (options && options.transaction) || undefined;
-  
-    const tickets = await db.tickets.create(
-      {
-        subject: data.subject || null,
-        priority: data.priority || null,
-        description: data.description || null,
-        status: data.status || 'pending',
-        assigneeId: data.assigneeId || null,
-        customerId: data.customerId || null,
-        createdById: currentUser.id,
-        updatedById: currentUser.id,
-      },
-      { transaction },
-    );
-  
-    return tickets;
+    
+    try {
+      const tickets = await db.tickets.create(
+        {
+          subject: data.subject || null,
+          priority: data.priority || null,
+          description: data.description || null,
+          status: data.status || 'pending',
+          assigneeId: data.assigneeId || null,
+          customerId: data.customerId || null,
+          createdById: currentUser.id,
+          updatedById: currentUser.id,
+        },
+        { transaction },
+      );
+    
+      return tickets;
+    } catch(error){
+      console.log(`Error Creating tickets${error}`)
+      throw error;
+    }
+
   }
 
   static async getStats() {

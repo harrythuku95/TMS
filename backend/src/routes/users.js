@@ -13,16 +13,6 @@ router.get('/', checkRole(['Admin']), async (req, res) => {
   }
 });
 
-
-router.get('/', checkRole(['Admin']), async (req, res) => {
-  try {
-    const users = await UsersService.findAll(req.query);
-    res.json(users);
-  } catch (error) {
-    res.status(400).json({ error: error.message });
-  }
-});
-
 router.get('/:id', checkRole(['Admin']), async (req, res) => {
   try {
     const user = await UsersService.findById(req.params.id);

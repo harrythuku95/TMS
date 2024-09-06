@@ -9,39 +9,23 @@ module.exports = class TicketsService {
   static async create(data, currentUser) {
     const transaction = await db.sequelize.transaction();
     try {
-      // Find all users with the role of 'Agent'
-      const agents = await db.users.findAll({
-        where: { role: 'Agent' }
+      // Prepare ticket data
+      const ticketData = {
+        subject: data.subject || null,
+        priority: data.priority || null,
+        description: data.description || null,
+        status: data.status || 'pending',
+        assigneeId: null,
+        customerId: data.customer || null,
+        createdById: currentUser.id,
+        updatedById: currentUser.id,
+      };
+
+      // Use TicketsDBApi to create the ticket
+      const ticket = await TicketsDBApi.create(ticketData, {
+        currentUser,
+        transaction,
       });
-
-      if (agents.length === 0) {
-        throw new Error('No agents available for assignment');
-      }
-
-      // Find the agent with the least number of assigned tickets
-      const agentAssignments = await Promise.all(agents.map(async (agent) => {
-        const ticketCount = await db.tickets.count({ where: { assigneeId: agent.id } });
-        return { agent, ticketCount };
-      }));
-
-      const { agent: selectedAgent } = agentAssignments.reduce((min, current) => 
-        (current.ticketCount < min.ticketCount) ? current : min
-      );
-
-      // Create the ticket
-      const ticket = await db.tickets.create(
-        {
-          subject: data.subject || null,
-          priority: data.priority || null,
-          description: data.description || null,
-          status: data.status || 'pending',
-          assigneeId: selectedAgent.id,
-          customerId: data.customer || null,
-          createdById: currentUser.id,
-          updatedById: currentUser.id,
-        },
-        { transaction },
-      );
 
       // Handle files
       if (data.files && data.files.length > 0) {
