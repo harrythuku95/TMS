@@ -21,15 +21,31 @@ const CustomerManagementPage = () => {
       const response = await axios.get('http://localhost:8080/api/customers', {
         headers: { Authorization: `Bearer ${localStorage.getItem('authToken')}` }
       });
-      console.log('Customers fetched:', response.data);
       setCustomers(response.data.rows);
     } catch (error) {
-      console.error('Error fetching customers:', error.response?.data || error.message);
+      console.error('Error fetching customers:', error);
     }
   };
 
   const handleAddCustomer = () => {
     navigate('/add-customer');
+  };
+
+  const handleEdit = (customerId) => {
+    navigate(`/edit-customer/${customerId}`);
+  };
+
+  const handleDelete = async (customerId) => {
+    if (window.confirm('Are you sure you want to delete this customer?')) {
+      try {
+        await axios.delete(`http://localhost:8080/api/customers/${customerId}`, {
+          headers: { Authorization: `Bearer ${localStorage.getItem('authToken')}` }
+        });
+        fetchCustomers();
+      } catch (error) {
+        console.error('Error deleting customer:', error);
+      }
+    }
   };
 
   return (
@@ -48,6 +64,7 @@ const CustomerManagementPage = () => {
             <TableCell>Name</TableCell>
             <TableCell>Email</TableCell>
             <TableCell>Phone</TableCell>
+            <TableCell>Address</TableCell>
             <TableCell>Actions</TableCell>
           </TableRow>
         </TableHead>
@@ -58,7 +75,7 @@ const CustomerManagementPage = () => {
               <TableCell>{customer.email}</TableCell>
               <TableCell>{customer.phone}</TableCell>
               <TableCell>{customer.address}</TableCell>
-              <TableCell align="right">
+              <TableCell>
                 <IconButton color="primary" onClick={() => handleEdit(customer.id)}>
                   <EditIcon />
                 </IconButton>

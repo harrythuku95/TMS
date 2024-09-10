@@ -42,22 +42,29 @@ module.exports = class TicketLabelsDBApi {
     return ticket_labels;
   }
 
-  static async remove(id, options) {
+  static async remove(where, options) {
     const currentUser = (options && options.currentUser) || { id: null };
     const transaction = (options && options.transaction) || undefined;
-
-    const ticket_labels = await db.ticket_labels.findByPk(id, options);
-
-    await ticket_labels.update({
-      deletedBy: currentUser.id
-    }, {
-      transaction,
-    });
-
+  
+    const ticket_labels = await db.ticket_labels.findOne({ where }, { transaction });
+  
+    if (!ticket_labels) {
+      throw new Error('TicketLabel not found');
+    }
+  
+    await ticket_labels.update(
+      {
+        deletedBy: currentUser.id
+      },
+      {
+        transaction,
+      }
+    );
+  
     await ticket_labels.destroy({
       transaction,
     });
-
+  
     return ticket_labels;
   }
 

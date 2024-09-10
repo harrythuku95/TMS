@@ -1,9 +1,3 @@
-const config = require('../../config');
-const providers = config.providers;
-const crypto = require('crypto');
-const bcrypt = require('bcrypt');
-const moment = require('moment');
-
 module.exports = function (sequelize, DataTypes) {
   const customers = sequelize.define(
     'customers',
@@ -14,11 +8,23 @@ module.exports = function (sequelize, DataTypes) {
         primaryKey: true,
       },
       customer_id: {
-        type: DataTypes.TEXT,
+        type: DataTypes.STRING,
+        unique: true,
       },
       name: {
         type: DataTypes.STRING(255),
         allowNull: false,
+      },
+      email: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        unique: true,
+      },
+      phone: {
+        type: DataTypes.STRING,
+      },
+      address: {
+        type: DataTypes.TEXT,
       },
       importHash: {
         type: DataTypes.STRING(255),
@@ -36,14 +42,17 @@ module.exports = function (sequelize, DataTypes) {
   customers.associate = (db) => {
     db.customers.belongsTo(db.users, {
       as: 'createdBy',
+      foreignKey: 'createdById',
     });
 
     db.customers.belongsTo(db.users, {
       as: 'updatedBy',
+      foreignKey: 'updatedById',
     });
 
     db.customers.hasMany(db.tickets, {
       as: 'tickets',
+      foreignKey: 'customerId',
     });
   };
 

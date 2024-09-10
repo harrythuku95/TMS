@@ -44,44 +44,44 @@ module.exports = class UsersDBApi {
     let limit = filter.limit || 0;
     let offset = 0;
     const currentPage = +filter.page;
-
+  
     offset = currentPage * limit;
-
+  
     const where = {};
-
+  
     if (filter.id) {
       where['id'] = Utils.uuid(filter.id);
     }
-
+  
     if (filter.firstName) {
       where['firstName'] = {
         [Op.like]: `%${filter.firstName}%`,
       };
     }
-
+  
     if (filter.lastName) {
       where['lastName'] = {
         [Op.like]: `%${filter.lastName}%`,
       };
     }
-
+  
     if (filter.email) {
       where['email'] = {
         [Op.like]: `%${filter.email}%`,
       };
     }
-
+  
     if (filter.role) {
       where['role'] = filter.role;
     }
-
+  
     const { rows, count } = await db.users.findAndCountAll({
       where,
       limit: limit ? Number(limit) : undefined,
       offset: offset ? Number(offset) : undefined,
       order: [['createdAt', 'DESC']],
     });
-
+  
     return { rows, count };
   }
 };

@@ -9,11 +9,23 @@ module.exports = {
         primaryKey: true,
       },
       customer_id: {
-        type: Sequelize.TEXT,
+        type: Sequelize.STRING,
+        unique: true,
       },
       name: {
         type: Sequelize.STRING(255),
         allowNull: false,
+      },
+      email: {
+        type: Sequelize.STRING,
+        allowNull: false,
+        unique: true,
+      },
+      phone: {
+        type: Sequelize.STRING,
+      },
+      address: {
+        type: Sequelize.TEXT,
       },
       importHash: {
         type: Sequelize.STRING(255),

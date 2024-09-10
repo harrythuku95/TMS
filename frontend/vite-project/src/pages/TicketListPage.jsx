@@ -58,8 +58,8 @@ const TicketListPage = () => {
                 <TableCell>Subject</TableCell>
                 <TableCell>Priority</TableCell>
                 <TableCell>Status</TableCell>
-                <TableCell>Assignee</TableCell> {/* New column */}
-                <TableCell>Customer</TableCell> {/* New column */}
+                <TableCell>Assignee</TableCell> 
+                <TableCell>Customer</TableCell> 
                 <TableCell>Actions</TableCell>
               </TableRow>
             </TableHead>
@@ -70,8 +70,14 @@ const TicketListPage = () => {
                   <TableCell>{ticket.subject}</TableCell>
                   <TableCell>{ticket.priority}</TableCell>
                   <TableCell>{ticket.status}</TableCell>
-                  <TableCell>{ticket.assignee.firstName} {ticket.assignee.lastName}</TableCell> {/* Display assignee */}
-                  <TableCell>{ticket.customer.name}</TableCell> {/* Display customer */}
+                  <TableCell>
+                    {ticket.assignee 
+                      ? `${ticket.assignee.firstName} ${ticket.assignee.lastName}`
+                      : 'Unassigned'}
+                  </TableCell>
+                  <TableCell>
+                    {ticket.customer ? ticket.customer.name : 'N/A'}
+                  </TableCell>
                   <TableCell>
                     <Button
                       variant="contained"

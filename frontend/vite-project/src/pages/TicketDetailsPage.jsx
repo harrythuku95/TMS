@@ -45,10 +45,14 @@ const TicketDetailsPage = () => {
   const handleAddLabel = async () => {
     if (!newLabel.trim()) return;
     try {
-      await axios.post(`http://localhost:8080/api/tickets/${id}/labels`, { label: newLabel }, {
-        headers: { Authorization: `Bearer ${localStorage.getItem('authToken')}` }
-      });
-      setLabels([...labels, newLabel]);
+      const updatedLabels = [...labels, newLabel];
+      await axios.put(`http://localhost:8080/api/ticket_labels/ticket/${id}`, 
+        { labels: updatedLabels },
+        {
+          headers: { Authorization: `Bearer ${localStorage.getItem('authToken')}` }
+        }
+      );
+      setLabels(updatedLabels);
       setNewLabel('');
     } catch (error) {
       console.error('Error adding label:', error);

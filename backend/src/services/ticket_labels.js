@@ -1,5 +1,5 @@
 const TicketLabelsDBApi = require('../db/api/ticket_labels');
-const TicketsDBApi = require('../db/api/tickets');
+const db = require('../db/models');
 
 module.exports = class TicketLabelsService {
   static async create(data, currentUser) {
@@ -81,4 +81,5 @@ module.exports = class TicketLabelsService {
       throw error;
     }
   }
+
 };

@@ -31,8 +31,13 @@ router.get('/', wrapAsync(async (req, res) => {
 }));
 
 router.put('/ticket/:ticketId', wrapAsync(async (req, res) => {
-  const payload = await TicketLabelsService.updateTicketLabels(req.params.ticketId, req.body.labels, req.currentUser);
-  res.status(200).send(payload);
+  try {
+    const payload = await TicketLabelsService.updateTicketLabels(req.params.ticketId, req.body.labels, req.currentUser);
+    res.status(200).send(payload);
+  } catch (error) {
+    console.error('Error updating ticket labels:', error);
+    res.status(500).send({ error: 'An error occurred while updating ticket labels' });
+  }
 }));
 
 module.exports = router;

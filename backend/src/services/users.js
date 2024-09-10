@@ -167,4 +167,13 @@ module.exports = class UsersService {
       throw error;
     }
   }
+
+  static async findAll(filter) {
+    try {
+      const users = await UsersDBApi.findAll(filter);
+      return { rows: users };
+    } catch (error) {
+      throw new Error(`Error fetching users: ${error.message}`);
+    }
+  }
 };
