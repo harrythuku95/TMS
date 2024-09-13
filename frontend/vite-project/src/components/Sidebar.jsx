@@ -1,5 +1,5 @@
 import React from 'react';
-import { Drawer, List, ListItem, ListItemIcon, ListItemText } from '@mui/material';
+import { Drawer, List, ListItem, ListItemIcon, ListItemText, Toolbar } from '@mui/material';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/auth';
 import DashboardIcon from '@mui/icons-material/Dashboard';
@@ -30,14 +30,10 @@ const Sidebar = () => {
       sx={{
         width: 240,
         flexShrink: 0,
-        '& .MuiDrawer-paper': {
-          width: 240,
-          boxSizing: 'border-box',
-          top: 64,
-          height: 'calc(100% - 64px)',
-        },
+        [`& .MuiDrawer-paper`]: { width: 240, boxSizing: 'border-box' },
       }}
     >
+      <Toolbar />
       <List>
         {menuItems.map((item) => (
           item.roles.includes(user.role) && (

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Container, TextField, Button, Typography, Box } from '@mui/material';
+import { Container, TextField, Button, Typography, Box, Alert, Grid } from '@mui/material';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 
@@ -31,36 +31,42 @@ const SendCloseRequestPage = () => {
   };
 
   return (
-    <Container maxWidth="sm">
-      <Box
-        component="form"
-        onSubmit={handleSubmit}
-        sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 4 }}
-      >
+    <Container maxWidth="sm" sx={{ mt: 4, mb: 4 }}>
+      <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
         <Typography variant="h4" align="center" gutterBottom>
           Send Close Request
         </Typography>
-        {error && <Typography color="error">{error}</Typography>}
-        {success && <Typography color="primary">{success}</Typography>}
-        <TextField
-          label="Ticket ID"
-          value={ticketId}
-          onChange={(e) => setTicketId(e.target.value)}
-          required
-          fullWidth
-        />
-        <TextField
-          label="Reason"
-          value={reason}
-          onChange={(e) => setReason(e.target.value)}
-          required
-          fullWidth
-          multiline
-          rows={4}
-        />
-        <Button type="submit" variant="contained" color="primary" fullWidth>
-          Send Request
-        </Button>
+        {error && <Alert severity="error" sx={{ width: '100%', mb: 2 }}>{error}</Alert>}
+        {success && <Alert severity="success" sx={{ width: '100%', mb: 2 }}>{success}</Alert>}
+        <Box component="form" onSubmit={handleSubmit} sx={{ width: '100%', mt: 2 }}>
+          <Grid container spacing={2}>
+            <Grid item xs={12}>
+              <TextField
+                label="Ticket ID"
+                value={ticketId}
+                onChange={(e) => setTicketId(e.target.value)}
+                required
+                fullWidth
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <TextField
+                label="Reason"
+                value={reason}
+                onChange={(e) => setReason(e.target.value)}
+                required
+                fullWidth
+                multiline
+                rows={4}
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <Button type="submit" variant="contained" color="primary" fullWidth>
+                Send Request
+              </Button>
+            </Grid>
+          </Grid>
+        </Box>
       </Box>
     </Container>
   );

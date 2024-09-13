@@ -2,6 +2,7 @@ import React from 'react';
 import { Route, Routes } from 'react-router-dom';
 import { AuthProvider } from './context/auth';
 import { BrowserRouter as Router } from 'react-router-dom';
+import { Box, Toolbar } from '@mui/material';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import Sidebar from './components/Sidebar';
@@ -23,11 +24,13 @@ const App = () => {
   return (
     <Router>
       <AuthProvider>
-        <>
+        <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
           <Navbar />
-          <div style={{ display: 'flex' }}>
+          <Box sx={{ display: 'flex', flexGrow: 1 }}>
             <Sidebar />
-            <main style={{ flexGrow: 1, padding: '20px' }}>
+            <Box component="main" sx={{ flexGrow: 1, p: 3, width: { sm: `calc(100% - 240px)` } }}>
+              <Toolbar />
+           {/** <main style={{ flexGrow: 1, padding: '20px' }}>*/} 
               <Routes>
                 <Route path="/" element={<HomePage />} />
                 <Route path="/tickets" element={<TicketListPage />} />
@@ -41,10 +44,11 @@ const App = () => {
                 <Route path="/login" element={<Login />} />
                 <Route path="/signup" element={<Signup />} />
               </Routes>
-            </main>
-          </div>
+            {/**</main> */}
+            </Box>
+          </Box>
           <Footer />
-        </>
+        </Box>
       </AuthProvider>
     </Router>
   );

@@ -58,63 +58,65 @@ const HomePage = () => {
   };
 
   return (
-    <Container maxWidth="lg">
-      {error && (
-        <Alert severity="error" sx={{ mt: 2, mb: 2 }}>
-          {error}
-        </Alert>
-      )}
-      <Typography variant="h3" gutterBottom>
-        Dashboard
-      </Typography>
-      <Grid container spacing={4}>
-        <Grid item xs={12} sm={6} md={4}>
-          <Paper elevation={3} sx={{ padding: 3 }}>
-            <Typography variant="h6">Open Tickets</Typography>
-            <Typography variant="h4" color="primary">
-              {ticketStats.open}
-            </Typography>
-          </Paper>
-        </Grid>
-        <Grid item xs={12} sm={6} md={4}>
-          <Paper elevation={3} sx={{ padding: 3 }}>
-            <Typography variant="h6">Closed Tickets</Typography>
-            <Typography variant="h4" color="primary">
-              {ticketStats.closed}
-            </Typography>
-          </Paper>
-        </Grid>
-        <Grid item xs={12} sm={6} md={4}>
-          <Paper elevation={3} sx={{ padding: 3 }}>
-            <Typography variant="h6">Pending Tickets</Typography>
-            <Typography variant="h4" color="primary">
-              {ticketStats.pending}
-            </Typography>
-          </Paper>
-        </Grid>
-        <Grid item xs={12} sm={6} md={4}>
-          <Paper elevation={3} sx={{ padding: 3 }}>
-            <Typography variant="h6">Customers</Typography>
-            <Typography variant="h4" color="primary">
-              {customerCount}
-            </Typography>
-          </Paper>
-        </Grid>
-      </Grid>
-      <Box sx={{ marginTop: 4 }}>
-        <Typography variant="h5">Quick Actions</Typography>
-        <Grid container spacing={2} sx={{ marginTop: 2 }}>
-          <Grid item>
-            <Button variant="contained" color="primary" onClick={handleNewTicket}>
-              Create New Ticket
-            </Button>
+    <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
+      <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+        {error && (
+          <Alert severity="error" sx={{ width: '100%', mb: 2 }}>
+            {error}
+          </Alert>
+        )}
+        <Typography variant="h3" gutterBottom align="center">
+          Dashboard
+        </Typography>
+        <Grid container spacing={3} justifyContent="center">
+          <Grid item xs={12} sm={6} md={3}>
+            <Paper elevation={3} sx={{ p: 2, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+              <Typography variant="h6">Open Tickets</Typography>
+              <Typography variant="h4" color="primary">
+                {ticketStats.open}
+              </Typography>
+            </Paper>
           </Grid>
-          <Grid item>
-            <Button variant="contained" color="secondary" onClick={handleCustomerManagement}>
-              Manage Customers
-            </Button>
+          <Grid item xs={12} sm={6} md={3}>
+            <Paper elevation={3} sx={{ p: 2, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+              <Typography variant="h6">Closed Tickets</Typography>
+              <Typography variant="h4" color="primary">
+                {ticketStats.closed}
+              </Typography>
+            </Paper>
+          </Grid>
+          <Grid item xs={12} sm={6} md={3}>
+            <Paper elevation={3} sx={{ p: 2, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+              <Typography variant="h6">Pending Tickets</Typography>
+              <Typography variant="h4" color="primary">
+                {ticketStats.pending}
+              </Typography>
+            </Paper>
+          </Grid>
+          <Grid item xs={12} sm={6} md={3}>
+            <Paper elevation={3} sx={{ p: 2, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+              <Typography variant="h6">Customers</Typography>
+              <Typography variant="h4" color="primary">
+                {customerCount}
+              </Typography>
+            </Paper>
           </Grid>
         </Grid>
+        <Box sx={{ mt: 4, width: '100%' }}>
+          <Typography variant="h5" align="center" gutterBottom>Quick Actions</Typography>
+          <Grid container spacing={2} justifyContent="center">
+            <Grid item>
+              <Button variant="contained" color="primary" onClick={handleNewTicket}>
+                Create New Ticket
+              </Button>
+            </Grid>
+            <Grid item>
+              <Button variant="contained" color="secondary" onClick={handleCustomerManagement}>
+                Manage Customers
+              </Button>
+            </Grid>
+          </Grid>
+        </Box>
       </Box>
     </Container>
   );

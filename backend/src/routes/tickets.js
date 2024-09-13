@@ -21,23 +21,28 @@ router.post(
   '/',
   upload.array('files'),
   wrapAsync(async (req, res) => {
-    const { subject, priority, description, status, customer } = req.body;
-    const ticketData = { subject, priority, description, status, customer };
-    
-    const files = req.files.map(file => ({
-      name: file.filename,
-      sizeInBytes: file.size,
-      privateUrl: file.path,
-      publicUrl: `/uploads/${file.filename}`,
-      new: true,
-    }));
+    try {
+      const { subject, priority, description, status, customer } = req.body;
+      const ticketData = { subject, priority, description, status, customer };
+      
+      const files = req.files ? req.files.map(file => ({
+        name: file.filename,
+        sizeInBytes: file.size,
+        privateUrl: file.path,
+        publicUrl: `/uploads/${file.filename}`,
+        new: true,
+      })) : [];
 
-    const ticket = await TicketsService.create(
-      { ...ticketData, files },
-      req.currentUser,
-    );
+      const ticket = await TicketsService.create(
+        { ...ticketData, files },
+        req.currentUser,
+      );
 
-    res.status(200).send(ticket);
+      res.status(200).send(ticket);
+    } catch (error) {
+      console.error('Error creating ticket:', error);
+      res.status(500).send({ error: 'An error occurred while creating the ticket' });
+    }
   }),
 );
 

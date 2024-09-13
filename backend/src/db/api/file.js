@@ -28,6 +28,54 @@ module.exports = class FileDBApi {
     return file;
   }
 
+  static async replaceRelationFiles(
+    {
+      belongsTo,
+      belongsToColumn,
+      belongsToId,
+    },
+    files,
+    options,
+  ) {
+    const currentUser = (options && options.currentUser) || { id: null };
+    const transaction = (options && options.transaction) || undefined;
+
+    try {
+      // Remove existing files
+      await db.file.destroy({
+        where: {
+          belongsTo,
+          belongsToColumn,
+          belongsToId,
+        },
+        transaction,
+      });
+
+      // Add new files
+      for (let file of files) {
+        await db.file.create(
+          {
+            belongsTo,
+            belongsToColumn,
+            belongsToId,
+            name: file.name,
+            sizeInBytes: file.sizeInBytes,
+            privateUrl: file.privateUrl,
+            publicUrl: file.publicUrl,
+            createdById: currentUser.id,
+            updatedById: currentUser.id,
+          },
+          {
+            transaction,
+          },
+        );
+      }
+    } catch (error) {
+      console.error('Error in replaceRelationFiles:', error);
+      throw error;
+    }
+  }
+
   static async update(id, data, options) {
     const currentUser = (options && options.currentUser) || { id: null };
     const transaction = (options && options.transaction) || undefined;

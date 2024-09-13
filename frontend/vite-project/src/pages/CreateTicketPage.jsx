@@ -80,76 +80,100 @@ const CreateTicketPage = () => {
   };
 
   return (
-    <Container maxWidth="sm">
-      <Box
-        component="form"
-        onSubmit={handleSubmit}
-        sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}
-      >
-        <Typography variant="h4">Create Ticket</Typography>
-        <TextField
-          label="Ticket Name"
-          value={ticketName}
-          onChange={(e) => setTicketName(e.target.value)}
-          required
-        />
-        <TextField
-          label="Subject"
-          value={subject}
-          onChange={(e) => setSubject(e.target.value)}
-          required
-        />
-        <FormControl required>
-          <InputLabel>Priority</InputLabel>
-          <Select
-            value={priority}
-            onChange={(e) => setPriority(e.target.value)}
-          >
-            <MenuItem value="High">High</MenuItem>
-            <MenuItem value="Medium">Medium</MenuItem>
-            <MenuItem value="Low">Low</MenuItem>
-          </Select>
-        </FormControl>
-        <TextField
-          label="Description"
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-          required
-          multiline
-          rows={4}
-        />
-        <Autocomplete
-          options={customerOptions}
-          getOptionLabel={(option) => option.name || ''}
-          renderInput={(params) => (
-            <TextField
-              {...params}
-              label="Customer"
-              required
-            />
-          )}
-          onChange={(event, newValue) => {
-            setCustomer(newValue ? newValue.id : '');
-          }}
-        />
-        <FormControl required>
-          <InputLabel>Status</InputLabel>
-          <Select
-            value={status}
-            onChange={(e) => setStatus(e.target.value)}
-          >
-            <MenuItem value="Pending">Pending</MenuItem>
-            <MenuItem value="Resolved">Resolved</MenuItem>
-          </Select>
-        </FormControl>
-        <input
-          type="file"
-          multiple
-          onChange={(e) => setFiles(Array.from(e.target.files))}
-        />
-        <Button type="submit" variant="contained" color="primary">
-          Create Ticket
-        </Button>
+    <Container maxWidth="md" sx={{ mt: 4, mb: 4 }}>
+      <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+        <Typography variant="h4" gutterBottom align="center">Create Ticket</Typography>
+        <Box
+          component="form"
+          onSubmit={handleSubmit}
+          sx={{ width: '100%', mt: 2 }}
+        >
+          <Grid container spacing={2}>
+            <Grid item xs={12}>
+              <TextField
+                label="Ticket Name"
+                value={ticketName}
+                onChange={(e) => setTicketName(e.target.value)}
+                required
+                fullWidth
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <TextField
+                label="Subject"
+                value={subject}
+                onChange={(e) => setSubject(e.target.value)}
+                required
+                fullWidth
+              />
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <FormControl fullWidth required>
+                <InputLabel>Priority</InputLabel>
+                <Select
+                  value={priority}
+                  onChange={(e) => setPriority(e.target.value)}
+                >
+                  <MenuItem value="High">High</MenuItem>
+                  <MenuItem value="Medium">Medium</MenuItem>
+                  <MenuItem value="Low">Low</MenuItem>
+                </Select>
+              </FormControl>
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <FormControl fullWidth required>
+                <InputLabel>Status</InputLabel>
+                <Select
+                  value={status}
+                  onChange={(e) => setStatus(e.target.value)}
+                >
+                  <MenuItem value="Pending">Pending</MenuItem>
+                  <MenuItem value="Resolved">Resolved</MenuItem>
+                </Select>
+              </FormControl>
+            </Grid>
+            <Grid item xs={12}>
+              <TextField
+                label="Description"
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                required
+                fullWidth
+                multiline
+                rows={4}
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <Autocomplete
+                options={customerOptions}
+                getOptionLabel={(option) => option.name || ''}
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    label="Customer"
+                    required
+                    fullWidth
+                  />
+                )}
+                onChange={(event, newValue) => {
+                  setCustomer(newValue ? newValue.id : '');
+                }}
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <input
+                type="file"
+                multiple
+                onChange={(e) => setFiles(Array.from(e.target.files))}
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <Button type="submit" variant="contained" color="primary" fullWidth>
+                Create Ticket
+              </Button>
+            </Grid>
+          </Grid>
+        </Box>
       </Box>
     </Container>
   );

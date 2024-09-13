@@ -7,8 +7,9 @@ const router = express.Router();
 router.get('/', checkRole(['Admin']), async (req, res) => {
   try {
     const users = await UsersService.findAll(req.query);
-    res.json(users);
+    res.json({ rows: users || [] });
   } catch (error) {
+    console.error('Error fetching users:', error);
     res.status(400).json({ error: error.message });
   }
 });

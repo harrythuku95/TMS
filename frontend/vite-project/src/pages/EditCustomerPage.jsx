@@ -57,44 +57,64 @@ const EditCustomerPage = () => {
   };
 
   return (
-    <Container maxWidth="sm">
-      <Box
-        component="form"
-        onSubmit={handleSubmit}
-        sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 4 }}
-      >
-        <Typography variant="h4">Edit Customer</Typography>
-        <TextField
-          label="Name"
-          name="name"
-          value={customer.name}
-          onChange={handleChange}
-          required
-        />
-        <TextField
-          label="Email"
-          name="email"
-          value={customer.email}
-          onChange={handleChange}
-          required
-        />
-        <TextField
-          label="Phone"
-          name="phone"
-          value={customer.phone}
-          onChange={handleChange}
-          required
-        />
-        <TextField
-          label="Address"
-          name="address"
-          value={customer.address}
-          onChange={handleChange}
-          required
-        />
-        <Button type="submit" variant="contained" color="primary">
-          Save Changes
-        </Button>
+    <Container maxWidth="sm" sx={{ mt: 4, mb: 4 }}>
+      <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+        <Typography variant="h4" gutterBottom align="center">Edit Customer</Typography>
+        <Box
+          component="form"
+          onSubmit={handleSubmit}
+          sx={{ width: '100%', mt: 2 }}
+        >
+          <Grid container spacing={2}>
+            <Grid item xs={12}>
+              <TextField
+                label="Name"
+                name="name"
+                value={customer.name}
+                onChange={handleChange}
+                required
+                fullWidth
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <TextField
+                label="Email"
+                name="email"
+                value={customer.email}
+                onChange={handleChange}
+                required
+                fullWidth
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <TextField
+                label="Phone"
+                name="phone"
+                value={customer.phone}
+                onChange={handleChange}
+                required
+                fullWidth
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <TextField
+                label="Address"
+                name="address"
+                value={customer.address}
+                onChange={handleChange}
+                required
+                fullWidth
+                multiline
+                rows={3}
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <Button type="submit" variant="contained" color="primary" fullWidth>
+                Save Changes
+              </Button>
+            </Grid>
+          </Grid>
+        </Box>
       </Box>
     </Container>
   );

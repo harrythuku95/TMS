@@ -5,17 +5,28 @@ module.exports = class FileService {
   static async create(data, currentUser) {
     const transaction = await db.sequelize.transaction();
     try {
-      const record = await FileDBApi.create(
-        data,
-        {
-          currentUser,
-          transaction,
-        },
-      );
+      const ticket = await TicketsDBApi.create(data, {
+        currentUser,
+        transaction,
+      });
+
+      if (data.files && data.files.length) {
+        await FileDBApi.replaceRelationFiles(
+          {
+            belongsTo: db.tickets.getTableName(),
+            belongsToColumn: 'files',
+            belongsToId: ticket.id,
+          },
+          data.files,
+          {
+            transaction,
+            currentUser,
+          },
+        );
+      }
 
       await transaction.commit();
-
-      return record;
+      return ticket;
     } catch (error) {
       await transaction.rollback();
       throw error;
