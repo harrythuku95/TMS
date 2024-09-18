@@ -1,8 +1,8 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Route, Routes } from 'react-router-dom';
 import { AuthProvider } from './context/auth';
 import { BrowserRouter as Router } from 'react-router-dom';
-import { Box, Toolbar } from '@mui/material';
+import { Box, CssBaseline, useMediaQuery, useTheme } from '@mui/material';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import Sidebar from './components/Sidebar';
@@ -17,35 +17,48 @@ import SendCloseRequestPage from './pages/SendCloseRequestPage';
 import AddCustomerPage from './pages/AddCustomerPage';
 import EditCustomerPage from './pages/EditCustomerPage';
 import CreateTicketPage from './pages/CreateTicketPage';
-import withAdminProtection from './hoc/withAdminProtection';
-import withAgentProtection from './hoc/withAgentProtection';
+import ProfilePage from './pages/ProfilePage';
 
 const App = () => {
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+
+  const handleDrawerToggle = () => {
+    setMobileOpen(!mobileOpen);
+  };
+
   return (
     <Router>
       <AuthProvider>
-        <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
-          <Navbar />
-          <Box sx={{ display: 'flex', flexGrow: 1 }}>
-            <Sidebar />
-            <Box component="main" sx={{ flexGrow: 1, p: 3, width: { sm: `calc(100% - 240px)` } }}>
-              <Toolbar />
-           {/** <main style={{ flexGrow: 1, padding: '20px' }}>*/} 
-              <Routes>
-                <Route path="/" element={<HomePage />} />
-                <Route path="/tickets" element={<TicketListPage />} />
-                <Route path="/new-ticket" element={<CreateTicketPage />} />
-                <Route path="/customers" element={<CustomerManagementPage />} />
-                <Route path="/add-customer" element={<AddCustomerPage />} />
-                <Route path="/edit-customer/:id" element={<EditCustomerPage />} />
-                <Route path="/ticket-details/:id" element={<TicketDetailsPage />} />
-                <Route path="/user-management" element={<UserManagementPage />} />
-                <Route path="/send-close-request" element={<SendCloseRequestPage />} />
-                <Route path="/login" element={<Login />} />
-                <Route path="/signup" element={<Signup />} />
-              </Routes>
-            {/**</main> */}
-            </Box>
+        <Box sx={{ display: 'flex' }}>
+          <CssBaseline />
+          <Navbar handleDrawerToggle={handleDrawerToggle} />
+          <Sidebar isMobileOpen={mobileOpen} handleDrawerToggle={handleDrawerToggle} />
+          <Box
+            component="main"
+            sx={{
+              flexGrow: 1,
+              p: 3,
+              width: { xs: '100%', sm: '100%', md: 'calc(100% - 240px)', lg: 'calc(100% - 240px)', xl: 'calc(100% - 240px)' },
+              marginLeft: { xs: 0, sm: 0, md: '240px', lg: '240px', xl: '240px' },
+              marginTop: { xs: '56px', sm: '64px', md: '64px', lg: '64px', xl: '64px' },
+              marginBottom: '64px',
+            }}
+          >
+            <Routes>
+              <Route path="/" element={<HomePage />} />
+              <Route path="/tickets" element={<TicketListPage />} />
+              <Route path="/new-ticket" element={<CreateTicketPage />} />
+              <Route path="/customers" element={<CustomerManagementPage />} />
+              <Route path="/add-customer" element={<AddCustomerPage />} />
+              <Route path="/edit-customer/:id" element={<EditCustomerPage />} />
+              <Route path="/ticket-details/:id" element={<TicketDetailsPage />} />
+              <Route path="/user-management" element={<UserManagementPage />} />
+              <Route path="/send-close-request" element={<SendCloseRequestPage />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/signup" element={<Signup />} />
+            </Routes>
           </Box>
           <Footer />
         </Box>

@@ -1,19 +1,26 @@
+// src/hoc/withAgentProtection.jsx
 import React, { useEffect } from 'react';
-import { useAuth } from '../context/auth';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/auth';
 
-const withAgentProtection = (Component) => {
+const withAgentProtection = (WrappedComponent) => {
   return (props) => {
     const { user } = useAuth();
     const navigate = useNavigate();
 
     useEffect(() => {
-      if (!user || (user.role !== 'Agent' && user.role !== 'Admin')) {
+      if (!user) {
         navigate('/login');
+      } else if (user.role !== 'Admin' && user.role !== 'Agent') {
+        navigate('/profile');
       }
     }, [user, navigate]);
 
-    return user && (user.role === 'Agent' || user.role === 'Admin') ? <Component {...props} /> : null;
+    if (user && (user.role === 'Admin' || user.role  === 'Agent')) {
+      return <WrappedComponent {...props} />;
+    }
+
+    return null;
   };
 };
 

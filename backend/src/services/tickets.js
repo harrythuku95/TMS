@@ -73,32 +73,27 @@ module.exports = class TicketsService {
   static async update(id, data, currentUser) {
     const transaction = await db.sequelize.transaction();
     try {
-      const ticket = await db.tickets.findByPk(id, { transaction });
-
-      if (!ticket) {
-        throw new Error('Ticket not found');
-      }
-
-      await ticket.update(
+      await TicketsDBApi.update(
+        id,
+        data,
         {
-          subject: data.subject || ticket.subject,
-          priority: data.priority || ticket.priority,
-          description: data.description || ticket.description,
-          status: data.status || ticket.status,
-          assigneeId: data.assignee || ticket.assigneeId,
-          customerId: data.customer || ticket.customerId,
-          updatedById: currentUser.id,
-        },
-        { transaction },
+          currentUser,
+          transaction,
+        }
       );
 
+      const updatedTicket = await TicketsDBApi.findBy({ id }, { transaction });
+
       await transaction.commit();
-      return ticket;
+      return updatedTicket;
     } catch (error) {
-      console.error('Error updating ticket:', error);
       await transaction.rollback();
       throw error;
     }
+  }
+
+  static async findBy(where, options) {
+    return TicketsDBApi.findBy(where, options);
   }
 
   static async remove(id, currentUser) {
@@ -128,17 +123,6 @@ module.exports = class TicketsService {
     }
   }
 
-  static async findBy(where, options) {
-    const transaction = (options && options.transaction) || undefined;
-
-    const ticket = await db.tickets.findOne({ where }, { transaction });
-
-    if (!ticket) {
-      return ticket;
-    }
-
-    return ticket.get({ plain: true });
-  }
 
   static async findAll(filter, options) {
     const limit = filter.limit || 0;
@@ -174,7 +158,13 @@ module.exports = class TicketsService {
 
     let { rows, count } = await db.tickets.findAndCountAll({
       where,
-      include,
+      include: [
+        {
+          model: db.customers,
+          as: 'customer',
+          attributes: ['id', 'name'],
+        },
+      ],
       distinct: true,
       limit: limit ? Number(limit) : undefined,
       offset: offset ? Number(offset) : undefined,
@@ -183,7 +173,7 @@ module.exports = class TicketsService {
         : [['createdAt', 'desc']],
       transaction,
     });
-
+    console.log('Tickets being sent:', JSON.stringify(rows, null, 2));
     return { rows, count };
   }
 

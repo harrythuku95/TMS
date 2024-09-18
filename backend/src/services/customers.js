@@ -6,6 +6,7 @@ module.exports = class CustomersService {
   static async create(data, currentUser) {
     const transaction = await db.sequelize.transaction();
     try {
+      console.log('Creating customer with data:', data);
       const record = await CustomersDBApi.create(
         data,
         {
@@ -13,11 +14,12 @@ module.exports = class CustomersService {
           transaction,
         },
       );
-
+  
       await transaction.commit();
       return record;
     } catch (error) {
       await transaction.rollback();
+      console.error('Error in CustomersService.create:', error);
       throw error;
     }
   }

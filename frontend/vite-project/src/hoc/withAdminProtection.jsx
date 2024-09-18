@@ -8,13 +8,15 @@ const withAdminProtection = (WrappedComponent) => {
     const navigate = useNavigate();
 
     useEffect(() => {
-      if (!user || user.role !== 'Admin') {
+      if (!user) {
         navigate('/login');
+      } else if (user.role !== 'Admin') {
+        navigate('/');
       }
     }, [user, navigate]);
 
     if (!user || user.role !== 'Admin') {
-      return null; // or return a loading spinner
+      return null;
     }
 
     return <WrappedComponent {...props} />;

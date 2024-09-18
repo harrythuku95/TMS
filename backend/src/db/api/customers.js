@@ -6,25 +6,52 @@ const Op = Sequelize.Op;
 
 module.exports = class CustomersDBApi {
   static async create(data, options) {
-    const currentUser = (options && options.currentUser) || { id: null };
     const transaction = (options && options.transaction) || undefined;
-
-    const customer = await db.customers.create(
-      {
-        id: data.id || undefined,
-        customer_id: data.customer_id || null,
-        name: data.name || null,
-        email: data.email || null,
-        phone: data.phone || null,
-        address: data.address || null,
-        importHash: data.importHash || null,
-        createdById: currentUser.id,
-        updatedById: currentUser.id,
-      },
-      { transaction }
-    );
-
-    return customer;
+    try {
+      console.log('Received data:', data);
+      
+      // Check for existing soft-deleted customer with the same email
+      const existingCustomer = await db.customers.findOne({
+        where: { email: data.email },
+        paranoid: false // This allows us to find soft-deleted records
+      });
+  
+      if (existingCustomer) {
+        if (existingCustomer.deletedAt) {
+          // If the customer was soft-deleted, restore and update it
+          await existingCustomer.restore({ transaction });
+          Object.assign(existingCustomer, {
+            name: data.name,
+            phone: data.phone,
+            address: data.address,
+            updatedById: options.currentUser.id
+          });
+          await existingCustomer.save({ transaction });
+          return existingCustomer;
+        } else {
+          // If the customer exists and is not deleted, throw an error
+          throw new Error('A customer with this email already exists.');
+        }
+      }
+  
+      // If no existing customer, create a new one
+      const customer = await db.customers.create(
+        {
+          customer_id: `CUST${Date.now()}${data.name.replace(/\s+/g, '')}`,
+          name: data.name,
+          email: data.email,
+          phone: data.phone,
+          address: data.address,
+          createdById: options.currentUser.id,
+          updatedById: options.currentUser.id,
+        },
+        { transaction }
+      );
+      return customer;
+    } catch (error) {
+      console.error('Error in CustomersDBApi.create:', error);
+      throw error;
+    }
   }
 
   static async update(id, data, options) {
@@ -39,7 +66,7 @@ module.exports = class CustomersDBApi {
 
     await customer.update(
       {
-        customer_id: data.customer_id || customer.customer_id,
+        customer_id: data.customer_id || `CUST${Date.now()}${data.name}`,
         name: data.name || customer.name,
         email: data.email || customer.email,
         phone: data.phone || customer.phone,

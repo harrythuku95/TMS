@@ -54,22 +54,19 @@ module.exports = class TicketsDBApi {
     const currentUser = (options && options.currentUser) || { id: null };
     const transaction = (options && options.transaction) || undefined;
 
-    const tickets = await db.tickets.findByPk(id, {}, { transaction });
+    const ticket = await db.tickets.findByPk(id, {
+      transaction,
+    });
 
-    await tickets.update(
+    await ticket.update(
       {
-        subject: data.subject || null,
-        priority: data.priority || null,
-        description: data.description || null,
-        status: data.status || null,
-        assigneeId: data.assigneeId || null,
-        customerId: data.customerId || null,
+        ...data,
         updatedById: currentUser.id,
       },
-      { transaction },
+      { transaction }
     );
 
-    return tickets;
+    return ticket;
   }
 
   static async remove(id, options) {
@@ -97,16 +94,32 @@ module.exports = class TicketsDBApi {
   static async findBy(where, options) {
     const transaction = (options && options.transaction) || undefined;
 
-    const tickets = await db.tickets.findOne({ where }, { transaction });
+    const ticket = await db.tickets.findOne(
+      {
+        where,
+        include: [
+          {
+            model: db.users,
+            as: 'assignee',
+            attributes: ['id', 'firstName', 'lastName']
+          },
+          {
+            model: db.customers,
+            as: 'customer',
+            attributes: ['id', 'name', 'email']
+          }
+        ]
+      },
+      { transaction }
+    );
 
-    if (!tickets) {
-      return tickets;
+    if (!ticket) {
+      return ticket;
     }
 
-    const output = tickets.get({ plain: true });
-
-    return output;
+    return ticket.get({ plain: true });
   }
+
 
   static async findAll(filter, options) {
     let limit = filter.limit || 0;

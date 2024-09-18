@@ -59,6 +59,7 @@ module.exports = function (sequelize, DataTypes) {
 
     db.tickets.belongsTo(db.customers, {
       as: 'customer',
+      foreignKey: 'customerId'
     });
 
     db.tickets.hasMany(db.file, {

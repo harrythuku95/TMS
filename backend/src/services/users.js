@@ -170,9 +170,12 @@ module.exports = class UsersService {
 
   static async findAll(filter) {
     try {
-      const users = await UsersDBApi.findAll(filter);
-      return { rows: users };
+      const result = await UsersDBApi.findAll(filter);
+      // The result is already in the format { rows: [...], count: number }
+      // So we don't need to wrap it again
+      return result;
     } catch (error) {
+      console.error('Error in UsersService.findAll:', error);
       throw new Error(`Error fetching users: ${error.message}`);
     }
   }

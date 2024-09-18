@@ -21,6 +21,7 @@ const CustomerManagementPage = () => {
       const response = await axios.get('http://localhost:8080/api/customers', {
         headers: { Authorization: `Bearer ${localStorage.getItem('authToken')}` }
       });
+      console.log('Fetched customers:', response.data.rows); // Add this line for debugging
       setCustomers(response.data.rows);
     } catch (error) {
       console.error('Error fetching customers:', error);
@@ -49,48 +50,44 @@ const CustomerManagementPage = () => {
   };
 
   return (
-    <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
-      <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-        <Typography variant="h4" gutterBottom align="center">Customer Management</Typography>
+    <Container maxWidth="md">
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mt: 4 }}>
+        <Typography variant="h4">Customer Management</Typography>
         {(user.role === 'Admin' || user.role === 'Agent') && (
-          <Button variant="contained" color="primary" onClick={handleAddCustomer} sx={{ mb: 2 }}>
+          <Button variant="contained" color="primary" onClick={handleAddCustomer}>
             Add Customer
           </Button>
         )}
-        <Paper sx={{ width: '100%', overflow: 'hidden' }}>
-          <Box sx={{ overflowX: 'auto' }}>
-            <Table>
-              <TableHead>
-                <TableRow>
-                  <TableCell>Name</TableCell>
-                  <TableCell>Email</TableCell>
-                  <TableCell>Phone</TableCell>
-                  <TableCell>Address</TableCell>
-                  <TableCell>Actions</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {customers.map((customer) => (
-                  <TableRow key={customer.id}>
-                    <TableCell>{customer.name}</TableCell>
-                    <TableCell>{customer.email}</TableCell>
-                    <TableCell>{customer.phone}</TableCell>
-                    <TableCell>{customer.address}</TableCell>
-                    <TableCell>
-                      <IconButton color="primary" onClick={() => handleEdit(customer.id)}>
-                        <EditIcon />
-                      </IconButton>
-                      <IconButton color="secondary" onClick={() => handleDelete(customer.id)}>
-                        <DeleteIcon />
-                      </IconButton>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </Box>
-        </Paper>
       </Box>
+      <Table sx={{ mt: 2 }}>
+        <TableHead>
+          <TableRow>
+            <TableCell>Name</TableCell>
+            <TableCell>Email</TableCell>
+            <TableCell>Phone</TableCell>
+            <TableCell>Address</TableCell>
+            <TableCell>Actions</TableCell>
+          </TableRow>
+        </TableHead>
+        <TableBody>
+          {customers.map((customer) => (
+            <TableRow key={customer.id}>
+              <TableCell>{customer.name}</TableCell>
+              <TableCell>{customer.email}</TableCell>
+              <TableCell>{customer.phone || 'N/A'}</TableCell>
+              <TableCell>{customer.address}</TableCell>
+              <TableCell>
+                <IconButton color="primary" onClick={() => handleEdit(customer.id)}>
+                  <EditIcon />
+                </IconButton>
+                <IconButton color="secondary" onClick={() => handleDelete(customer.id)}>
+                  <DeleteIcon />
+                </IconButton>
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
     </Container>
   );
 };

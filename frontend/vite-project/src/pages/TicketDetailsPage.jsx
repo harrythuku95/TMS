@@ -13,6 +13,8 @@ import {
   CircularProgress,
   Alert,
   Divider,
+  useTheme,
+  useMediaQuery,
 } from '@mui/material';
 import axios from 'axios';
 import { useAuth } from '../context/auth';
@@ -22,13 +24,13 @@ const TicketDetailsPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const [ticket, setTicket] = useState(null);
-  const [labels, setLabels] = useState([]);
-  const [newLabel, setNewLabel] = useState('');
   const [assignees, setAssignees] = useState([]);
   const [selectedAssignee, setSelectedAssignee] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const { user } = useAuth();
+  const theme = useTheme();
+  const isSmallScreen = useMediaQuery(theme.breakpoints.down('sm'));
 
   useEffect(() => {
     fetchTicketDetails();
@@ -40,16 +42,14 @@ const TicketDetailsPage = () => {
   const fetchTicketDetails = async () => {
     try {
       setLoading(true);
-      console.log('Fetching ticket details for ID:', id);
-      const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/tickets/${id}`);
-      console.log('Ticket details response:', response.data);
+      const response = await axios.get(`http://localhost:8080/api/tickets/${id}`);
+      console.log("Fetched ticket details:", response.data);
       setTicket(response.data);
-      setLabels(response.data.labels || []);
       setSelectedAssignee(response.data.assignee || null);
       setError(null);
     } catch (error) {
       console.error('Error fetching ticket details:', error);
-      setError(`Failed to load ticket details: ${error.message}`);
+      setError('Failed to load ticket details. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -57,8 +57,7 @@ const TicketDetailsPage = () => {
 
   const fetchAssignees = async () => {
     try {
-      const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/users?role=Agent`);
-      console.log('Assignees response:', response.data);
+      const response = await axios.get('http://localhost:8080/api/users?role=Agent');
       setAssignees(response.data.rows || []);
     } catch (error) {
       console.error('Error fetching assignees:', error);
@@ -66,32 +65,28 @@ const TicketDetailsPage = () => {
     }
   };
 
-  const handleAddLabel = async () => {
-    if (!newLabel.trim()) return;
-    try {
-      await axios.post(`${import.meta.env.VITE_API_URL}/api/tickets/${id}/labels`, { label: newLabel });
-      setLabels([...labels, newLabel]);
-      setNewLabel('');
-    } catch (error) {
-      console.error('Error adding label:', error);
-      setError('Failed to add label. Please try again.');
-    }
-  };
-
   const handleAssignTicket = async () => {
-    if (!selectedAssignee) return;
+    if (!selectedAssignee) {
+      console.log("No assignee selected");
+      return;
+    }
     try {
-      await axios.put(`${import.meta.env.VITE_API_URL}/api/tickets/${id}/assign`, { assigneeId: selectedAssignee.id });
+      console.log("Sending assign request for ticket:", id, "to assignee:", selectedAssignee.id);
+      const response = await axios.put(`http://localhost:8080/api/tickets/${id}`, 
+        { assigneeId: selectedAssignee.id },
+        { headers: { Authorization: `Bearer ${localStorage.getItem('authToken')}` } }
+      );
+      console.log("Assign response:", response.data);
       fetchTicketDetails();
     } catch (error) {
-      console.error('Error assigning ticket:', error);
-      setError('Failed to assign ticket. Please try again.');
+      console.error('Error assigning ticket:', error.response || error);
+      setError(error.response?.data?.error || 'Failed to assign ticket. Please try again.');
     }
   };
 
   const handleStatusChange = async (newStatus) => {
     try {
-      await axios.put(`${import.meta.env.VITE_API_URL}/api/tickets/${id}`, { status: newStatus });
+      await axios.put(`http://localhost:8080/api/tickets/${id}`, { status: newStatus });
       fetchTicketDetails();
     } catch (error) {
       console.error('Error updating ticket status:', error);
@@ -103,129 +98,141 @@ const TicketDetailsPage = () => {
 
   if (loading) {
     return (
-      <Container maxWidth="md">
-        <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
-          <CircularProgress />
-        </Box>
+      <Container maxWidth="md" sx={{ mt: 4, mb: 4, display: 'flex', justifyContent: 'center' }}>
+        <CircularProgress />
       </Container>
     );
   }
 
   if (error) {
     return (
-      <Container maxWidth="md">
-        <Alert severity="error" sx={{ mt: 4 }}>{error}</Alert>
+      <Container maxWidth="md" sx={{ mt: 4, mb: 4 }}>
+        <Alert severity="error">{error}</Alert>
       </Container>
     );
   }
 
   if (!ticket) {
     return (
-      <Container maxWidth="md">
-        <Typography variant="h6" sx={{ mt: 4 }}>Ticket not found</Typography>
+      <Container maxWidth="md" sx={{ mt: 4, mb: 4 }}>
+        <Typography variant="h6">Ticket not found</Typography>
       </Container>
     );
   }
 
   return (
-    <Container maxWidth="md">
-    <Box sx={{ mt: 4, mb: 2 }}>
-      <Typography variant="h4" gutterBottom>
-        Ticket Details
-      </Typography>
-      <Paper sx={{ p: 3 }}>
-        <Grid container spacing={2}>
-          <Grid item xs={12} sm={6}>
-            <Typography variant="subtitle1">Ticket ID:</Typography>
-            <Typography variant="body1">{ticket?.id || 'N/A'}</Typography>
-          </Grid>
-          <Grid item xs={12} sm={6}>
-            <Typography variant="subtitle1">Created At:</Typography>
-            <Typography variant="body1">
-              {ticket?.createdAt ? new Date(ticket.createdAt).toLocaleString() : 'N/A'}
-            </Typography>
-          </Grid>
-          <Grid item xs={12}>
-            <Typography variant="subtitle1">Subject:</Typography>
-            <Typography variant="body1">{ticket?.subject || 'N/A'}</Typography>
-          </Grid>
-          <Grid item xs={12} sm={6}>
-            <Typography variant="subtitle1">Priority:</Typography>
-            <Typography variant="body1">{ticket?.priority || 'N/A'}</Typography>
-          </Grid>
-          <Grid item xs={12} sm={6}>
-            <Typography variant="subtitle1">Status:</Typography>
-            <Typography variant="body1">{ticket?.status || 'N/A'}</Typography>
-          </Grid>
-          <Grid item xs={12}>
-            <Typography variant="subtitle1">Description:</Typography>
-            <Typography variant="body1">{ticket?.description || 'N/A'}</Typography>
-          </Grid>
-          <Grid item xs={12}>
-            <Typography variant="subtitle1">Assignee:</Typography>
-            <Typography variant="body1">
-              {selectedAssignee ? `${selectedAssignee.firstName} ${selectedAssignee.lastName}` : 'Unassigned'}
-            </Typography>
-          </Grid>
-          <Grid item xs={12}>
+    <Container maxWidth="md" sx={{ mt: 4, mb: 4 }}>
+      <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+        <Typography variant="h4" gutterBottom align="center">
+          Ticket Details
+        </Typography>
+        <Paper sx={{ p: 3, width: '100%' }}>
+          <Grid container spacing={2}>
+            <Grid item xs={12} sm={6} md={4}>
+              <Typography variant="subtitle1">Ticket ID:</Typography>
+              <Typography variant="body1">{ticket.id}</Typography>
+            </Grid>
+            <Grid item xs={12} sm={6} md={4}>
+              <Typography variant="subtitle1">Created At:</Typography>
+              <Typography variant="body1">
+                {new Date(ticket.createdAt).toLocaleString()}
+              </Typography>
+            </Grid>
+            <Grid item xs={12} sm={6} md={4}>
+              <Typography variant="subtitle1">Status:</Typography>
+              <Typography variant="body1">{ticket.status}</Typography>
+            </Grid>
+            <Grid item xs={12}>
+              <Typography variant="subtitle1">Subject:</Typography>
+              <Typography variant="body1">{ticket.subject}</Typography>
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <Typography variant="subtitle1">Priority:</Typography>
+              <Typography variant="body1">{ticket.priority}</Typography>
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <Typography variant="subtitle1">Assignee:</Typography>
+              <Typography variant="body1">
+                {ticket.assignee 
+                  ? `${ticket.assignee.firstName} ${ticket.assignee.lastName}` 
+                  : 'Unassigned'}
+              </Typography>
+            </Grid>
+            <Grid item xs={12}>
+              <Typography variant="subtitle1">Description:</Typography>
+              <Typography variant="body1">{ticket.description}</Typography>
+            </Grid>
+            <Grid item xs={12}>
             <Typography variant="subtitle1">Customer:</Typography>
-            <Typography variant="body1">{ticket?.customer?.name || 'N/A'}</Typography>
+            <Typography variant="body1">
+              {ticket.customer 
+                ? `${ticket.customer.name} (${ticket.customer.email})` 
+                : 'N/A'}
+            </Typography>
           </Grid>
-        </Grid>
+          </Grid>
 
           <Divider sx={{ my: 2 }} />
 
           {(user.role === 'Admin' || user.role === 'Agent') && (
             <>
               <Box sx={{ mt: 2 }}>
-                <Typography variant="h6">Labels</Typography>
-                {labels.map((label) => (
-                  <Chip key={label} label={label} sx={{ mr: 1, mb: 1 }} />
-                ))}
-                <TextField
-                  value={newLabel}
-                  onChange={(e) => setNewLabel(e.target.value)}
-                  placeholder="New label"
-                  size="small"
-                  sx={{ mr: 1 }}
-                />
-                <Button onClick={handleAddLabel} variant="contained" size="small">Add Label</Button>
-              </Box>
-
-              <Box sx={{ mt: 2 }}>
                 <Typography variant="h6">Update Status</Typography>
-                <Button onClick={() => handleStatusChange('open')} variant="outlined" sx={{ mr: 1 }}>Open</Button>
-                <Button onClick={() => handleStatusChange('in_progress')} variant="outlined" sx={{ mr: 1 }}>In Progress</Button>
-                <Button onClick={() => handleStatusChange('closed')} variant="outlined">Closed</Button>
+                <Grid container spacing={1} sx={{ mt: 1 }}>
+                  {['open', 'in_progress', 'closed'].map((status) => (
+                    <Grid item xs={12} sm={4} key={status}>
+                      <Button 
+                        onClick={() => handleStatusChange(status)} 
+                        variant="outlined"
+                        fullWidth
+                      >
+                        {status.replace('_', ' ').charAt(0).toUpperCase() + status.slice(1)}
+                      </Button>
+                    </Grid>
+                  ))}
+                </Grid>
               </Box>
               
               {user.role === 'Admin' && (
                 <Box sx={{ mt: 2 }}>
                   <Typography variant="h6">Assign Ticket</Typography>
                   {memoizedAssignees.length > 0 ? (
-                    <Autocomplete
-                      options={memoizedAssignees}
-                      getOptionLabel={(option) => `${option.firstName} ${option.lastName}`}
-                      value={selectedAssignee}
-                      onChange={(event, newValue) => {
-                        setSelectedAssignee(newValue);
-                      }}
-                      renderInput={(params) => <TextField {...params} label="Select Assignee" />}
-                      sx={{ mb: 1 }}
-                    />
+                    <Grid container spacing={2} alignItems="center">
+                      <Grid item xs={12} sm={8} md={9}>
+                        <Autocomplete
+                          options={memoizedAssignees}
+                          getOptionLabel={(option) => `${option.firstName} ${option.lastName}`}
+                          value={selectedAssignee}
+                          onChange={(event, newValue) => {
+                            setSelectedAssignee(newValue);
+                          }}
+                          renderInput={(params) => <TextField {...params} label="Select Assignee" />}
+                          fullWidth
+                        />
+                      </Grid>
+                      <Grid item xs={12} sm={4} md={3}>
+                        <Button 
+                          onClick={handleAssignTicket} 
+                          variant="contained" 
+                          disabled={!selectedAssignee}
+                          fullWidth
+                        >
+                          Assign
+                        </Button>
+                      </Grid>
+                    </Grid>
                   ) : (
                     <Typography>No assignees available</Typography>
                   )}
-                  <Button onClick={handleAssignTicket} variant="contained" disabled={!selectedAssignee}>
-                    Assign
-                  </Button>
                 </Box>
               )}
             </>
           )}
 
           <Box sx={{ mt: 2 }}>
-            <Button variant="outlined" onClick={() => navigate('/tickets')}>Back to Tickets</Button>
+            <Button variant="outlined" onClick={() => navigate('/tickets')} fullWidth={isSmallScreen}>
+              Back to Tickets
+            </Button>
           </Box>
         </Paper>
       </Box>

@@ -33,19 +33,6 @@ export const AuthProvider = ({ children }) => {
     fetchUser();
   }, []);
 
-  const login = async (email, password) => {
-    try {
-      const response = await axios.post(`${API_URL}/auth/signin/local`, { email, password });
-      localStorage.setItem('authToken', response.data.token);
-      setUser(response.data.user);
-      axios.defaults.headers.common['Authorization'] = `Bearer ${response.data.token}`;
-      navigate('/');
-    } catch (error) {
-      console.error('Login error:', error);
-      throw error.response?.data?.error || 'Login failed. Please try again.';
-    }
-  };
-  
   const signup = async (email, password, firstName, lastName) => {
     try {
       const response = await axios.post(`${API_URL}/auth/signup`, {
@@ -57,10 +44,27 @@ export const AuthProvider = ({ children }) => {
       localStorage.setItem('authToken', response.data.token);
       setUser(response.data.user);
       axios.defaults.headers.common['Authorization'] = `Bearer ${response.data.token}`;
-      navigate('/');
+      if (response.data.user.role === 'Admin') {
+        navigate('/');
+      } else {
+        navigate('/profile');
+      }
     } catch (error) {
       console.error('Error signing up:', error);
       throw error.response?.data?.error || 'Signup failed. Please try again.';
+    }
+  };
+  
+  const login = async (email, password) => {
+    try {
+      const response = await axios.post(`${API_URL}/auth/signin/local`, { email, password });
+      localStorage.setItem('authToken', response.data.token);
+      setUser(response.data.user);
+      axios.defaults.headers.common['Authorization'] = `Bearer ${response.data.token}`;
+      navigate('/');
+    } catch (error) {
+      console.error('Login error:', error);
+      throw error.response?.data?.error || 'Login failed. Please try again.';
     }
   };
   

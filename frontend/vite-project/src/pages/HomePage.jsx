@@ -122,4 +122,4 @@ const HomePage = () => {
   );
 };
 
-export default withAgentProtection(HomePage);
+export default HomePage;

@@ -9,9 +9,22 @@ router.use(setCurrentUser);
 router.use(checkRole(['Admin', 'Agent'])); // Adjust roles as needed
 
 router.post('/', wrapAsync(async (req, res) => {
-  const data = req.body;
-  const result = await CustomersService.create(data, req.currentUser);
-  res.status(200).send(result);
+  try {
+    const data = req.body;
+    console.log('Received customer data:', data);
+    const result = await CustomersService.create(data, req.currentUser);
+    res.status(200).send(result);
+  } catch (error) {
+    console.error('Error in customer creation route:', error);
+    if (error.message === 'A customer with this email already exists.') {
+      res.status(400).json({ error: error.message });
+    } else {
+      res.status(500).json({ 
+        error: 'An unexpected error occurred', 
+        details: error.message
+      });
+    }
+  }
 }));
 
 router.put('/:id', wrapAsync(async (req, res) => {

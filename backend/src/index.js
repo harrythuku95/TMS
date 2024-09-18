@@ -20,7 +20,6 @@ const fileRoutes = require('./routes/file');
 const usersRoutes = require('./routes/users');
 const customersRoutes = require('./routes/customers');
 const ticket_countsRoutes = require('./routes/ticket_counts');
-const ticket_labelsRoutes = require('./routes/ticket_labels');
 const ticketsRoutes = require('./routes/tickets');
 
 const { setCurrentUser } = require('./middlewares/checkRole');
@@ -106,7 +105,6 @@ app.use('/api/file', fileRoutes);
 app.use('/api/users', passport.authenticate('jwt', { session: false }), usersRoutes);
 app.use('/api/customers', passport.authenticate('jwt', { session: false }), customersRoutes);
 app.use('/api/ticket_counts', passport.authenticate('jwt', { session: false }), ticket_countsRoutes);
-app.use('/api/ticket_labels', passport.authenticate('jwt', { session: false }), ticket_labelsRoutes);
 app.use('/api/tickets', passport.authenticate('jwt', { session: false }), ticketsRoutes);
 
 // Serve static files

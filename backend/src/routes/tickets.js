@@ -72,13 +72,11 @@ router.get(
   }),
 );
 
-router.put(
-  '/:id',
-  wrapAsync(async (req, res) => {
-    await TicketsService.update(req.params.id, req.body, req.currentUser);
-    res.status(200).send(true);
-  }),
-);
+router.put('/:id', wrapAsync(async (req, res) => {
+  console.log("Received update request for ticket:", req.params.id, "with data:", req.body);
+  const updatedTicket = await TicketsService.update(req.params.id, req.body, req.currentUser);
+  res.status(200).send(updatedTicket);
+}));
 
 router.delete(
   '/:id',

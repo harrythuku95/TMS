@@ -1,6 +1,5 @@
-// src/pages/AddCustomerPage.jsx
 import React, { useState } from 'react';
-import { Container, TextField, Button, Typography, Box } from '@mui/material';
+import { Container, TextField, Button, Typography, Box, Grid } from '@mui/material';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import withAdminProtection from '../hoc/withAdminProtection';
@@ -10,7 +9,7 @@ const AddCustomerPage = () => {
 
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
-  const [phoneNumber, setPhoneNumber] = useState('');
+  const [phone, setPhone] = useState('');  // Changed from phoneNumber
   const [address, setAddress] = useState('');
   const navigate = useNavigate();
 
@@ -20,14 +19,14 @@ const AddCustomerPage = () => {
     const customerData = {
       name,
       email,
-      phoneNumber,
+      phone,  // Changed from phoneNumber
       address,
     };
   
     try {
       const token = localStorage.getItem('authToken');
       console.log('Sending data:', customerData);
-      console.log('Sending data:', { name, email, phoneNumber, address });
+      console.log('Sending data:', { name, email, phone, address });  // Updated log
       const response = await axios.post(
         'http://localhost:8080/api/customers',
         customerData,
@@ -41,7 +40,7 @@ const AddCustomerPage = () => {
       console.log('Response:', response.data);
       navigate('/customers');
     } catch (error) {
-      console.error('Error adding customer:', error.response?.data || error.message);
+      console.error('Error adding customer:', error.response?.data?.error || error.message);
     }
   };
 
@@ -77,8 +76,8 @@ const AddCustomerPage = () => {
             <Grid item xs={12}>
               <TextField
                 label="Phone Number"
-                value={phoneNumber}
-                onChange={(e) => setPhoneNumber(e.target.value)}
+                value={phone}  // Changed from phoneNumber
+                onChange={(e) => setPhone(e.target.value)}  // Changed from setPhoneNumber
                 required
                 fullWidth
               />
