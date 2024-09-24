@@ -1,15 +1,21 @@
-// src/theme.js
-
 import { createTheme } from '@mui/material/styles';
 
 const theme = createTheme({
+  spacing: 8,
   palette: {
-    primary: {
-      main: '#3f51b5', // Customize the primary color
+    custom: {
+      white: '#ffffff',
+      grey: '#EBD3F8',
+      light: '#AD49E1',
+      purple: '#7A1CAC',
+      dark: '#2E073F'
     },
-    secondary: {
-      main: '#f50057', // Customize the secondary color
+    background: {
+      default: '#EBD3F8',
     },
+    text: {
+      primary: '#2E073F',
+    }
   },
   typography: {
     fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
@@ -40,6 +46,26 @@ const theme = createTheme({
     button: {
       textTransform: 'none',
       fontWeight: 600,
+    },
+  },
+  components: {
+    MuiButton: {
+      styleOverrides: {
+        root: {
+          backgroundColor: '#AD49E1', 
+          color: '#ffffff', 
+          '&:hover': {
+            backgroundColor: '#7A1CAC',
+          },
+        },
+      },
+    },
+    MuiAppBar: {
+      styleOverrides: {
+        root: {
+          backgroundColor: '#7A1CAC',
+        },
+      },
     },
   },
 });
