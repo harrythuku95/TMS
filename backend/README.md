@@ -1,67 +1,58 @@
-#TMS - template backend,
+# TMS Backend
 
-#### Run App on local machine:
+## This project was generated for the Ticket Management System.
 
-##### Install local dependencies:
+- Backend: [NodeJS](https://flatlogic.com/templates?backend%5B%5D=nodejs&sort=default)
+- Database: PostgreSQL
 
-- `yarn install`
+## To start the project:
 
----
+### Backend:
 
-##### Adjust local db:
+> Please change current folder: `cd backend`
 
-###### 1. Install postgres:
+#### Install local dependencies:
+```
+yarn add
+```
 
-- MacOS:
+#### Adjust local db:
+1. Install PostgreSQL if not already installed.
+2. Create a database for the project.
 
-  - `brew install postgres`
+#### Set up environment variables:
+Create a `.env` file in the root of the backend directory and add the necessary environment variables.
 
-- Ubuntu:
-  - `sudo apt update`
-  - `sudo apt install postgresql postgresql-contrib`
+#### Start production build:
+```
+yarn start
+```
 
-###### 2. Create db and admin user:
+The server will start running on `http://localhost:8080`.
 
-- Before run and test connection, make sure you have created a database as described in the above configuration. You can use the `psql` command to create a user and database.
+## To start the project with Docker:
 
-  - `psql postgres --u postgres`
+1. Build the Docker image:
+   ```
+   docker build -t tms-backend .
+   ```
 
-- Next, type this command for creating a new user with password then give access for creating the database.
+2. Run the container:
+   ```
+   docker run -p 8080:8080 -e NODE_ENV=production -d tms-backend
+   ```
 
-  - `postgres-# CREATE ROLE admin WITH LOGIN PASSWORD 'admin_pass';`
-  - `postgres-# ALTER ROLE admin CREATEDB;`
+   This command runs the container in detached mode and maps port 8080 of the container to port 8080 on the host machine.
 
-- Quit `psql` then log in again using the new user that previously created.
+## API Documentation
 
-  - `postgres-# \q`
-  - `psql postgres -U admin`
+(Include information about your API endpoints here)
 
-- Type this command to creating a new database.
+## Testing
 
-  - `postgres=> CREATE DATABASE db_tms;`
+To run the test suite:
+```
+npm test
+```
 
-- Then give that new user privileges to the new database then quit the `psql`.
-  - `postgres=> GRANT ALL PRIVILEGES ON DATABASE db_tms TO admin;`
-  - `postgres=> \q`
-
----
-
-#### Api Documentation (Swagger)
-
-http://localhost:8080/api-docs (local host)
-
-http://host_name/api-docs
-
----
-
-##### Setup database tables or update after schema change
-
-- `yarn db:migrate`
-
-##### Seed the initial data (admin accounts, relevant for the first setup):
-
-- `yarn db:seed`
-
-##### Start build:
-
-- `yarn start`
+## License

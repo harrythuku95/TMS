@@ -1,9 +1,8 @@
 import.meta.env.VITE_API_URL
 import React, { useEffect, useState } from 'react';
-import { Alert, Container, Typography, Box, Grid, Paper, Button } from '@mui/material';
+import { Alert, Container, Typography, Box, Grid, Paper, Button, useTheme } from '@mui/material';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
-import withAgentProtection from '../hoc/withAgentProtection';
 import { useAuth } from '../context/auth';
 
 const HomePage = () => {
@@ -12,7 +11,8 @@ const HomePage = () => {
   const [customerCount, setCustomerCount] = useState(0);
   const [error, setError] = useState(null);
   const navigate = useNavigate();
-  const { user } = useAuth(); // Use the auth context to get the user
+  const { user } = useAuth(); 
+  const theme = useTheme();
 
 
   useEffect(() => {
@@ -65,53 +65,75 @@ const HomePage = () => {
             {error}
           </Alert>
         )}
-        <Typography variant="h3" gutterBottom align="center">
+        <Typography variant="h3" gutterBottom align="center" sx={{ color: theme.palette.custom.dark }}>
           Dashboard
         </Typography>
         <Grid container spacing={3} justifyContent="center">
           <Grid item xs={12} sm={6} md={3}>
-            <Paper elevation={3} sx={{ p: 2, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-              <Typography variant="h6">Open Tickets</Typography>
-              <Typography variant="h4" color="primary">
+            <Paper elevation={3} sx={{ p: 2, display: 'flex', flexDirection: 'column', alignItems: 'center', backgroundColor: theme.palette.custom.white }}>
+              <Typography variant="h6" sx={{ color: theme.palette.custom.dark }}>Open Tickets</Typography>
+              <Typography variant="h4" sx={{ color: theme.palette.custom.light }}>
                 {ticketStats.open}
               </Typography>
             </Paper>
           </Grid>
           <Grid item xs={12} sm={6} md={3}>
-            <Paper elevation={3} sx={{ p: 2, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-              <Typography variant="h6">Closed Tickets</Typography>
-              <Typography variant="h4" color="primary">
+            <Paper elevation={3} sx={{ p: 2, display: 'flex', flexDirection: 'column', alignItems: 'center', backgroundColor: theme.palette.custom.white }}>
+              <Typography variant="h6" sx={{ color: theme.palette.custom.dark }}>Closed Tickets</Typography>
+              <Typography variant="h4" sx={{ color: theme.palette.custom.light }}>
                 {ticketStats.closed}
               </Typography>
             </Paper>
           </Grid>
           <Grid item xs={12} sm={6} md={3}>
-            <Paper elevation={3} sx={{ p: 2, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-              <Typography variant="h6">Pending Tickets</Typography>
-              <Typography variant="h4" color="primary">
+            <Paper elevation={3} sx={{ p: 2, display: 'flex', flexDirection: 'column', alignItems: 'center', backgroundColor: theme.palette.custom.white }}>
+              <Typography variant="h6" sx={{ color: theme.palette.custom.dark }}>Pending Tickets</Typography>
+              <Typography variant="h4" sx={{ color: theme.palette.custom.light }}>
                 {ticketStats.pending}
               </Typography>
             </Paper>
           </Grid>
           <Grid item xs={12} sm={6} md={3}>
-            <Paper elevation={3} sx={{ p: 2, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-              <Typography variant="h6">Customers</Typography>
-              <Typography variant="h4" color="primary">
+            <Paper elevation={3} sx={{ p: 2, display: 'flex', flexDirection: 'column', alignItems: 'center', backgroundColor: theme.palette.custom.white }}>
+              <Typography variant="h6" sx={{ color: theme.palette.custom.dark }}>Customers</Typography>
+              <Typography variant="h4" sx={{ color: theme.palette.custom.light }}>
                 {customerCount}
               </Typography>
             </Paper>
           </Grid>
         </Grid>
         <Box sx={{ mt: 4, width: '100%' }}>
-          <Typography variant="h5" align="center" gutterBottom>Quick Actions</Typography>
+          <Typography variant="h5" align="center" gutterBottom sx={{ color: theme.palette.custom.dark }}>
+            Quick Actions
+          </Typography>
           <Grid container spacing={2} justifyContent="center">
             <Grid item>
-              <Button variant="contained" color="primary" onClick={handleNewTicket}>
+              <Button 
+                variant="contained" 
+                onClick={handleNewTicket}
+                sx={{ 
+                  backgroundColor: theme.palette.custom.light,
+                  color: theme.palette.custom.white,
+                  '&:hover': {
+                    backgroundColor: theme.palette.custom.purple,
+                  }
+                }}
+              >
                 Create New Ticket
               </Button>
             </Grid>
             <Grid item>
-              <Button variant="contained" color="secondary" onClick={handleCustomerManagement}>
+              <Button 
+                variant="contained" 
+                onClick={handleCustomerManagement}
+                sx={{ 
+                  backgroundColor: theme.palette.custom.light,
+                  color: theme.palette.custom.white,
+                  '&:hover': {
+                    backgroundColor: theme.palette.custom.purple,
+                  }
+                }}
+              >
                 Manage Customers
               </Button>
             </Grid>

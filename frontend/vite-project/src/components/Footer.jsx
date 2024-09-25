@@ -1,13 +1,15 @@
 import React from 'react';
-import { Box, Typography } from '@mui/material';
+import { Box, Typography, useTheme } from '@mui/material';
 
 const Footer = () => {
+  const theme = useTheme();
+
   return (
     <Box
       component="footer"
       sx={{
-        backgroundColor: 'primary.main',
-        color: 'white',
+        backgroundColor: theme.palette.custom.purple,
+        color: theme.palette.custom.white,
         padding: 2,
         position: 'fixed',
         bottom: 0,

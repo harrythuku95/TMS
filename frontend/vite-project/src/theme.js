@@ -11,10 +11,10 @@ const theme = createTheme({
       dark: '#2E073F'
     },
     background: {
-      default: '#EBD3F8',
+      default: '#EBD3F8', 
     },
     text: {
-      primary: '#2E073F',
+      primary: '#2E073F', 
     }
   },
   typography: {

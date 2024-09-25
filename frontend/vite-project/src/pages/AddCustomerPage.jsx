@@ -9,7 +9,7 @@ const AddCustomerPage = () => {
 
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
-  const [phone, setPhone] = useState('');  // Changed from phoneNumber
+  const [phone, setPhone] = useState(''); 
   const [address, setAddress] = useState('');
   const navigate = useNavigate();
 
@@ -19,14 +19,14 @@ const AddCustomerPage = () => {
     const customerData = {
       name,
       email,
-      phone,  // Changed from phoneNumber
+      phone, 
       address,
     };
   
     try {
       const token = localStorage.getItem('authToken');
       console.log('Sending data:', customerData);
-      console.log('Sending data:', { name, email, phone, address });  // Updated log
+      console.log('Sending data:', { name, email, phone, address });  
       const response = await axios.post(
         'http://localhost:8080/api/customers',
         customerData,
@@ -76,8 +76,8 @@ const AddCustomerPage = () => {
             <Grid item xs={12}>
               <TextField
                 label="Phone Number"
-                value={phone}  // Changed from phoneNumber
-                onChange={(e) => setPhone(e.target.value)}  // Changed from setPhoneNumber
+                value={phone}  
+                onChange={(e) => setPhone(e.target.value)} 
                 required
                 fullWidth
               />

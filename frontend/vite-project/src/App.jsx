@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Route, Routes } from 'react-router-dom';
 import { AuthProvider } from './context/auth';
 import { BrowserRouter as Router } from 'react-router-dom';
-import { Box, CssBaseline, useMediaQuery, useTheme } from '@mui/material';
+import { Box, CssBaseline, useMediaQuery, ThemeProvider} from '@mui/material';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import Sidebar from './components/Sidebar';
@@ -18,10 +18,10 @@ import AddCustomerPage from './pages/AddCustomerPage';
 import EditCustomerPage from './pages/EditCustomerPage';
 import CreateTicketPage from './pages/CreateTicketPage';
 import ProfilePage from './pages/ProfilePage';
+import theme from './theme'; 
 
 const App = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
-  const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
   const handleDrawerToggle = () => {
@@ -30,22 +30,24 @@ const App = () => {
 
   return (
     <Router>
-      <AuthProvider>
-        <Box sx={{ display: 'flex' }}>
-          <CssBaseline />
-          <Navbar handleDrawerToggle={handleDrawerToggle} />
-          <Sidebar isMobileOpen={mobileOpen} handleDrawerToggle={handleDrawerToggle} />
-          <Box
-            component="main"
-            sx={{
-              flexGrow: 1,
-              p: 3,
-              width: { xs: '100%', sm: '100%', md: 'calc(100% - 240px)', lg: 'calc(100% - 240px)', xl: 'calc(100% - 240px)' },
-              marginLeft: { xs: 0, sm: 0, md: '240px', lg: '240px', xl: '240px' },
-              marginTop: { xs: '56px', sm: '64px', md: '64px', lg: '64px', xl: '64px' },
-              marginBottom: '64px',
-            }}
-          >
+      <ThemeProvider theme={theme}>
+        <AuthProvider>
+          <Box sx={{ display: 'flex', backgroundColor: theme.palette.custom.grey }}>
+            <CssBaseline />
+            <Navbar handleDrawerToggle={handleDrawerToggle} />
+            <Sidebar isMobileOpen={mobileOpen} handleDrawerToggle={handleDrawerToggle} />
+            <Box
+              component="main"
+              sx={{
+                flexGrow: 1,
+                p: 3,
+                width: { xs: '100%', sm: '100%', md: 'calc(100% - 240px)', lg: 'calc(100% - 240px)', xl: 'calc(100% - 240px)' },
+                marginLeft: { xs: 0, sm: 0, md: '240px', lg: '240px', xl: '240px' },
+                marginTop: { xs: '56px', sm: '64px', md: '64px', lg: '64px', xl: '64px' },
+                marginBottom: '64px',
+                backgroundColor: theme.palette.custom.grey,
+              }}
+            >
             <Routes>
               <Route path="/" element={<HomePage />} />
               <Route path="/tickets" element={<TicketListPage />} />
@@ -56,13 +58,15 @@ const App = () => {
               <Route path="/ticket-details/:id" element={<TicketDetailsPage />} />
               <Route path="/user-management" element={<UserManagementPage />} />
               <Route path="/send-close-request" element={<SendCloseRequestPage />} />
+              <Route path="/profile" element={<ProfilePage/>}/>
               <Route path="/login" element={<Login />} />
               <Route path="/signup" element={<Signup />} />
             </Routes>
+            </Box>
+            <Footer />
           </Box>
-          <Footer />
-        </Box>
-      </AuthProvider>
+        </AuthProvider>
+      </ThemeProvider>
     </Router>
   );
 };
