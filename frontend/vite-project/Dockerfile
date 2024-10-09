@@ -1,12 +1,12 @@
-FROM node:14
+FROM node:18
 
 WORKDIR /app
 
-COPY vite-project/package*.json ./
+COPY package*.json ./
 
 RUN npm install
 
-COPY vite-project/ .
+COPY . .
 
 RUN npm run build
 
