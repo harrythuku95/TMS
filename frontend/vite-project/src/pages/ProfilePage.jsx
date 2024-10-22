@@ -4,6 +4,8 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { useAuth } from '../context/auth';
 
+const API_URL = process.env.REACT_APP_BASE_URL;
+
 const ProfilePage = () => {
   const [userTickets, setUserTickets] = useState([]);
   const { user, logout } = useAuth();
@@ -15,7 +17,7 @@ const ProfilePage = () => {
 
   const fetchUserTickets = async () => {
     try {
-      const response = await axios.get(`http://localhost:8080/api/tickets?createdBy=${user.id}`);
+      const response = await axios.get(`${API_URL}/tickets?createdBy=${user.id}`);
       setUserTickets(response.data.rows);
     } catch (error) {
       console.error('Error fetching user tickets:', error);

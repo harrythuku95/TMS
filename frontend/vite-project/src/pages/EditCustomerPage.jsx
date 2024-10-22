@@ -4,6 +4,8 @@ import { useNavigate, useParams } from 'react-router-dom';
 import axios from 'axios';
 import withAdminProtection from '../hoc/withAdminProtection';
 
+const API_URL = process.env.REACT_APP_BASE_URL;
+
 const EditCustomerPage = () => {
   const { id } = useParams();
   const [customer, setCustomer] = useState({
@@ -21,7 +23,7 @@ const EditCustomerPage = () => {
 
   const fetchCustomerDetails = async () => {
     try {
-      const response = await axios.get(`http://localhost:8080/api/customers/${id}`, {
+      const response = await axios.get(`${API_URL}/customers/${id}`, {
         headers: {
           Authorization: `Bearer ${authToken}`,
         },
@@ -43,7 +45,7 @@ const EditCustomerPage = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.put(`http://localhost:8080/api/customers/${id}`, customer, {
+      await axios.put(`${API_URL}/customers/${id}`, customer, {
         headers: {
           Authorization: `Bearer ${authToken}`,
         },

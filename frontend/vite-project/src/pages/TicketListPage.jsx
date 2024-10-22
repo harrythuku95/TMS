@@ -21,6 +21,8 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import withAgentProtection from '../hoc/withAgentProtection';
 
+const API_URL = process.env.REACT_APP_BASE_URL;
+
 const TicketListPage = () => {
   const [tickets, setTickets] = useState([]);
   const navigate = useNavigate();
@@ -33,7 +35,7 @@ const TicketListPage = () => {
   
   const fetchTickets = async () => {
     try {
-      const response = await axios.get('http://localhost:8080/api/tickets');
+      const response = await axios.get(`${API_URL}/tickets`);
       console.log('Tickets received:', response.data);
       setTickets(response.data.rows);
     } catch (error) {

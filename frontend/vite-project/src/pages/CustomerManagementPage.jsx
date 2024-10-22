@@ -7,6 +7,8 @@ import withAdminProtection from '../hoc/withAdminProtection';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 
+const API_URL = process.env.REACT_APP_BASE_URL;
+
 const CustomerManagementPage = () => {
   const [customers, setCustomers] = useState([]);
   const navigate = useNavigate();
@@ -18,10 +20,10 @@ const CustomerManagementPage = () => {
 
   const fetchCustomers = async () => {
     try {
-      const response = await axios.get('http://localhost:8080/api/customers', {
+      const response = await axios.get(`${API_URL}/customers`, {
         headers: { Authorization: `Bearer ${localStorage.getItem('authToken')}` }
       });
-      console.log('Fetched customers:', response.data.rows); // Add this line for debugging
+      console.log('Fetched customers:', response.data.rows);
       setCustomers(response.data.rows);
     } catch (error) {
       console.error('Error fetching customers:', error);
@@ -39,7 +41,7 @@ const CustomerManagementPage = () => {
   const handleDelete = async (customerId) => {
     if (window.confirm('Are you sure you want to delete this customer?')) {
       try {
-        await axios.delete(`http://localhost:8080/api/customers/${customerId}`, {
+        await axios.delete(`${API_URL}/customers/${customerId}`, {
           headers: { Authorization: `Bearer ${localStorage.getItem('authToken')}` }
         });
         fetchCustomers();

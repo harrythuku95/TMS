@@ -2,6 +2,8 @@ import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/auth';
 
+
+
 const withAdminProtection = (WrappedComponent) => {
   return (props) => {
     const { user } = useAuth();

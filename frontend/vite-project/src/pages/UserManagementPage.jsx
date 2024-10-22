@@ -3,6 +3,8 @@ import { Container, Typography, Table, TableBody, TableCell, TableHead, TableRow
 import axios from 'axios';
 import withAdminProtection from '../hoc/withAdminProtection';
 
+const API_URL = process.env.REACT_APP_BASE_URL;
+
 const UserManagementPage = () => {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -15,7 +17,7 @@ const UserManagementPage = () => {
   const fetchUsers = async () => {
     try {
       setLoading(true);
-      const response = await axios.get('http://localhost:8080/api/users', {
+      const response = await axios.get(`${API_URL}/users`, {
         headers: { Authorization: `Bearer ${localStorage.getItem('authToken')}` }
       });
       

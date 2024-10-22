@@ -20,6 +20,8 @@ import axios from 'axios';
 import { useAuth } from '../context/auth';
 import withAgentProtection from '../hoc/withAgentProtection';
 
+const API_URL = process.env.REACT_APP_BASE_URL;
+
 const TicketDetailsPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -42,7 +44,7 @@ const TicketDetailsPage = () => {
   const fetchTicketDetails = async () => {
     try {
       setLoading(true);
-      const response = await axios.get(`http://localhost:8080/api/tickets/${id}`);
+      const response = await axios.get(`${API_URL}/tickets/${id}`);
       console.log("Fetched ticket details:", response.data);
       setTicket(response.data);
       setSelectedAssignee(response.data.assignee || null);
@@ -57,7 +59,7 @@ const TicketDetailsPage = () => {
 
   const fetchAssignees = async () => {
     try {
-      const response = await axios.get('http://localhost:8080/api/users?role=Agent');
+      const response = await axios.get(`${API_URL}/users?role=Agent`);
       setAssignees(response.data.rows || []);
     } catch (error) {
       console.error('Error fetching assignees:', error);
@@ -72,7 +74,7 @@ const TicketDetailsPage = () => {
     }
     try {
       console.log("Sending assign request for ticket:", id, "to assignee:", selectedAssignee.id);
-      const response = await axios.put(`http://localhost:8080/api/tickets/${id}`, 
+      const response = await axios.put(`${API_URL}/tickets/${id}`, 
         { assigneeId: selectedAssignee.id },
         { headers: { Authorization: `Bearer ${localStorage.getItem('authToken')}` } }
       );
@@ -86,7 +88,7 @@ const TicketDetailsPage = () => {
 
   const handleStatusChange = async (newStatus) => {
     try {
-      await axios.put(`http://localhost:8080/api/tickets/${id}`, { status: newStatus });
+      await axios.put(`${API_URL}/tickets/${id}`, { status: newStatus });
       fetchTicketDetails();
     } catch (error) {
       console.error('Error updating ticket status:', error);

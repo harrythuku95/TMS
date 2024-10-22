@@ -4,6 +4,8 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import withAdminProtection from '../hoc/withAdminProtection';
 
+const API_URL = process.env.REACT_APP_BASE_URL;
+
 const AddCustomerPage = () => {
   console.log("AddCustomerPage is rendering");
 
@@ -27,8 +29,7 @@ const AddCustomerPage = () => {
       const token = localStorage.getItem('authToken');
       console.log('Sending data:', customerData);
       console.log('Sending data:', { name, email, phone, address });  
-      const response = await axios.post(
-        'http://localhost:8080/api/customers',
+      const response = await axios.post(`${API_URL}/customers`,
         customerData,
         {
           headers: {

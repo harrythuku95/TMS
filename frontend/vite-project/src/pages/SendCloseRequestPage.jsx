@@ -3,6 +3,8 @@ import { Container, TextField, Button, Typography, Box, Alert, Grid } from '@mui
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 
+const API_URL = process.env.REACT_APP_BASE_URL;
+
 const SendCloseRequestPage = () => {
   const [ticketId, setTicketId] = useState('');
   const [reason, setReason] = useState('');
@@ -14,7 +16,7 @@ const SendCloseRequestPage = () => {
     e.preventDefault();
 
     try {
-      const response = await axios.post('http://localhost:8080/api/close-request', {
+      const response = await axios.post(`${API_URL}/close-request`, {
         ticketId,
         reason,
       });

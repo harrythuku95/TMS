@@ -5,6 +5,8 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/auth';
 
+const API_URL = process.env.REACT_APP_BASE_URL;
+
 const HomePage = () => {
 
   const [ticketStats, setTicketStats] = useState({ open: 0, closed: 0, pending: 0 });
@@ -21,7 +23,6 @@ const HomePage = () => {
   }, []);
 
   const fetchStats = async () => {
-    const API_URL = import.meta.env.VITE_API_URL;
     try {
       console.log("test log");
       const authToken = localStorage.getItem('authToken');

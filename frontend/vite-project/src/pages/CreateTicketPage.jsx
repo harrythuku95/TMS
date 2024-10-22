@@ -5,6 +5,8 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { useAuth } from '../context/auth';
 
+const API_URL = process.env.REACT_APP_BASE_URL;
+
 const CreateTicketPage = () => {
   const [ticketName, setTicketName] = useState('');
   const [subject, setSubject] = useState('');
@@ -26,7 +28,7 @@ const CreateTicketPage = () => {
 
   const fetchCustomers = async () => {
     try {
-      const response = await axios.get('http://localhost:8080/api/customers', {
+      const response = await axios.get(`${API_URL}/customers`, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem('authToken')}`
         }
@@ -59,7 +61,7 @@ const CreateTicketPage = () => {
     });
 
     try {
-      const response = await axios.post('http://localhost:8080/api/tickets', formData, {
+      const response = await axios.post(`${API_URL}/tickets`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
           Authorization: `Bearer ${localStorage.getItem('authToken')}`,
