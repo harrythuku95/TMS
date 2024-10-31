@@ -13,6 +13,7 @@ services:
       - DB_NAME=db_tms
       - DB_HOST=db
       - JWT_SECRET=HUEyqESqgQ1yTwzVlO6wprC9Kf1J1xuA
+      - CORS_ORIGIN=http://localhost:5173
     depends_on:
       - db
     networks:
