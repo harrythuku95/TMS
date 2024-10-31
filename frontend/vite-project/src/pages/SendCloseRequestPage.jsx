@@ -3,7 +3,7 @@ import { Container, TextField, Button, Typography, Box, Alert, Grid } from '@mui
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 
-const API_URL = process.env.REACT_APP_BASE_URL;
+const API_URL = import.meta.env.VITE_API_URL;
 
 const SendCloseRequestPage = () => {
   const [ticketId, setTicketId] = useState('');

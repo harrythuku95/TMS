@@ -1,43 +1,52 @@
-version: '3.8'
-
+version: '3'
 services:
-  frontend:
-    build:
-      context: ./frontend/vite-project
-      dockerfile: Dockerfile
-    ports:
-      - "5173:5173"
-    depends_on:
-      - backend
-    environment:
-      - VITE_API_URL=http://localhost:8080  # Add this line
-
   backend:
-    build:
+    build: 
       context: ./backend
       dockerfile: Dockerfile
     ports:
       - "8080:8080"
     environment:
       - NODE_ENV=production
-      - DB_HOST=db  # Changed from localhost to db
-      - DB_PORT=5432
       - DB_USER=admin
-      - DB_PASSWORD=admin_pass
+      - DB_PASSWORD=admin123
       - DB_NAME=db_tms
+      - DB_HOST=db
+      - JWT_SECRET=HUEyqESqgQ1yTwzVlO6wprC9Kf1J1xuA
     depends_on:
       - db
+    networks:
+      - app-network
+
+  frontend:
+    build: 
+      context: ./frontend/vite-project
+      dockerfile: Dockerfile
+    ports:
+      - "5173:5173"
+    environment:
+      - VITE_API_URL=http://localhost:8080/api
+    depends_on:
+      - backend
+    networks:
+      - app-network
 
   db:
     image: postgres:13
     environment:
       - POSTGRES_USER=admin
-      - POSTGRES_PASSWORD=admin_pass
+      - POSTGRES_PASSWORD=admin123
       - POSTGRES_DB=db_tms
+    ports:
+      - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
-    ports:
-      - "5432:5432"  # Add this line to expose PostgreSQL port
+    networks:
+      - app-network
 
 volumes:
   postgres_data:
+
+networks:
+  app-network:
+    driver: bridge

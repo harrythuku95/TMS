@@ -76,7 +76,7 @@ app.use(
 
 // Configure CORS
 const corsOptions = {
-  origin: 'http://localhost:5173',
+  origin: ['http://localhost:5173', 'http://172.20.0.4:5173'],
   credentials: true,
 };
 
