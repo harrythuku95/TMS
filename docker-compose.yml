@@ -13,11 +13,13 @@ services:
       - DB_NAME=db_tms
       - DB_HOST=db
       - JWT_SECRET=HUEyqESqgQ1yTwzVlO6wprC9Kf1J1xuA
-      - CORS_ORIGIN=http://localhost:5173
+      - CORS_ORIGIN=${CORS_ORIGIN:-https://tms.thresh0ld.com}
     depends_on:
       - db
     networks:
       - app-network
+    volumes:
+      - ./uploads:/usr/src/app/uploads
 
   frontend:
     build: 
@@ -26,7 +28,7 @@ services:
     ports:
       - "5173:5173"
     environment:
-      - VITE_API_URL=http://localhost:8080/api
+      - VITE_API_URL=${API_URL:-https://tms.thresh0ld.com/api}
     depends_on:
       - backend
     networks:
@@ -42,8 +44,14 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+      - ./db_dump.sql:/docker-entrypoint-initdb.d/db_dump.sql
     networks:
       - app-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U admin -d db_tms"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
 volumes:
   postgres_data:
