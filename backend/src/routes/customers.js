@@ -62,4 +62,9 @@ router.get('/autocomplete', wrapAsync(async (req, res) => {
   res.status(200).send(payload);
 }));
 
+router.get('/count', wrapAsync(async (req, res) => {
+  const count = await CustomersService.count();
+  res.status(200).json(count);
+}));
+
 module.exports = router;

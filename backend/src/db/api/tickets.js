@@ -35,9 +35,11 @@ module.exports = class TicketsDBApi {
 
   static async getStats() {
     try {
-      const openCount = await db.tickets.count({ where: { status: 'open' } });
-      const closedCount = await db.tickets.count({ where: { status: 'closed' } });
-      const pendingCount = await db.tickets.count({ where: { status: 'pending' } });
+      const [openCount, closedCount, pendingCount] = await Promise.all([
+        db.tickets.count({ where: { status: 'open' } }),
+        db.tickets.count({ where: { status: 'closed' } }),
+        db.tickets.count({ where: { status: 'pending' } })
+      ]);
 
       return {
         open: openCount,
@@ -45,7 +47,7 @@ module.exports = class TicketsDBApi {
         pending: pendingCount
       };
     } catch (error) {
-      console.error('Error in TicketsDBApi.getStats:', error);
+      console.error('Error getting ticket stats:', error);
       throw error;
     }
   }

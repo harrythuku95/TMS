@@ -24,9 +24,8 @@ const HomePage = () => {
 
   const fetchStats = async () => {
     try {
-      console.log("test log");
       const authToken = localStorage.getItem('authToken');
-
+      
       const [ticketResponse, customerResponse] = await Promise.all([
         axios.get(`${API_URL}/tickets/stats`, {
           headers: { Authorization: `Bearer ${authToken}` }
@@ -35,18 +34,13 @@ const HomePage = () => {
           headers: { Authorization: `Bearer ${authToken}` }
         })
       ]);
+
       setTicketStats(ticketResponse.data);
       setCustomerCount(customerResponse.data.count);
       setError(null);
-      console.log("test log");
-      
     } catch (error) {
       console.error('Error fetching stats:', error);
-      console.log("test error");
-      if (error.response && error.response.status === 401) {
-      } else {
-        setError('Failed to load dashboard data. Please try again later.');
-      }
+      setError('Failed to load dashboard data. Please try again later.');
     }
   };
 

@@ -119,6 +119,16 @@ module.exports = class CustomersDBApi {
     return output;
   }
 
+  static async getCount() {
+    try {
+      const count = await db.customers.count();
+      return { count };
+    } catch (error) {
+      console.error('Error getting customer count:', error);
+      throw error;
+    }
+  }
+
   static async findAll(filter, options) {
     try {
       console.log('Filter:', filter);

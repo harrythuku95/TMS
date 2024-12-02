@@ -78,8 +78,13 @@ module.exports = class CustomersService {
     return CustomersDBApi.findAllAutocomplete(query, limit);
   }
 
-  static async count(filter) {
-    return CustomersDBApi.count(filter);
+  static async count() {
+    try {
+      return await CustomersDBApi.getCount();
+    } catch (error) {
+      console.error('Error in CustomersService.count:', error);
+      throw error;
+    }
   }
 
   static async bulkImport(data, importOptions) {
