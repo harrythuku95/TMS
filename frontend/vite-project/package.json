@@ -18,7 +18,7 @@
     "@mui/system": "^5.15.15",
     "@babel/core": "^7.23.9",
     "@babel/preset-react": "^7.23.3",
-    "@ridgewell/gen-mapping": "^0.3.3",
+    "@jridgewell/gen-mapping": "^0.3.3",
     "axios": "^1.7.5",
     "prop-types": "^15.8.1",
     "react": "^18.2.0",
