@@ -12,12 +12,15 @@ const ProfilePage = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    fetchUserTickets();
-  }, []);
+    if (user && user.id) {
+      fetchUserTickets();
+    }
+  }, [user]);
 
   const fetchUserTickets = async () => {
     try {
       const response = await axios.get(`${API_URL}/tickets?createdBy=${user.id}`);
+      console.log('User tickets response:', response);
       setUserTickets(response.data.rows);
     } catch (error) {
       console.error('Error fetching user tickets:', error);

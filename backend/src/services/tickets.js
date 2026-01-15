@@ -137,6 +137,10 @@ module.exports = class TicketsService {
         where.id = Utils.uuid(filter.id);
       }
 
+      if (filter.createdBy) {
+        where.createdById = Utils.uuid(filter.createdBy);
+      }
+
       if (filter.createdAtRange) {
         const [start, end] = filter.createdAtRange;
 
