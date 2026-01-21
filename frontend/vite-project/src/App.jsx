@@ -12,6 +12,8 @@ import Login from './pages/Login';
 import Signup from './pages/Signup';
 import TicketDetailsPage from './pages/TicketDetailsPage';
 import TicketListPage from './pages/TicketListPage';
+import GlobalTicketListPage from './pages/GlobalTicketListPage';
+import GlobalTicketDetailsPage from './pages/GlobalTicketDetailsPage';
 import UserManagementPage from './pages/UserManagementPage';
 import SendCloseRequestPage from './pages/SendCloseRequestPage';
 import AddCustomerPage from './pages/AddCustomerPage';
@@ -51,11 +53,13 @@ const App = () => {
             <Routes>
               <Route path="/" element={<HomePage />} />
               <Route path="/tickets" element={<TicketListPage />} />
+              <Route path="/global-tickets" element={<GlobalTicketListPage />} />
               <Route path="/new-ticket" element={<CreateTicketPage />} />
               <Route path="/customers" element={<CustomerManagementPage />} />
               <Route path="/add-customer" element={<AddCustomerPage />} />
               <Route path="/edit-customer/:id" element={<EditCustomerPage />} />
               <Route path="/ticket-details/:id" element={<TicketDetailsPage />} />
+              <Route path="/global-tickets/:id" element={<GlobalTicketDetailsPage />} />
               <Route path="/user-management" element={<UserManagementPage />} />
               <Route path="/send-close-request" element={<SendCloseRequestPage />} />
               <Route path="/profile" element={<ProfilePage/>}/>

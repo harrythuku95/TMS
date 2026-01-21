@@ -20,3 +20,14 @@
 16. Dockerize the two Applications. 
 
 
+
+
+
+ssh ubuntu@172.43.0.10 -i ~/.ssh/sshkey.pem
+
+sudo -i
+
+cd /root/Downloads/TMS/
+
+docker-compose up --build -d
+

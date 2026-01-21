@@ -19,28 +19,24 @@ import {
 } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import withAgentProtection from '../hoc/withAgentProtection';
-import { useAuth } from '../context/auth';
+import withAuthProtection from '../hoc/withAuthProtection';
 
 const API_URL = import.meta.env.VITE_API_URL;
 
-const TicketListPage = () => {
+const GlobalTicketListPage = () => {
   const [tickets, setTickets] = useState([]);
   const navigate = useNavigate();
   const theme = useTheme();
   const isSmallScreen = useMediaQuery(theme.breakpoints.down('sm'));
-  const { user } = useAuth();
 
   useEffect(() => {
-    if (user) {
-      fetchTickets();
-    }
-  }, [user]);
+    fetchTickets();
+  }, []);
 
   const fetchTickets = async () => {
     try {
-      const response = await axios.get(`${API_URL}/tickets?createdBy=${user.id}`);
-      console.log('My Tickets received:', response.data);
+      const response = await axios.get(`${API_URL}/tickets`);
+      console.log('Tickets received:', response.data);
       setTickets(response.data.rows);
     } catch (error) {
       console.error('Error fetching tickets:', error);
@@ -48,7 +44,7 @@ const TicketListPage = () => {
   };
 
   const handleViewDetails = (id) => {
-    navigate(`/ticket-details/${id}`);
+    navigate(`/global-tickets/${id}`);
   };
 
   const renderTableView = () => (
@@ -73,7 +69,7 @@ const TicketListPage = () => {
               <TableCell>{ticket.priority}</TableCell>
               <TableCell>{ticket.status}</TableCell>
               <TableCell>
-                {ticket.assignee 
+                {ticket.assignee
                   ? `${ticket.assignee.firstName} ${ticket.assignee.lastName}`
                   : 'Unassigned'}
               </TableCell>
@@ -106,13 +102,13 @@ const TicketListPage = () => {
               <Typography variant="body2">Priority: {ticket.priority}</Typography>
               <Typography variant="body2">Status: {ticket.status}</Typography>
               <Typography variant="body2">
-                Assignee: {ticket.assignee 
+                Assignee: {ticket.assignee
                   ? `${ticket.assignee.firstName} ${ticket.assignee.lastName}`
                   : 'Unassigned'}
               </Typography>
-              <TableCell>
-                {ticket.customer ? ticket.customer.name : 'N/A'}
-              </TableCell>
+              <Typography variant="body2">
+                Customer: {ticket.customer ? ticket.customer.name : 'N/A'}
+              </Typography>
               <Box mt={2}>
                 <Button
                   variant="contained"
@@ -135,7 +131,7 @@ const TicketListPage = () => {
     <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
       <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
         <Typography variant="h4" gutterBottom align="center">
-          My Tickets
+          All Tickets
         </Typography>
         <Button
           variant="contained"
@@ -151,4 +147,4 @@ const TicketListPage = () => {
   );
 };
 
-export default withAgentProtection(TicketListPage);
+export default withAuthProtection(GlobalTicketListPage);

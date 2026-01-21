@@ -18,11 +18,11 @@ import {
 } from '@mui/material';
 import axios from 'axios';
 import { useAuth } from '../context/auth';
-import withAgentProtection from '../hoc/withAgentProtection';
+import withAuthProtection from '../hoc/withAuthProtection';
 
 const API_URL = import.meta.env.VITE_API_URL;
 
-const TicketDetailsPage = () => {
+const GlobalTicketDetailsPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const [ticket, setTicket] = useState(null);
@@ -34,9 +34,11 @@ const TicketDetailsPage = () => {
   const theme = useTheme();
   const isSmallScreen = useMediaQuery(theme.breakpoints.down('sm'));
 
+  const isAdminOrAgent = user?.role === 'Admin' || user?.role === 'Agent';
+
   useEffect(() => {
     fetchTicketDetails();
-    if (user.role === 'Admin') {
+    if (isAdminOrAgent && user.role === 'Admin') {
       fetchAssignees();
     }
   }, [id, user.role]);
@@ -74,7 +76,7 @@ const TicketDetailsPage = () => {
     }
     try {
       console.log("Sending assign request for ticket:", id, "to assignee:", selectedAssignee.id);
-      const response = await axios.put(`${API_URL}/tickets/${id}`, 
+      const response = await axios.put(`${API_URL}/tickets/${id}`,
         { assigneeId: selectedAssignee.id },
         { headers: { Authorization: `Bearer ${localStorage.getItem('authToken')}` } }
       );
@@ -155,8 +157,8 @@ const TicketDetailsPage = () => {
             <Grid item xs={12} sm={6}>
               <Typography variant="subtitle1">Assignee:</Typography>
               <Typography variant="body1">
-                {ticket.assignee 
-                  ? `${ticket.assignee.firstName} ${ticket.assignee.lastName}` 
+                {ticket.assignee
+                  ? `${ticket.assignee.firstName} ${ticket.assignee.lastName}`
                   : 'Unassigned'}
               </Typography>
             </Grid>
@@ -165,13 +167,13 @@ const TicketDetailsPage = () => {
               <Typography variant="body1">{ticket.description}</Typography>
             </Grid>
             <Grid item xs={12}>
-            <Typography variant="subtitle1">Customer:</Typography>
-            <Typography variant="body1">
-              {ticket.customer
-                ? `${ticket.customer.name} (${ticket.customer.email})`
-                : 'N/A'}
-            </Typography>
-          </Grid>
+              <Typography variant="subtitle1">Customer:</Typography>
+              <Typography variant="body1">
+                {ticket.customer
+                  ? `${ticket.customer.name} (${ticket.customer.email})`
+                  : 'N/A'}
+              </Typography>
+            </Grid>
           </Grid>
 
           <Divider sx={{ my: 2 }} />
@@ -209,15 +211,16 @@ const TicketDetailsPage = () => {
 
           <Divider sx={{ my: 2 }} />
 
-          {(user.role === 'Admin' || user.role === 'Agent') && (
+          {/* Role-based UI: Only show controls for Admin/Agent */}
+          {isAdminOrAgent && (
             <>
               <Box sx={{ mt: 2 }}>
                 <Typography variant="h6">Update Status</Typography>
                 <Grid container spacing={1} sx={{ mt: 1 }}>
                   {['open', 'in_progress', 'closed'].map((status) => (
                     <Grid item xs={12} sm={4} key={status}>
-                      <Button 
-                        onClick={() => handleStatusChange(status)} 
+                      <Button
+                        onClick={() => handleStatusChange(status)}
                         variant="outlined"
                         fullWidth
                       >
@@ -227,7 +230,7 @@ const TicketDetailsPage = () => {
                   ))}
                 </Grid>
               </Box>
-              
+
               {user.role === 'Admin' && (
                 <Box sx={{ mt: 2 }}>
                   <Typography variant="h6">Assign Ticket</Typography>
@@ -246,9 +249,9 @@ const TicketDetailsPage = () => {
                         />
                       </Grid>
                       <Grid item xs={12} sm={4} md={3}>
-                        <Button 
-                          onClick={handleAssignTicket} 
-                          variant="contained" 
+                        <Button
+                          onClick={handleAssignTicket}
+                          variant="contained"
                           disabled={!selectedAssignee}
                           fullWidth
                         >
@@ -265,8 +268,8 @@ const TicketDetailsPage = () => {
           )}
 
           <Box sx={{ mt: 2 }}>
-            <Button variant="outlined" onClick={() => navigate('/tickets')} fullWidth={isSmallScreen}>
-              Back to Tickets
+            <Button variant="outlined" onClick={() => navigate('/global-tickets')} fullWidth={isSmallScreen}>
+              Back to All Tickets
             </Button>
           </Box>
         </Paper>
@@ -275,4 +278,4 @@ const TicketDetailsPage = () => {
   );
 };
 
-export default withAgentProtection(TicketDetailsPage);
+export default withAuthProtection(GlobalTicketDetailsPage);

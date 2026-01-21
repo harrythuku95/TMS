@@ -31,6 +31,22 @@ module.exports = function (sequelize, DataTypes) {
         allowNull: false,
         defaultValue: 'pending',
       },
+      closedById: {
+        type: DataTypes.UUID,
+        allowNull: true,
+      },
+      closedAt: {
+        type: DataTypes.DATE,
+        allowNull: true,
+      },
+      openedAt: {
+        type: DataTypes.DATE,
+        allowNull: true,
+      },
+      pendingAt: {
+        type: DataTypes.DATE,
+        allowNull: true,
+      },
       importHash: {
         type: DataTypes.STRING(255),
         allowNull: true,
@@ -55,6 +71,11 @@ module.exports = function (sequelize, DataTypes) {
 
     db.tickets.belongsTo(db.users, {
       as: 'assignee',
+    });
+
+    db.tickets.belongsTo(db.users, {
+      as: 'closedBy',
+      foreignKey: 'closedById',
     });
 
     db.tickets.belongsTo(db.customers, {

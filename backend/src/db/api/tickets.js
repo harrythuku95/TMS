@@ -19,6 +19,10 @@ module.exports = class TicketsDBApi {
           status: data.status || 'pending',
           assigneeId: data.assigneeId || null,
           customerId: data.customerId || null,
+          closedById: data.closedById || null,
+          closedAt: data.closedAt || null,
+          openedAt: data.openedAt || null,
+          pendingAt: data.pendingAt || null,
           createdById: currentUser.id,
           updatedById: currentUser.id,
         },
@@ -106,6 +110,11 @@ module.exports = class TicketsDBApi {
             attributes: ['id', 'firstName', 'lastName']
           },
           {
+            model: db.users,
+            as: 'closedBy',
+            attributes: ['id', 'firstName', 'lastName']
+          },
+          {
             model: db.customers,
             as: 'customer',
             attributes: ['id', 'name', 'email']
@@ -141,6 +150,11 @@ module.exports = class TicketsDBApi {
         attributes: ['id', 'firstName', 'lastName', 'email']
       },
       {
+        model: db.users,
+        as: 'closedBy',
+        attributes: ['id', 'firstName', 'lastName', 'email']
+      },
+      {
         model: db.customers,
         as: 'customer',
         attributes: ['id', 'name']
@@ -164,6 +178,13 @@ module.exports = class TicketsDBApi {
 
       if (filter.status) {
         where.status = filter.status;
+      }
+
+      if (filter.createdBy) {
+        where = {
+          ...where,
+          ['createdById']: Utils.uuid(filter.createdBy),
+        };
       }
 
       if (filter.createdAtRange) {

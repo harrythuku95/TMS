@@ -10,16 +10,27 @@ module.exports = class TicketsService {
     const transaction = await db.sequelize.transaction();
     try {
       // Prepare ticket data
+      const status = data.status || 'pending';
       const ticketData = {
         subject: data.subject || null,
         priority: data.priority || null,
         description: data.description || null,
-        status: data.status || 'pending',
+        status: status,
         assigneeId: null,
         customerId: data.customer || null,
         createdById: currentUser.id,
         updatedById: currentUser.id,
       };
+
+      // Set initial status timestamp
+      if (status === 'pending') {
+        ticketData.pendingAt = new Date();
+      } else if (status === 'open') {
+        ticketData.openedAt = new Date();
+      } else if (status === 'closed') {
+        ticketData.closedById = currentUser.id;
+        ticketData.closedAt = new Date();
+      }
 
       // Use TicketsDBApi to create the ticket
       const ticket = await TicketsDBApi.create(ticketData, {
@@ -73,6 +84,25 @@ module.exports = class TicketsService {
   static async update(id, data, currentUser) {
     const transaction = await db.sequelize.transaction();
     try {
+      // Fetch the current ticket to compare status changes
+      const currentTicket = await TicketsDBApi.findBy({ id }, { transaction });
+
+      if (!currentTicket) {
+        throw new Error('Ticket not found');
+      }
+
+      // Track status changes with timestamps
+      if (data.status && data.status !== currentTicket.status) {
+        if (data.status === 'closed') {
+          data.closedById = currentUser.id;
+          data.closedAt = new Date();
+        } else if (data.status === 'open') {
+          data.openedAt = new Date();
+        } else if (data.status === 'pending') {
+          data.pendingAt = new Date();
+        }
+      }
+
       await TicketsDBApi.update(
         id,
         data,
