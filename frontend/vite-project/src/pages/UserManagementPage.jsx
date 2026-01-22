@@ -39,7 +39,7 @@ const UserManagementPage = () => {
 
   const handleUpgradeToAgent = async (userId) => {
     try {
-      await axios.put(`http://localhost:8080/api/users/${userId}/role`, { role: 'Agent' }, {
+      await axios.put(`/users/${userId}/role`, { role: 'Agent' }, {
         headers: { Authorization: `Bearer ${localStorage.getItem('authToken')}` }
       });
       fetchUsers();

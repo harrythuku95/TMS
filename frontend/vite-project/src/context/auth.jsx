@@ -47,7 +47,7 @@ export const AuthProvider = ({ children }) => {
 
       console.log('Signup successful:', response.data);
       localStorage.setItem('authToken', response.data.token);
-      setUser(response.data.user);
+      setUser(response.data);
       axios.defaults.headers.common['Authorization'] = `Bearer ${response.data.token}`;
       
       if (response.data.user.role === 'Admin') {
@@ -78,7 +78,7 @@ export const AuthProvider = ({ children }) => {
 
       console.log('Login successful:', response.data);
       localStorage.setItem('authToken', response.data.token);
-      setUser(response.data.user);
+      setUser(response.data);
       axios.defaults.headers.common['Authorization'] = `Bearer ${response.data.token}`;
       navigate('/');
     } catch (error) {

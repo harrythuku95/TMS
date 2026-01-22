@@ -10,10 +10,12 @@ services:
       - NODE_ENV=production
       - DB_USER=admin
       - DB_PASSWORD=admin123
-      - DB_NAME=tmsdb
-      - DB_HOST=172.43.2.218
+      - DB_NAME=db_tms
+      - DB_HOST=db
       - JWT_SECRET=HUEyqESqgQ1yTwzVlO6wprC9Kf1J1xuA
       - CORS_ORIGIN=${CORS_ORIGIN:-https://tms.thresh0ld.com}
+    depends_on:
+      - db
     networks:
       - app-network
     volumes:
@@ -31,6 +33,28 @@ services:
       - backend
     networks:
       - app-network
+
+  db:
+    image: postgres:13
+    environment:
+      - POSTGRES_USER=admin
+      - POSTGRES_PASSWORD=admin123
+      - POSTGRES_DB=db_tms
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./db_dump.sql:/docker-entrypoint-initdb.d/db_dump.sql
+    networks:
+      - app-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U admin -d db_tms"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  postgres_data:
 
 networks:
   app-network:
