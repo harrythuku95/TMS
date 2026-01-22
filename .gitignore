@@ -4,3 +4,4 @@ node_modules
 .env
 /ssh
 /images_for_gemini
+docker-compose.yml
