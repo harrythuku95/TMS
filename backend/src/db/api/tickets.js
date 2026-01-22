@@ -176,9 +176,6 @@ module.exports = class TicketsDBApi {
         };
       }
 
-      if (filter.createdBy) {
-        where.createdById = filter.createdBy;
-      }
 
       if (filter.status) {
         where.status = filter.status;
