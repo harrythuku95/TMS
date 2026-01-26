@@ -40,10 +40,16 @@ router.delete('/:id', wrapAsync(async (req, res) => {
   res.status(200).send({ id });
 }));
 
-router.get('/:id', wrapAsync(async (req, res) => {
-  const { id } = req.params;
-  const result = await CustomersService.findBy({ id });
-  res.status(200).send(result);
+// Specific routes must come BEFORE parameterized routes
+router.get('/count', wrapAsync(async (req, res) => {
+  const count = await CustomersService.count();
+  res.status(200).json(count);
+}));
+
+router.get('/autocomplete', wrapAsync(async (req, res) => {
+  const { query, limit } = req.query;
+  const payload = await CustomersService.findAllAutocomplete(query, limit);
+  res.status(200).send(payload);
 }));
 
 router.get('/', wrapAsync(async (req, res) => {
@@ -56,15 +62,10 @@ router.get('/', wrapAsync(async (req, res) => {
   }
 }));
 
-router.get('/autocomplete', wrapAsync(async (req, res) => {
-  const { query, limit } = req.query;
-  const payload = await CustomersService.findAllAutocomplete(query, limit);
-  res.status(200).send(payload);
-}));
-
-router.get('/count', wrapAsync(async (req, res) => {
-  const count = await CustomersService.count();
-  res.status(200).json(count);
+router.get('/:id', wrapAsync(async (req, res) => {
+  const { id } = req.params;
+  const result = await CustomersService.findBy({ id });
+  res.status(200).send(result);
 }));
 
 module.exports = router;

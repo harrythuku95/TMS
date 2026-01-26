@@ -68,7 +68,24 @@ router.get(
     if (!user) {
       return res.status(404).json({ error: 'User not found' });
     }
-    res.status(200).json(user);
+
+    // Explicitly serialize user data, excluding sensitive fields
+    const userData = {
+      id: user.id,
+      email: user.email,
+      role: user.role,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      phoneNumber: user.phoneNumber,
+      emailVerified: user.emailVerified,
+      disabled: user.disabled,
+      createdAt: user.createdAt,
+      updatedAt: user.updatedAt
+    };
+
+    // Prevent caching of user data to avoid stale data across sessions
+    res.set('Cache-Control', 'no-cache, private');
+    res.status(200).json(userData);
   })
 );
 
