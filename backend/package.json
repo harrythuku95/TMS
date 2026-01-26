@@ -7,7 +7,8 @@
     "db:migrate": "sequelize-cli db:migrate",
     "db:seed": "sequelize-cli db:seed:all",
     "db:drop": "sequelize-cli db:drop",
-    "db:create": "sequelize-cli db:create"
+    "db:create": "sequelize-cli db:create",
+    "createsuperuser": "node scripts/createsuperuser.js"
   },
   "dependencies": {
     "@google-cloud/storage": "^7.7.0",

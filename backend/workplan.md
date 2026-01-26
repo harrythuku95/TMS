@@ -19,6 +19,8 @@
 15. Do a cleanup of all unwanted files in the project
 16. Dockerize the two Applications. 
 
+17. db host
+
 
 
 
