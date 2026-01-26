@@ -81,6 +81,8 @@ module.exports = class CloseRequestService {
         closeRequest.approved = true;
         const ticket = await db.tickets.findByPk(closeRequest.ticketId, { transaction });
         ticket.status = 'closed';
+        ticket.closedById = userId;  // Record who approved the close request
+        ticket.closedAt = new Date();  // Record when the ticket was closed
         await ticket.save({ transaction });
       }
 
