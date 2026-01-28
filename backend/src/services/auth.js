@@ -16,7 +16,13 @@ class Auth {
   static async signup(email, password, firstName, lastName) {
     const transaction = await db.sequelize.transaction();
     try {
-      const userCount = await db.users.count();
+      // Check if email already exists
+      const existingUser = await UsersDBApi.findBy({ email }, { transaction });
+      if (existingUser) {
+        throw new ValidationError('An account with this email already exists. Please use a different email or try signing in.');
+      }
+
+      const userCount = await db.users.count({ transaction });
       const role = userCount === 0 ? 'Admin' : 'User';
 
       const user = await db.users.create({
@@ -25,7 +31,7 @@ class Auth {
         firstName,
         lastName,
         role,
-        emailVerified: true 
+        emailVerified: true
       }, { transaction });
 
       await transaction.commit();
@@ -34,7 +40,20 @@ class Auth {
       return user;
     } catch (error) {
       await transaction.rollback();
-      throw error;
+
+      // Handle Sequelize unique constraint violation
+      if (error.name === 'SequelizeUniqueConstraintError') {
+        throw new ValidationError('An account with this email already exists. Please use a different email or try signing in.');
+      }
+
+      // Re-throw ValidationError as-is
+      if (error instanceof ValidationError) {
+        throw error;
+      }
+
+      // Log and throw generic error for other cases
+      console.error('Signup error:', error);
+      throw new ValidationError('Signup failed. Please try again.');
     }
   }
 
@@ -59,6 +78,12 @@ class Auth {
       const token = helpers.jwtSign(data);
       return { token, user: data };
     } catch (error) {
+      // Re-throw ValidationError with specific message
+      if (error instanceof ValidationError) {
+        throw error;
+      }
+
+      // Log unexpected errors and throw generic message
       console.error('Signin error:', error);
       throw new ValidationError('Sign-in failed. Please try again.');
     }

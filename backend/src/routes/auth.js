@@ -33,11 +33,33 @@ router.post(
 router.post('/signup', async (req, res) => {
   try {
     const { email, password, firstName, lastName } = req.body;
+
+    // Basic input validation
+    if (!email || !password) {
+      return res.status(400).json({ error: 'Email and password are required.' });
+    }
+
+    if (password.length < 6) {
+      return res.status(400).json({ error: 'Password must be at least 6 characters long.' });
+    }
+
     const user = await AuthService.signup(email, password, firstName, lastName);
     const token = helpers.jwtSign({ id: user.id, email: user.email, role: user.role });
     res.status(201).json({ user: { id: user.id, email: user.email, role: user.role }, token });
   } catch (error) {
     console.error('Signup error:', error);
+
+    // Handle Sequelize unique constraint violation
+    if (error.name === 'SequelizeUniqueConstraintError') {
+      return res.status(409).json({ error: 'An account with this email already exists. Please use a different email or try signing in.' });
+    }
+
+    // Handle validation errors
+    if (error.name === 'SequelizeValidationError') {
+      return res.status(400).json({ error: error.errors?.[0]?.message || 'Invalid input data.' });
+    }
+
+    // Return the error message from ValidationError or generic message
     res.status(400).json({ error: error.message || 'Signup failed. Please try again.' });
   }
 });
