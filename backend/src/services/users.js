@@ -54,8 +54,8 @@ module.exports = class UsersService {
         throw new Error('Only admins can update user roles');
       }
 
-      if (newRole !== 'Agent' && newRole !== 'User') {
-        throw new Error('Invalid role');
+      if (newRole !== 'Agent' && newRole !== 'User' && newRole !== 'Admin') {
+        throw new Error('Invalid role. Must be User, Agent, or Admin');
       }
 
       await UsersDBApi.update(
@@ -65,7 +65,10 @@ module.exports = class UsersService {
       );
 
       await transaction.commit();
-      return user;
+
+      // Fetch and return the updated user
+      const updatedUser = await UsersDBApi.findBy({ id: userId });
+      return updatedUser;
     } catch (error) {
       await transaction.rollback();
       throw error;
