@@ -25,7 +25,7 @@
 
 
 
-ssh ubuntu@172.43.0.10 -i ~/.ssh/sshkey.pem
+ssh ubuntu@172.43.0.10 -i ssh/sshkey.pem
 
 sudo -i
 

@@ -34,7 +34,7 @@ const App = () => {
     <Router>
       <ThemeProvider theme={theme}>
         <AuthProvider>
-          <Box sx={{ display: 'flex', backgroundColor: theme.palette.custom.grey }}>
+          <Box sx={{ display: 'flex', backgroundColor: theme.palette.background.default, minHeight: '100vh' }}>
             <CssBaseline />
             <Navbar handleDrawerToggle={handleDrawerToggle} />
             <Sidebar isMobileOpen={mobileOpen} handleDrawerToggle={handleDrawerToggle} />
@@ -42,12 +42,12 @@ const App = () => {
               component="main"
               sx={{
                 flexGrow: 1,
-                p: 3,
-                width: { xs: '100%', sm: '100%', md: 'calc(100% - 240px)', lg: 'calc(100% - 240px)', xl: 'calc(100% - 240px)' },
-                marginLeft: { xs: 0, sm: 0, md: '240px', lg: '240px', xl: '240px' },
-                marginTop: { xs: '56px', sm: '64px', md: '64px', lg: '64px', xl: '64px' },
-                marginBottom: '64px',
-                backgroundColor: theme.palette.custom.grey,
+                p: { xs: 2, sm: 3 },
+                width: { xs: '100%', sm: '100%', md: 'calc(100% - 240px)' },
+                marginLeft: { xs: 0, sm: 0, md: '240px' },
+                marginTop: { xs: '56px', sm: '64px' },
+                marginBottom: '80px',
+                backgroundColor: theme.palette.background.default,
               }}
             >
             <Routes>

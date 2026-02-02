@@ -1,9 +1,10 @@
 // src/pages/CreateTicketPage.jsx
 import React, { useState, useEffect } from 'react';
-import { TextField, Button, Grid, Container, Typography, Box, MenuItem, Select, InputLabel, FormControl, Autocomplete } from '@mui/material';
+import { TextField, Button, Grid, Container, Typography, Box, MenuItem, Select, InputLabel, FormControl, Autocomplete, useTheme, useMediaQuery } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { useAuth } from '../context/auth';
+import FadeInWrapper from '../components/FadeInWrapper';
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -16,9 +17,11 @@ const CreateTicketPage = () => {
   const [status, setStatus] = useState('pending');
   const [files, setFiles] = useState([]);
   const [customerOptions, setCustomerOptions] = useState([]);
-  
+
   const navigate = useNavigate();
   const { user } = useAuth();
+  const theme = useTheme();
+  const isSmallScreen = useMediaQuery(theme.breakpoints.down('sm'));
 
   useEffect(() => {
     if (user.role === 'Admin' || user.role === 'Agent') {
@@ -79,15 +82,16 @@ const CreateTicketPage = () => {
   };
 
   return (
-    <Container maxWidth="md" sx={{ mt: 4, mb: 4 }}>
-      <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-        <Typography variant="h4" gutterBottom align="center">Create Ticket</Typography>
-        <Box
-          component="form"
-          onSubmit={handleSubmit}
-          sx={{ width: '100%', mt: 2 }}
-        >
-          <Grid container spacing={2}>
+    <FadeInWrapper>
+      <Container maxWidth="md" sx={{ mt: { xs: 2, sm: 4 }, mb: 4 }}>
+        <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+          <Typography variant="h4" gutterBottom align="center">Create Ticket</Typography>
+          <Box
+            component="form"
+            onSubmit={handleSubmit}
+            sx={{ width: '100%', mt: 2 }}
+          >
+            <Grid container spacing={{ xs: 2, sm: 3 }}>
             <Grid item xs={12}>
               <TextField
                 label="Ticket Name"
@@ -172,7 +176,13 @@ const CreateTicketPage = () => {
               />
             </Grid>
             <Grid item xs={12}>
-              <Button type="submit" variant="contained" color="primary" fullWidth>
+              <Button
+                type="submit"
+                variant="contained"
+                color="primary"
+                fullWidth={{ xs: true, sm: false }}
+                size={isSmallScreen ? 'medium' : 'large'}
+              >
                 Create Ticket
               </Button>
             </Grid>
@@ -180,6 +190,7 @@ const CreateTicketPage = () => {
         </Box>
       </Box>
     </Container>
+    </FadeInWrapper>
   );
 };
 

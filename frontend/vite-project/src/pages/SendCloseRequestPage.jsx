@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { Container, TextField, Button, Typography, Box, Alert, Grid } from '@mui/material';
+import { Container, TextField, Button, Typography, Box, Alert, Grid, useTheme, useMediaQuery } from '@mui/material';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import FadeInWrapper from '../components/FadeInWrapper';
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -11,6 +12,8 @@ const SendCloseRequestPage = () => {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const navigate = useNavigate();
+  const theme = useTheme();
+  const isSmallScreen = useMediaQuery(theme.breakpoints.down('sm'));
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -33,15 +36,16 @@ const SendCloseRequestPage = () => {
   };
 
   return (
-    <Container maxWidth="sm" sx={{ mt: 4, mb: 4 }}>
-      <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-        <Typography variant="h4" align="center" gutterBottom>
-          Send Close Request
-        </Typography>
-        {error && <Alert severity="error" sx={{ width: '100%', mb: 2 }}>{error}</Alert>}
-        {success && <Alert severity="success" sx={{ width: '100%', mb: 2 }}>{success}</Alert>}
-        <Box component="form" onSubmit={handleSubmit} sx={{ width: '100%', mt: 2 }}>
-          <Grid container spacing={2}>
+    <FadeInWrapper>
+      <Container maxWidth="md" sx={{ mt: { xs: 2, sm: 4 }, mb: 4 }}>
+        <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+          <Typography variant="h4" align="center" gutterBottom>
+            Send Close Request
+          </Typography>
+          {error && <Alert severity="error" sx={{ width: '100%', mb: 2 }}>{error}</Alert>}
+          {success && <Alert severity="success" sx={{ width: '100%', mb: 2 }}>{success}</Alert>}
+          <Box component="form" onSubmit={handleSubmit} sx={{ width: '100%', mt: 2 }}>
+            <Grid container spacing={{ xs: 2, sm: 3 }}>
             <Grid item xs={12}>
               <TextField
                 label="Ticket ID"
@@ -63,7 +67,13 @@ const SendCloseRequestPage = () => {
               />
             </Grid>
             <Grid item xs={12}>
-              <Button type="submit" variant="contained" color="primary" fullWidth>
+              <Button
+                type="submit"
+                variant="contained"
+                color="primary"
+                fullWidth={{ xs: true, sm: false }}
+                size={isSmallScreen ? 'medium' : 'large'}
+              >
                 Send Request
               </Button>
             </Grid>
@@ -71,6 +81,7 @@ const SendCloseRequestPage = () => {
         </Box>
       </Box>
     </Container>
+    </FadeInWrapper>
   );
 };
 

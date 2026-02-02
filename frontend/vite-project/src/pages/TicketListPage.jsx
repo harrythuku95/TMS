@@ -21,6 +21,9 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import withAgentProtection from '../hoc/withAgentProtection';
 import { useAuth } from '../context/auth';
+import FadeInWrapper from '../components/FadeInWrapper';
+import StatusBadge from '../components/StatusBadge';
+import PriorityBadge from '../components/PriorityBadge';
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -62,7 +65,7 @@ const TicketListPage = () => {
             <TableCell>Status</TableCell>
             <TableCell>Assignee</TableCell>
             <TableCell>Customer</TableCell>
-            <TableCell>Actions</TableCell>
+            <TableCell align="right">Actions</TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
@@ -70,15 +73,19 @@ const TicketListPage = () => {
             <TableRow key={ticket.id}>
               <TableCell>{ticket.id}</TableCell>
               <TableCell>{ticket.subject}</TableCell>
-              <TableCell>{ticket.priority}</TableCell>
-              <TableCell>{ticket.status}</TableCell>
               <TableCell>
-                {ticket.assignee 
+                <PriorityBadge priority={ticket.priority} />
+              </TableCell>
+              <TableCell>
+                <StatusBadge status={ticket.status} />
+              </TableCell>
+              <TableCell>
+                {ticket.assignee
                   ? `${ticket.assignee.firstName} ${ticket.assignee.lastName}`
                   : 'Unassigned'}
               </TableCell>
               <TableCell>{ticket.customer ? ticket.customer.name : 'N/A'}</TableCell>
-              <TableCell>
+              <TableCell align="right">
                 <Button
                   variant="contained"
                   color="primary"
@@ -97,22 +104,32 @@ const TicketListPage = () => {
 
   const renderCardView = () => (
     <Grid container spacing={2}>
-      {tickets.map((ticket) => (
+      {tickets.map((ticket, index) => (
         <Grid item xs={12} sm={6} md={4} key={ticket.id}>
-          <Card>
+          <Card
+            sx={{
+              animation: 'fadeInUp 500ms ease-in-out',
+              animationDelay: `${index * 50}ms`,
+              animationFillMode: 'both',
+            }}
+          >
             <CardContent>
               <Typography variant="h6" gutterBottom>{ticket.subject}</Typography>
-              <Typography variant="body2" color="textSecondary">ID: {ticket.id}</Typography>
-              <Typography variant="body2">Priority: {ticket.priority}</Typography>
-              <Typography variant="body2">Status: {ticket.status}</Typography>
-              <Typography variant="body2">
-                Assignee: {ticket.assignee 
+              <Typography variant="body2" color="textSecondary" gutterBottom>
+                ID: {ticket.id}
+              </Typography>
+              <Box sx={{ display: 'flex', gap: 1, mt: 1, mb: 1, flexWrap: 'wrap' }}>
+                <PriorityBadge priority={ticket.priority} />
+                <StatusBadge status={ticket.status} />
+              </Box>
+              <Typography variant="body2" color="text.secondary" gutterBottom>
+                <strong>Assignee:</strong> {ticket.assignee
                   ? `${ticket.assignee.firstName} ${ticket.assignee.lastName}`
                   : 'Unassigned'}
               </Typography>
-              <TableCell>
-                {ticket.customer ? ticket.customer.name : 'N/A'}
-              </TableCell>
+              <Typography variant="body2" color="text.secondary">
+                <strong>Customer:</strong> {ticket.customer ? ticket.customer.name : 'N/A'}
+              </Typography>
               <Box mt={2}>
                 <Button
                   variant="contained"
@@ -132,22 +149,25 @@ const TicketListPage = () => {
   );
 
   return (
-    <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
-      <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-        <Typography variant="h4" gutterBottom align="center">
-          My Tickets
-        </Typography>
-        <Button
-          variant="contained"
-          color="primary"
-          onClick={() => navigate('/new-ticket')}
-          sx={{ mb: 3 }}
-        >
-          Create New Ticket
-        </Button>
-        {isSmallScreen ? renderCardView() : renderTableView()}
-      </Box>
-    </Container>
+    <FadeInWrapper>
+      <Container maxWidth="lg" sx={{ mt: { xs: 2, sm: 4 }, mb: 4 }}>
+        <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+          <Typography variant="h4" gutterBottom align="center">
+            My Tickets
+          </Typography>
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={() => navigate('/new-ticket')}
+            sx={{ mb: 3 }}
+            size={isSmallScreen ? 'medium' : 'large'}
+          >
+            Create New Ticket
+          </Button>
+          {isSmallScreen ? renderCardView() : renderTableView()}
+        </Box>
+      </Container>
+    </FadeInWrapper>
   );
 };
 

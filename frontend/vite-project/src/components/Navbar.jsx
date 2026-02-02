@@ -14,43 +14,49 @@ const Navbar = ({ handleDrawerToggle }) => {
       position="fixed"
       sx={{
         zIndex: (theme) => theme.zIndex.drawer + 1,
-        width: { xs: '100%', sm: '100%', md: 'calc(100% - 240px)', lg: 'calc(100% - 240px)', xl: 'calc(100% - 240px)' },
-        ml: { xs: 0, sm: 0, md: '240px', lg: '240px', xl: '240px' },
-        backgroundColor: theme.palette.custom.purple,
+        width: { xs: '100%', md: 'calc(100% - 240px)' },
+        ml: { xs: 0, md: '240px' },
       }}
     >
-      <Toolbar sx={{ justifyContent: 'flex-end' }}>
+      <Toolbar sx={{ justifyContent: 'space-between' }}>
         {isMobile && (
           <IconButton
-            color="inherit"
             aria-label="open drawer"
             edge="start"
             onClick={handleDrawerToggle}
-            sx={{ mr: 2 }}
+            sx={{
+              mr: 2,
+              color: theme.palette.text.primary,
+            }}
           >
             <MenuIcon />
           </IconButton>
         )}
-        <Box sx={{ display: 'flex', gap: 2 }}>
+        <Box sx={{ flexGrow: 1 }} />
+        <Box sx={{ display: 'flex', gap: { xs: 1, sm: 2 } }}>
           {user ? (
             <>
-              <Button 
-                color="inherit" 
-                component={Link} 
-                to="/user-management"
-                sx={{ 
-                  backgroundColor: 'transparent', 
-                  '&:hover': { backgroundColor: theme.palette.custom.dark }
+              <Button
+                component={Link}
+                to="/profile"
+                sx={{
+                  color: theme.palette.text.primary,
+                  backgroundColor: 'transparent',
+                  '&:hover': {
+                    backgroundColor: theme.palette.action.hover,
+                  }
                 }}
               >
                 Profile
               </Button>
-              <Button 
-                color="inherit" 
+              <Button
                 onClick={logout}
-                sx={{ 
-                  backgroundColor: 'transparent', 
-                  '&:hover': { backgroundColor: theme.palette.custom.dark }
+                sx={{
+                  color: theme.palette.text.primary,
+                  backgroundColor: 'transparent',
+                  '&:hover': {
+                    backgroundColor: theme.palette.action.hover,
+                  }
                 }}
               >
                 Logout
@@ -58,24 +64,28 @@ const Navbar = ({ handleDrawerToggle }) => {
             </>
           ) : (
             <>
-              <Button 
-                color="inherit" 
-                component={Link} 
+              <Button
+                component={Link}
                 to="/login"
-                sx={{ 
-                  backgroundColor: 'transparent', 
-                  '&:hover': { backgroundColor: theme.palette.custom.dark }
+                sx={{
+                  color: theme.palette.text.primary,
+                  backgroundColor: 'transparent',
+                  '&:hover': {
+                    backgroundColor: theme.palette.action.hover,
+                  }
                 }}
               >
                 Login
               </Button>
-              <Button 
-                color="inherit" 
-                component={Link} 
+              <Button
+                component={Link}
                 to="/signup"
-                sx={{ 
-                  backgroundColor: 'transparent', 
-                  '&:hover': { backgroundColor: theme.palette.custom.dark }
+                sx={{
+                  color: theme.palette.text.primary,
+                  backgroundColor: 'transparent',
+                  '&:hover': {
+                    backgroundColor: theme.palette.action.hover,
+                  }
                 }}
               >
                 Signup

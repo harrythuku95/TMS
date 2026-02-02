@@ -1,7 +1,29 @@
 import React, { useState, useEffect } from 'react';
-import { Container, Typography, Table, TableBody, TableCell, TableHead, TableRow, Button, CircularProgress, Alert, Snackbar } from '@mui/material';
+import {
+  Container,
+  Typography,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableRow,
+  TableContainer,
+  Button,
+  CircularProgress,
+  Alert,
+  Snackbar,
+  Box,
+  Card,
+  CardContent,
+  CardActions,
+  Grid,
+  Chip,
+  useMediaQuery,
+  useTheme,
+} from '@mui/material';
 import axios from 'axios';
 import withAdminProtection from '../hoc/withAdminProtection';
+import FadeInWrapper from '../components/FadeInWrapper';
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -11,6 +33,8 @@ const UserManagementPage = () => {
   const [error, setError] = useState(null);
   const [successMessage, setSuccessMessage] = useState('');
   const [updatingUserId, setUpdatingUserId] = useState(null);
+  const theme = useTheme();
+  const isSmallScreen = useMediaQuery(theme.breakpoints.down('sm'));
 
   useEffect(() => {
     fetchUsers();
@@ -56,93 +80,168 @@ const UserManagementPage = () => {
     }
   };
 
+  const getRoleBadgeColor = (role) => {
+    if (role === 'Admin') return theme.palette.custom.roleAdmin;
+    if (role === 'Agent') return theme.palette.custom.roleAgent;
+    return theme.palette.custom.roleUser;
+  };
+
   if (loading) {
     return (
-      <Container maxWidth="md" style={{ display: 'flex', justifyContent: 'center', marginTop: '50px' }}>
+      <Container maxWidth="lg" sx={{ display: 'flex', justifyContent: 'center', mt: { xs: 4, sm: 6 } }}>
         <CircularProgress />
       </Container>
     );
   }
 
   return (
-    <Container maxWidth="md">
-      <Typography variant="h4" gutterBottom>User Management</Typography>
+    <FadeInWrapper>
+      <Container maxWidth="lg">
+        <Box sx={{ mt: { xs: 2, sm: 4 }, mb: 3 }}>
+          <Typography variant="h4">User Management</Typography>
+        </Box>
 
-      {error && (
-        <Alert severity="error" style={{ marginBottom: '20px' }} onClose={() => setError(null)}>
-          {error}
-        </Alert>
-      )}
+        {error && (
+          <Alert severity="error" sx={{ mb: 2 }} onClose={() => setError(null)}>
+            {error}
+          </Alert>
+        )}
 
-      <Snackbar
-        open={!!successMessage}
-        autoHideDuration={4000}
-        onClose={() => setSuccessMessage('')}
-        message={successMessage}
-      />
+        <Snackbar
+          open={!!successMessage}
+          autoHideDuration={4000}
+          onClose={() => setSuccessMessage('')}
+          message={successMessage}
+        />
 
-      {users.length > 0 ? (
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableCell>Name</TableCell>
-              <TableCell>Email</TableCell>
-              <TableCell>Role</TableCell>
-              <TableCell>Actions</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {users.map((user) => (
-              <TableRow key={user.id}>
-                <TableCell>{`${user.firstName || ''} ${user.lastName || ''}`}</TableCell>
-                <TableCell>{user.email || 'N/A'}</TableCell>
-                <TableCell>
-                  <Typography
-                    variant="body2"
-                    style={{
-                      fontWeight: 'bold',
-                      color: user.role === 'Admin' ? '#d32f2f' : user.role === 'Agent' ? '#1976d2' : '#757575'
+        {users.length > 0 ? (
+          isSmallScreen ? (
+            <Grid container spacing={2}>
+              {users.map((user, index) => (
+                <Grid item xs={12} key={user.id}>
+                  <Card
+                    sx={{
+                      animation: 'fadeInUp 500ms ease-in-out',
+                      animationDelay: `${index * 50}ms`,
+                      animationFillMode: 'both',
                     }}
                   >
-                    {user.role || 'N/A'}
-                  </Typography>
-                </TableCell>
-                <TableCell>
-                  {updatingUserId === user.id ? (
-                    <CircularProgress size={24} />
-                  ) : (
-                    <>
-                      {user.role === 'User' && (
-                        <Button
-                          variant="outlined"
+                    <CardContent>
+                      <Typography variant="h6" gutterBottom>
+                        {`${user.firstName || ''} ${user.lastName || ''}`}
+                      </Typography>
+                      <Typography variant="body2" color="text.secondary" gutterBottom>
+                        <strong>Email:</strong> {user.email || 'N/A'}
+                      </Typography>
+                      <Box sx={{ mt: 1 }}>
+                        <Chip
+                          label={user.role || 'N/A'}
                           size="small"
-                          onClick={() => handleUpdateRole(user.id, 'Agent')}
-                          style={{ marginRight: '8px' }}
-                        >
-                          Upgrade to Agent
-                        </Button>
+                          sx={{
+                            backgroundColor: getRoleBadgeColor(user.role),
+                            color: '#ffffff',
+                            fontWeight: 500,
+                          }}
+                        />
+                      </Box>
+                    </CardContent>
+                    <CardActions>
+                      {updatingUserId === user.id ? (
+                        <CircularProgress size={24} />
+                      ) : (
+                        <>
+                          {user.role === 'User' && (
+                            <Button
+                              variant="outlined"
+                              size="small"
+                              onClick={() => handleUpdateRole(user.id, 'Agent')}
+                            >
+                              Upgrade to Agent
+                            </Button>
+                          )}
+                          {user.role === 'Agent' && (
+                            <Button
+                              variant="outlined"
+                              color="secondary"
+                              size="small"
+                              onClick={() => handleUpdateRole(user.id, 'Admin')}
+                            >
+                              Upgrade to Admin
+                            </Button>
+                          )}
+                        </>
                       )}
-                      {user.role === 'Agent' && (
-                        <Button
-                          variant="outlined"
-                          color="secondary"
+                    </CardActions>
+                  </Card>
+                </Grid>
+              ))}
+            </Grid>
+          ) : (
+            <TableContainer>
+              <Table>
+                <TableHead>
+                  <TableRow>
+                    <TableCell>Name</TableCell>
+                    <TableCell>Email</TableCell>
+                    <TableCell>Role</TableCell>
+                    <TableCell align="right">Actions</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {users.map((user) => (
+                    <TableRow key={user.id}>
+                      <TableCell>{`${user.firstName || ''} ${user.lastName || ''}`}</TableCell>
+                      <TableCell>{user.email || 'N/A'}</TableCell>
+                      <TableCell>
+                        <Chip
+                          label={user.role || 'N/A'}
                           size="small"
-                          onClick={() => handleUpdateRole(user.id, 'Admin')}
-                        >
-                          Upgrade to Admin
-                        </Button>
-                      )}
-                    </>
-                  )}
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      ) : (
-        <Typography>No users found.</Typography>
-      )}
-    </Container>
+                          sx={{
+                            backgroundColor: getRoleBadgeColor(user.role),
+                            color: '#ffffff',
+                            fontWeight: 500,
+                          }}
+                        />
+                      </TableCell>
+                      <TableCell align="right">
+                        {updatingUserId === user.id ? (
+                          <CircularProgress size={24} />
+                        ) : (
+                          <>
+                            {user.role === 'User' && (
+                              <Button
+                                variant="outlined"
+                                size="small"
+                                onClick={() => handleUpdateRole(user.id, 'Agent')}
+                                sx={{ mr: 1 }}
+                              >
+                                Upgrade to Agent
+                              </Button>
+                            )}
+                            {user.role === 'Agent' && (
+                              <Button
+                                variant="outlined"
+                                color="secondary"
+                                size="small"
+                                onClick={() => handleUpdateRole(user.id, 'Admin')}
+                              >
+                                Upgrade to Admin
+                              </Button>
+                            )}
+                          </>
+                        )}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          )
+        ) : (
+          <Typography>No users found.</Typography>
+        )}
+      </Container>
+    </FadeInWrapper>
   );
 };
 

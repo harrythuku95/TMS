@@ -19,6 +19,9 @@ import {
 import axios from 'axios';
 import { useAuth } from '../context/auth';
 import withAuthProtection from '../hoc/withAuthProtection';
+import FadeInWrapper from '../components/FadeInWrapper';
+import StatusBadge from '../components/StatusBadge';
+import PriorityBadge from '../components/PriorityBadge';
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -102,7 +105,7 @@ const GlobalTicketDetailsPage = () => {
 
   if (loading) {
     return (
-      <Container maxWidth="md" sx={{ mt: 4, mb: 4, display: 'flex', justifyContent: 'center' }}>
+      <Container maxWidth="lg" sx={{ mt: { xs: 2, sm: 4 }, mb: 4, display: 'flex', justifyContent: 'center' }}>
         <CircularProgress />
       </Container>
     );
@@ -110,7 +113,7 @@ const GlobalTicketDetailsPage = () => {
 
   if (error) {
     return (
-      <Container maxWidth="md" sx={{ mt: 4, mb: 4 }}>
+      <Container maxWidth="lg" sx={{ mt: { xs: 2, sm: 4 }, mb: 4 }}>
         <Alert severity="error">{error}</Alert>
       </Container>
     );
@@ -118,20 +121,21 @@ const GlobalTicketDetailsPage = () => {
 
   if (!ticket) {
     return (
-      <Container maxWidth="md" sx={{ mt: 4, mb: 4 }}>
+      <Container maxWidth="lg" sx={{ mt: { xs: 2, sm: 4 }, mb: 4 }}>
         <Typography variant="h6">Ticket not found</Typography>
       </Container>
     );
   }
 
   return (
-    <Container maxWidth="md" sx={{ mt: 4, mb: 4 }}>
-      <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-        <Typography variant="h4" gutterBottom align="center">
-          Ticket Details
-        </Typography>
-        <Paper sx={{ p: 3, width: '100%' }}>
-          <Grid container spacing={2}>
+    <Container maxWidth="lg" sx={{ mt: { xs: 2, sm: 4 }, mb: 4 }}>
+      <FadeInWrapper>
+        <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+          <Typography variant="h4" gutterBottom align="center">
+            Ticket Details
+          </Typography>
+          <Paper sx={{ p: 3, width: '100%' }}>
+            <Grid container spacing={{ xs: 2, sm: 3 }}>
             <Grid item xs={12} sm={6} md={4}>
               <Typography variant="subtitle1">Ticket ID:</Typography>
               <Typography variant="body1">{ticket.id}</Typography>
@@ -144,7 +148,7 @@ const GlobalTicketDetailsPage = () => {
             </Grid>
             <Grid item xs={12} sm={6} md={4}>
               <Typography variant="subtitle1">Status:</Typography>
-              <Typography variant="body1">{ticket.status}</Typography>
+              <StatusBadge status={ticket.status} />
             </Grid>
             <Grid item xs={12}>
               <Typography variant="subtitle1">Subject:</Typography>
@@ -152,7 +156,7 @@ const GlobalTicketDetailsPage = () => {
             </Grid>
             <Grid item xs={12} sm={6}>
               <Typography variant="subtitle1">Priority:</Typography>
-              <Typography variant="body1">{ticket.priority}</Typography>
+              <PriorityBadge priority={ticket.priority} />
             </Grid>
             <Grid item xs={12} sm={6}>
               <Typography variant="subtitle1">Assignee:</Typography>
@@ -223,6 +227,7 @@ const GlobalTicketDetailsPage = () => {
                         onClick={() => handleStatusChange(status)}
                         variant="outlined"
                         fullWidth
+                        size={isSmallScreen ? 'medium' : 'large'}
                       >
                         {status.replace('_', ' ').charAt(0).toUpperCase() + status.slice(1)}
                       </Button>
@@ -254,6 +259,7 @@ const GlobalTicketDetailsPage = () => {
                           variant="contained"
                           disabled={!selectedAssignee}
                           fullWidth
+                          size={isSmallScreen ? 'medium' : 'large'}
                         >
                           Assign
                         </Button>
@@ -268,12 +274,18 @@ const GlobalTicketDetailsPage = () => {
           )}
 
           <Box sx={{ mt: 2 }}>
-            <Button variant="outlined" onClick={() => navigate('/global-tickets')} fullWidth={isSmallScreen}>
+            <Button
+              variant="outlined"
+              onClick={() => navigate('/global-tickets')}
+              fullWidth={isSmallScreen}
+              size={isSmallScreen ? 'medium' : 'large'}
+            >
               Back to All Tickets
             </Button>
           </Box>
         </Paper>
       </Box>
+      </FadeInWrapper>
     </Container>
   );
 };

@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { Container, Typography, Box, Grid, TextField, Button } from '@mui/material';
+import { Container, Typography, Box, Grid, TextField, Button, useTheme, useMediaQuery } from '@mui/material';
 import { useNavigate, useParams } from 'react-router-dom';
 import axios from 'axios';
 import withAdminProtection from '../hoc/withAdminProtection';
+import FadeInWrapper from '../components/FadeInWrapper';
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -16,6 +17,8 @@ const EditCustomerPage = () => {
   });
   const navigate = useNavigate();
   const authToken = localStorage.getItem('authToken');
+  const theme = useTheme();
+  const isSmallScreen = useMediaQuery(theme.breakpoints.down('sm'));
 
   useEffect(() => {
     fetchCustomerDetails();
@@ -59,15 +62,16 @@ const EditCustomerPage = () => {
   };
 
   return (
-    <Container maxWidth="sm" sx={{ mt: 4, mb: 4 }}>
-      <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-        <Typography variant="h4" gutterBottom align="center">Edit Customer</Typography>
-        <Box
-          component="form"
-          onSubmit={handleSubmit}
-          sx={{ width: '100%', mt: 2 }}
-        >
-          <Grid container spacing={2}>
+    <FadeInWrapper>
+      <Container maxWidth="md" sx={{ mt: { xs: 2, sm: 4 }, mb: 4 }}>
+        <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+          <Typography variant="h4" gutterBottom align="center">Edit Customer</Typography>
+          <Box
+            component="form"
+            onSubmit={handleSubmit}
+            sx={{ width: '100%', mt: 2 }}
+          >
+            <Grid container spacing={{ xs: 2, sm: 3 }}>
             <Grid item xs={12}>
               <TextField
                 label="Name"
@@ -111,7 +115,13 @@ const EditCustomerPage = () => {
               />
             </Grid>
             <Grid item xs={12}>
-              <Button type="submit" variant="contained" color="primary" fullWidth>
+              <Button
+                type="submit"
+                variant="contained"
+                color="primary"
+                fullWidth={{ xs: true, sm: false }}
+                size={isSmallScreen ? 'medium' : 'large'}
+              >
                 Save Changes
               </Button>
             </Grid>
@@ -119,6 +129,7 @@ const EditCustomerPage = () => {
         </Box>
       </Box>
     </Container>
+    </FadeInWrapper>
   );
 };
 

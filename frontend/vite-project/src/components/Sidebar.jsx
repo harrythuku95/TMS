@@ -27,13 +27,23 @@ const Sidebar = ({ isMobileOpen, handleDrawerToggle }) => {
   ];
 
   const drawer = (
-    <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%', backgroundColor: theme.palette.custom.dark }}>
-      <Box sx={{ p: 2, textAlign: 'left' }}>
-        <Typography variant="h4" component={Link} to="/" sx={{ textDecoration: 'none', color: theme.palette.custom.white, paddingLeft: '8px' }}>
+    <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+      <Box sx={{ p: 2, textAlign: 'left', mt: 1 }}>
+        <Typography
+          variant="h5"
+          component={Link}
+          to="/"
+          sx={{
+            textDecoration: 'none',
+            color: theme.palette.custom.sidebarText,
+            paddingLeft: '8px',
+            fontWeight: 700,
+          }}
+        >
           Thresh0ld TMS
         </Typography>
       </Box>
-      <List sx={{ flexGrow: 1 }}>
+      <List sx={{ flexGrow: 1, px: 1 }}>
         {menuItems.map((item) => (
           user && item.roles.includes(user.role) && (
             <ListItem
@@ -42,40 +52,35 @@ const Sidebar = ({ isMobileOpen, handleDrawerToggle }) => {
               to={item.path}
               key={item.title}
               onClick={isMobile ? handleDrawerToggle : undefined}
-              sx={{
-                '&:hover': {
-                  backgroundColor: theme.palette.custom.purple,
-                },
-              }}
             >
-              <ListItemIcon sx={{ color: theme.palette.custom.white }}>{item.icon}</ListItemIcon>
-              <ListItemText primary={item.title} sx={{ color: theme.palette.custom.white }} />
+              <ListItemIcon sx={{ color: theme.palette.custom.sidebarText }}>{item.icon}</ListItemIcon>
+              <ListItemText primary={item.title} sx={{ color: theme.palette.custom.sidebarText }} />
             </ListItem>
           )
         ))}
       </List>
-      <Divider sx={{ bgcolor: theme.palette.custom.light }} />
-      <List>
+      <Divider sx={{ bgcolor: 'rgba(255, 255, 255, 0.12)' }} />
+      <List sx={{ px: 1, pb: 2 }}>
         {user ? (
           <>
-            <ListItem button component={Link} to="/profile" sx={{ '&:hover': { backgroundColor: theme.palette.custom.purple } }}>
-              <ListItemIcon sx={{ color: theme.palette.custom.white }}><AccountCircleIcon /></ListItemIcon>
-              <ListItemText primary="Profile" sx={{ color: theme.palette.custom.white }} />
+            <ListItem button component={Link} to="/profile">
+              <ListItemIcon sx={{ color: theme.palette.custom.sidebarText }}><AccountCircleIcon /></ListItemIcon>
+              <ListItemText primary="Profile" sx={{ color: theme.palette.custom.sidebarText }} />
             </ListItem>
-            <ListItem button onClick={logout} sx={{ '&:hover': { backgroundColor: theme.palette.custom.purple } }}>
-              <ListItemIcon sx={{ color: theme.palette.custom.white }}><ExitToAppIcon /></ListItemIcon>
-              <ListItemText primary="Logout" sx={{ color: theme.palette.custom.white }} />
+            <ListItem button onClick={logout}>
+              <ListItemIcon sx={{ color: theme.palette.custom.sidebarText }}><ExitToAppIcon /></ListItemIcon>
+              <ListItemText primary="Logout" sx={{ color: theme.palette.custom.sidebarText }} />
             </ListItem>
           </>
         ) : (
           <>
-            <ListItem button component={Link} to="/login" sx={{ '&:hover': { backgroundColor: theme.palette.custom.purple } }}>
-              <ListItemIcon sx={{ color: theme.palette.custom.white }}><ExitToAppIcon /></ListItemIcon>
-              <ListItemText primary="Login" sx={{ color: theme.palette.custom.white }} />
+            <ListItem button component={Link} to="/login">
+              <ListItemIcon sx={{ color: theme.palette.custom.sidebarText }}><ExitToAppIcon /></ListItemIcon>
+              <ListItemText primary="Login" sx={{ color: theme.palette.custom.sidebarText }} />
             </ListItem>
-            <ListItem button component={Link} to="/signup" sx={{ '&:hover': { backgroundColor: theme.palette.custom.purple } }}>
-              <ListItemIcon sx={{ color: theme.palette.custom.white }}><AccountCircleIcon /></ListItemIcon>
-              <ListItemText primary="Signup" sx={{ color: theme.palette.custom.white }} />
+            <ListItem button component={Link} to="/signup">
+              <ListItemIcon sx={{ color: theme.palette.custom.sidebarText }}><AccountCircleIcon /></ListItemIcon>
+              <ListItemText primary="Signup" sx={{ color: theme.palette.custom.sidebarText }} />
             </ListItem>
           </>
         )}
@@ -85,23 +90,12 @@ const Sidebar = ({ isMobileOpen, handleDrawerToggle }) => {
 
   return (
     <>
-      {isMobile && (
-        <IconButton
-          color="inherit"
-          aria-label="open drawer"
-          edge="start"
-          onClick={handleDrawerToggle}
-          sx={{ mr: 2, display: { md: 'none' }, color: theme.palette.custom.white }}
-        >
-          <MenuIcon />
-        </IconButton>
-      )}
       <Drawer
         variant={isMobile ? "temporary" : "permanent"}
         open={isMobile ? isMobileOpen : true}
         onClose={isMobile ? handleDrawerToggle : undefined}
         ModalProps={{
-          keepMounted: true, // Better open performance on mobile.
+          keepMounted: true,
         }}
         sx={{
           '& .MuiDrawer-paper': {
@@ -109,7 +103,6 @@ const Sidebar = ({ isMobileOpen, handleDrawerToggle }) => {
             boxSizing: 'border-box',
             top: 0,
             height: '100%',
-            backgroundColor: theme.palette.custom.dark,
           },
         }}
       >
