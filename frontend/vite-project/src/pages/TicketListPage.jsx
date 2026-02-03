@@ -59,7 +59,7 @@ const TicketListPage = () => {
       <Table aria-label="ticket table">
         <TableHead>
           <TableRow>
-            <TableCell>ID</TableCell>
+            <TableCell>Ticket Name</TableCell>
             <TableCell>Subject</TableCell>
             <TableCell>Priority</TableCell>
             <TableCell>Status</TableCell>
@@ -71,7 +71,7 @@ const TicketListPage = () => {
         <TableBody>
           {tickets.map((ticket) => (
             <TableRow key={ticket.id}>
-              <TableCell>{ticket.id}</TableCell>
+              <TableCell>{ticket.name}</TableCell>
               <TableCell>{ticket.subject}</TableCell>
               <TableCell>
                 <PriorityBadge priority={ticket.priority} />
@@ -114,9 +114,9 @@ const TicketListPage = () => {
             }}
           >
             <CardContent>
-              <Typography variant="h6" gutterBottom>{ticket.subject}</Typography>
-              <Typography variant="body2" color="textSecondary" gutterBottom>
-                ID: {ticket.id}
+              <Typography variant="h6" gutterBottom>{ticket.name}</Typography>
+              <Typography variant="body2" gutterBottom>
+                {ticket.subject}
               </Typography>
               <Box sx={{ display: 'flex', gap: 1, mt: 1, mb: 1, flexWrap: 'wrap' }}>
                 <PriorityBadge priority={ticket.priority} />

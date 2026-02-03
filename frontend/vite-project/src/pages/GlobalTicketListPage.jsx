@@ -16,7 +16,10 @@ import {
   Card,
   CardContent,
   Grid,
+  TextField,
+  InputAdornment,
 } from '@mui/material';
+import SearchIcon from '@mui/icons-material/Search';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import withAuthProtection from '../hoc/withAuthProtection';
@@ -28,17 +31,29 @@ const API_URL = import.meta.env.VITE_API_URL;
 
 const GlobalTicketListPage = () => {
   const [tickets, setTickets] = useState([]);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('');
   const navigate = useNavigate();
   const theme = useTheme();
   const isSmallScreen = useMediaQuery(theme.breakpoints.down('sm'));
 
   useEffect(() => {
     fetchTickets();
-  }, []);
+  }, [debouncedSearchTerm]);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearchTerm(searchTerm);
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [searchTerm]);
 
   const fetchTickets = async () => {
     try {
-      const response = await axios.get(`${API_URL}/tickets`);
+      const url = debouncedSearchTerm
+        ? `${API_URL}/tickets?search=${encodeURIComponent(debouncedSearchTerm)}`
+        : `${API_URL}/tickets`;
+      const response = await axios.get(url);
       console.log('Tickets received:', response.data);
       setTickets(response.data.rows);
     } catch (error) {
@@ -55,7 +70,7 @@ const GlobalTicketListPage = () => {
       <Table aria-label="ticket table">
         <TableHead>
           <TableRow>
-            <TableCell>ID</TableCell>
+            <TableCell>Ticket Name</TableCell>
             <TableCell>Subject</TableCell>
             <TableCell>Priority</TableCell>
             <TableCell>Status</TableCell>
@@ -67,7 +82,7 @@ const GlobalTicketListPage = () => {
         <TableBody>
           {tickets.map((ticket) => (
             <TableRow key={ticket.id}>
-              <TableCell>{ticket.id}</TableCell>
+              <TableCell>{ticket.name}</TableCell>
               <TableCell>{ticket.subject}</TableCell>
               <TableCell>
                 <PriorityBadge priority={ticket.priority} />
@@ -110,9 +125,9 @@ const GlobalTicketListPage = () => {
             }}
           >
             <CardContent>
-              <Typography variant="h6" gutterBottom>{ticket.subject}</Typography>
-              <Typography variant="body2" color="textSecondary" gutterBottom>
-                ID: {ticket.id}
+              <Typography variant="h6" gutterBottom>{ticket.name}</Typography>
+              <Typography variant="body2" gutterBottom>
+                {ticket.subject}
               </Typography>
               <Box sx={{ display: 'flex', gap: 1, mt: 1, mb: 1, flexWrap: 'wrap' }}>
                 <PriorityBadge priority={ticket.priority} />
@@ -160,7 +175,30 @@ const GlobalTicketListPage = () => {
           >
             Create New Ticket
           </Button>
-          {isSmallScreen ? renderCardView() : renderTableView()}
+          <Box sx={{ width: '100%', mb: 3 }}>
+            <TextField
+              label="Search tickets"
+              variant="outlined"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              placeholder="Search by ticket name or customer name"
+              fullWidth
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <SearchIcon />
+                  </InputAdornment>
+                ),
+              }}
+            />
+          </Box>
+          {tickets.length === 0 && debouncedSearchTerm ? (
+            <Typography variant="body1" color="text.secondary" sx={{ mt: 2 }}>
+              No tickets found matching your search.
+            </Typography>
+          ) : (
+            isSmallScreen ? renderCardView() : renderTableView()
+          )}
         </Box>
       </Container>
     </FadeInWrapper>

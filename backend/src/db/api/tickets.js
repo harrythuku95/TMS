@@ -13,6 +13,7 @@ module.exports = class TicketsDBApi {
     try {
       const tickets = await db.tickets.create(
         {
+          name: data.name || null,
           subject: data.subject || null,
           priority: data.priority || null,
           description: data.description || null,
@@ -176,6 +177,16 @@ module.exports = class TicketsDBApi {
         };
       }
 
+      if (filter.search) {
+        where[Op.or] = [
+          Utils.ilike('tickets', 'name', filter.search),
+          Utils.ilike('tickets', 'subject', filter.search),
+          Sequelize.where(
+            Sequelize.fn('lower', Sequelize.col('customer.name')),
+            { [Op.like]: `%${filter.search.toLowerCase()}%` }
+          ),
+        ];
+      }
 
       if (filter.status) {
         where.status = filter.status;

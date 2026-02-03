@@ -9,9 +9,18 @@ module.exports = class TicketsService {
   static async create(data, currentUser) {
     const transaction = await db.sequelize.transaction();
     try {
+      // Generate ticket name from sequence
+      const [result] = await db.sequelize.query(
+        "SELECT nextval('tickets_name_seq') as seq",
+        { transaction }
+      );
+      const sequenceValue = result[0].seq;
+      const ticketName = 'T' + sequenceValue.toString().padStart(4, '0');
+
       // Prepare ticket data
       const status = data.status || 'pending';
       const ticketData = {
+        name: ticketName,
         subject: data.subject || null,
         priority: data.priority || null,
         description: data.description || null,

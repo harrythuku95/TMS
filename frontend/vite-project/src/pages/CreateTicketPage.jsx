@@ -9,7 +9,6 @@ import FadeInWrapper from '../components/FadeInWrapper';
 const API_URL = import.meta.env.VITE_API_URL;
 
 const CreateTicketPage = () => {
-  const [ticketName, setTicketName] = useState('');
   const [subject, setSubject] = useState('');
   const [priority, setPriority] = useState('');
   const [description, setDescription] = useState('');
@@ -46,7 +45,6 @@ const CreateTicketPage = () => {
     e.preventDefault();
 
     const formData = new FormData();
-    formData.append('ticketName', ticketName);
     formData.append('subject', subject);
     formData.append('priority', priority);
     formData.append('description', description);
@@ -86,21 +84,15 @@ const CreateTicketPage = () => {
       <Container maxWidth="md" sx={{ mt: { xs: 2, sm: 4 }, mb: 4 }}>
         <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
           <Typography variant="h4" gutterBottom align="center">Create Ticket</Typography>
+          <Typography variant="body2" color="text.secondary" align="center" sx={{ mb: 2 }}>
+            Ticket name will be auto-generated
+          </Typography>
           <Box
             component="form"
             onSubmit={handleSubmit}
             sx={{ width: '100%', mt: 2 }}
           >
             <Grid container spacing={{ xs: 2, sm: 3 }}>
-            <Grid item xs={12}>
-              <TextField
-                label="Ticket Name"
-                value={ticketName}
-                onChange={(e) => setTicketName(e.target.value)}
-                required
-                fullWidth
-              />
-            </Grid>
             <Grid item xs={12}>
               <TextField
                 label="Subject"
