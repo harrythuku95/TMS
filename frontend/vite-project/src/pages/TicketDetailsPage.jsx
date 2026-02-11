@@ -22,6 +22,7 @@ import withAgentProtection from '../hoc/withAgentProtection';
 import FadeInWrapper from '../components/FadeInWrapper';
 import StatusBadge from '../components/StatusBadge';
 import PriorityBadge from '../components/PriorityBadge';
+import TicketNotes from '../components/TicketNotes';
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -31,6 +32,7 @@ const TicketDetailsPage = () => {
   const [ticket, setTicket] = useState(null);
   const [assignees, setAssignees] = useState([]);
   const [selectedAssignee, setSelectedAssignee] = useState(null);
+  const [resolution, setResolution] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const { user } = useAuth();
@@ -51,6 +53,7 @@ const TicketDetailsPage = () => {
       console.log("Fetched ticket details:", response.data);
       setTicket(response.data);
       setSelectedAssignee(response.data.assignee || null);
+      setResolution(response.data.resolution || '');
       setError(null);
     } catch (error) {
       console.error('Error fetching ticket details:', error);
@@ -91,11 +94,27 @@ const TicketDetailsPage = () => {
 
   const handleStatusChange = async (newStatus) => {
     try {
-      await axios.put(`${API_URL}/tickets/${id}`, { status: newStatus });
+      const updateData = { status: newStatus };
+      // Include resolution when closing ticket
+      if (newStatus === 'closed' && resolution) {
+        updateData.resolution = resolution;
+      }
+      await axios.put(`${API_URL}/tickets/${id}`, updateData);
       fetchTicketDetails();
     } catch (error) {
       console.error('Error updating ticket status:', error);
       setError('Failed to update ticket status. Please try again.');
+    }
+  };
+
+  const handleResolutionUpdate = async () => {
+    try {
+      await axios.put(`${API_URL}/tickets/${id}`, { resolution });
+      fetchTicketDetails();
+      setError(null);
+    } catch (error) {
+      console.error('Error updating resolution:', error);
+      setError('Failed to update resolution. Please try again.');
     }
   };
 
@@ -137,6 +156,12 @@ const TicketDetailsPage = () => {
             <Grid item xs={12} sm={6} md={4}>
               <Typography variant="subtitle1">Ticket ID:</Typography>
               <Typography variant="body1">{ticket.id}</Typography>
+            </Grid>
+            <Grid item xs={12} sm={6} md={4}>
+              <Typography variant="subtitle1">Ticket Name:</Typography>
+              <Typography variant="body1" sx={{ fontWeight: 600, color: 'primary.main' }}>
+                {ticket.name}
+              </Typography>
             </Grid>
             <Grid item xs={12} sm={6} md={4}>
               <Typography variant="subtitle1">Created At:</Typography>
@@ -206,6 +231,11 @@ const TicketDetailsPage = () => {
                       <> by {ticket.closedBy.firstName} {ticket.closedBy.lastName}</>
                     )}
                   </Typography>
+                  {ticket.resolution && (
+                    <Typography variant="body2" color="textSecondary" sx={{ mt: 1 }}>
+                      <strong>Resolution:</strong> {ticket.resolution}
+                    </Typography>
+                  )}
                 </Grid>
               )}
             </Grid>
@@ -215,6 +245,30 @@ const TicketDetailsPage = () => {
 
           {(user.role === 'Admin' || user.role === 'Agent') && (
             <>
+              <Box sx={{ mt: 2 }}>
+                <Typography variant="h6">Resolution</Typography>
+                <TextField
+                  label="Resolution (optional)"
+                  multiline
+                  rows={3}
+                  value={resolution}
+                  onChange={(e) => setResolution(e.target.value)}
+                  placeholder="Describe how this ticket was resolved..."
+                  fullWidth
+                  sx={{ mt: 1, mb: 2 }}
+                />
+                {ticket.status === 'closed' && (
+                  <Button
+                    onClick={handleResolutionUpdate}
+                    variant="outlined"
+                    size="small"
+                    sx={{ mb: 2 }}
+                  >
+                    Update Resolution
+                  </Button>
+                )}
+              </Box>
+
               <Box sx={{ mt: 2 }}>
                 <Typography variant="h6">Update Status</Typography>
                 <Grid container spacing={1} sx={{ mt: 1 }}>
@@ -269,6 +323,12 @@ const TicketDetailsPage = () => {
               )}
             </>
           )}
+
+          <Divider sx={{ my: 3 }} />
+
+          <TicketNotes ticketId={id} />
+
+          <Divider sx={{ my: 3 }} />
 
           <Box sx={{ mt: 2 }}>
             <Button

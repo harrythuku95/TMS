@@ -10,6 +10,8 @@ import HomePage from './pages/HomePage';
 import CustomerManagementPage from './pages/CustomerManagementPage';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
+import ForgotPassword from './pages/ForgotPassword';
+import ResetPassword from './pages/ResetPassword';
 import TicketDetailsPage from './pages/TicketDetailsPage';
 import TicketListPage from './pages/TicketListPage';
 import GlobalTicketListPage from './pages/GlobalTicketListPage';
@@ -65,6 +67,8 @@ const App = () => {
               <Route path="/profile" element={<ProfilePage/>}/>
               <Route path="/login" element={<Login />} />
               <Route path="/signup" element={<Signup />} />
+              <Route path="/forgot-password" element={<ForgotPassword />} />
+              <Route path="/reset-password" element={<ResetPassword />} />
             </Routes>
             </Box>
             <Footer />

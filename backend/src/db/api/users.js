@@ -1,5 +1,6 @@
 const db = require('../models');
 const Utils = require('../utils');
+const crypto = require('crypto');
 
 const Sequelize = db.Sequelize;
 const Op = Sequelize.Op;
@@ -44,44 +45,98 @@ module.exports = class UsersDBApi {
     let limit = filter.limit || 0;
     let offset = 0;
     const currentPage = +filter.page;
-  
+
     offset = currentPage * limit;
-  
+
     const where = {};
-  
+
     if (filter.id) {
       where['id'] = Utils.uuid(filter.id);
     }
-  
+
     if (filter.firstName) {
       where['firstName'] = {
         [Op.like]: `%${filter.firstName}%`,
       };
     }
-  
+
     if (filter.lastName) {
       where['lastName'] = {
         [Op.like]: `%${filter.lastName}%`,
       };
     }
-  
+
     if (filter.email) {
       where['email'] = {
         [Op.like]: `%${filter.email}%`,
       };
     }
-  
+
     if (filter.role) {
       where['role'] = filter.role;
     }
-  
+
     const { rows, count } = await db.users.findAndCountAll({
       where,
       limit: limit ? Number(limit) : undefined,
       offset: offset ? Number(offset) : undefined,
       order: [['createdAt', 'DESC']],
     });
-  
+
     return { rows, count };
+  }
+
+  static async generatePasswordResetToken(email, options) {
+    const transaction = (options && options.transaction) || undefined;
+
+    const user = await db.users.findOne({ where: { email }, transaction });
+
+    if (!user) {
+      throw new Error('User not found');
+    }
+
+    const token = crypto.randomBytes(32).toString('hex');
+    const tokenExpiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
+
+    await db.users.update(
+      {
+        passwordResetToken: token,
+        passwordResetTokenExpiresAt: tokenExpiresAt,
+      },
+      { where: { id: user.id }, transaction }
+    );
+
+    return token;
+  }
+
+  static async findByPasswordResetToken(token, options) {
+    const transaction = (options && options.transaction) || undefined;
+
+    const user = await db.users.findOne({
+      where: {
+        passwordResetToken: token,
+        passwordResetTokenExpiresAt: {
+          [Op.gt]: new Date(),
+        },
+      },
+      transaction,
+    });
+
+    return user;
+  }
+
+  static async updatePassword(userId, hashedPassword, options) {
+    const transaction = (options && options.transaction) || undefined;
+
+    await db.users.update(
+      {
+        password: hashedPassword,
+        passwordResetToken: null,
+        passwordResetTokenExpiresAt: null,
+      },
+      { where: { id: userId }, transaction }
+    );
+
+    return db.users.findByPk(userId, { transaction });
   }
 };

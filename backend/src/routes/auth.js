@@ -81,6 +81,44 @@ router.post(
   }),
 );
 
+router.post(
+  '/forgot-password',
+  wrapAsync(async (req, res) => {
+    const { email } = req.body;
+    if (!email) {
+      return res.status(400).json({ error: 'Email is required.' });
+    }
+    try {
+      // Always return success to prevent email enumeration
+      await AuthService.sendPasswordResetEmail(email, 'register', req.protocol + '://' + req.get('host'));
+      res.status(200).json({ message: 'If an account exists with this email, a password reset link has been sent.' });
+    } catch (error) {
+      console.error('Password reset email error:', error);
+      // Still return success to prevent email enumeration
+      res.status(200).json({ message: 'If an account exists with this email, a password reset link has been sent.' });
+    }
+  }),
+);
+
+router.post(
+  '/reset-password',
+  wrapAsync(async (req, res) => {
+    const { token, password } = req.body;
+    if (!token || !password) {
+      return res.status(400).json({ error: 'Token and password are required.' });
+    }
+    if (password.length < 6) {
+      return res.status(400).json({ error: 'Password must be at least 6 characters long.' });
+    }
+    try {
+      await AuthService.passwordReset(token, password);
+      res.status(200).json({ message: 'Password reset successful. You can now login with your new password.' });
+    } catch (error) {
+      console.error('Password reset error:', error);
+      res.status(400).json({ error: error.message || 'Invalid or expired reset token.' });
+    }
+  }),
+);
 
 router.get(
   '/user',

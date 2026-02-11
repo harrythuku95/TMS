@@ -20,6 +20,7 @@ const fileRoutes = require('./routes/file');
 const usersRoutes = require('./routes/users');
 const customersRoutes = require('./routes/customers');
 const ticketsRoutes = require('./routes/tickets');
+const ticketNotesRoutes = require('./routes/ticketNotes');
 
 const { setCurrentUser } = require('./middlewares/checkRole');
 
@@ -104,6 +105,7 @@ app.use('/api/file', fileRoutes);
 app.use('/api/users', passport.authenticate('jwt', { session: false }), usersRoutes);
 app.use('/api/customers', passport.authenticate('jwt', { session: false }), customersRoutes);
 app.use('/api/tickets', passport.authenticate('jwt', { session: false }), ticketsRoutes);
+app.use('/api', ticketNotesRoutes);
 
 // Serve static files
 const publicDir = path.join(__dirname, '../public');

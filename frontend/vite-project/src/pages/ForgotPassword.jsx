@@ -1,14 +1,29 @@
 import React, { useState } from 'react';
-import { Container, TextField, Button, Typography, Box, Alert, Grid, Card, CardContent, useTheme, useMediaQuery, Link } from '@mui/material';
+import {
+  Container,
+  TextField,
+  Button,
+  Typography,
+  Box,
+  Alert,
+  Grid,
+  Card,
+  CardContent,
+  useTheme,
+  useMediaQuery,
+  Link,
+} from '@mui/material';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../context/auth';
+import axios from 'axios';
 import FadeInWrapper from '../components/FadeInWrapper';
 
-const Login = () => {
+const API_URL = import.meta.env.VITE_API_URL;
+
+const ForgotPassword = () => {
   const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
   const [error, setError] = useState('');
-  const { login } = useAuth();
+  const [success, setSuccess] = useState(false);
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
@@ -16,10 +31,18 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
+    setSuccess(false);
+    setLoading(true);
+
     try {
-      await login(email, password);
+      await axios.post(`${API_URL}/auth/forgot-password`, { email });
+      setSuccess(true);
+      setEmail('');
     } catch (err) {
-      setError('Failed to log in. Please check your credentials.');
+      console.error('Forgot password error:', err);
+      setError(err.response?.data?.error || 'Failed to send reset email. Please try again.');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -29,7 +52,7 @@ const Login = () => {
       sx={{
         mt: { xs: 4, sm: 6, md: 8 },
         mb: { xs: 3, sm: 4 },
-        px: { xs: 2, sm: 3 }
+        px: { xs: 2, sm: 3 },
       }}
     >
       <FadeInWrapper>
@@ -42,7 +65,7 @@ const Login = () => {
         >
           <CardContent
             sx={{
-              p: { xs: 3, sm: 4, md: 5 }
+              p: { xs: 3, sm: 4, md: 5 },
             }}
           >
             <Box
@@ -58,12 +81,20 @@ const Login = () => {
                 align="center"
                 gutterBottom
                 sx={{
-                  mb: 3,
+                  mb: 2,
                   fontWeight: 700,
                   color: theme.palette.primary.main,
                 }}
               >
-                Login
+                Forgot Password
+              </Typography>
+              <Typography
+                variant="body2"
+                align="center"
+                color="textSecondary"
+                sx={{ mb: 3 }}
+              >
+                Enter your email address and we'll send you a link to reset your password.
               </Typography>
               {error && (
                 <Alert
@@ -75,6 +106,18 @@ const Login = () => {
                   }}
                 >
                   {error}
+                </Alert>
+              )}
+              {success && (
+                <Alert
+                  severity="success"
+                  sx={{
+                    width: '100%',
+                    mb: 3,
+                    borderRadius: 2,
+                  }}
+                >
+                  If an account exists with this email, a password reset link has been sent. Please check your inbox.
                 </Alert>
               )}
               <Box
@@ -92,6 +135,7 @@ const Login = () => {
                       required
                       fullWidth
                       autoFocus
+                      disabled={loading}
                       sx={{
                         '& .MuiOutlinedInput-root': {
                           transition: 'all 300ms ease-in-out',
@@ -102,41 +146,6 @@ const Login = () => {
                         },
                       }}
                     />
-                  </Grid>
-                  <Grid item xs={12}>
-                    <TextField
-                      label="Password"
-                      type="password"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value.trim())}
-                      required
-                      fullWidth
-                      sx={{
-                        '& .MuiOutlinedInput-root': {
-                          transition: 'all 300ms ease-in-out',
-                          '&:hover': {
-                            transform: 'translateY(-2px)',
-                            boxShadow: '0px 4px 8px rgba(25, 118, 210, 0.15)',
-                          },
-                        },
-                      }}
-                    />
-                  </Grid>
-                  <Grid item xs={12}>
-                    <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
-                      <Link
-                        onClick={() => navigate('/forgot-password')}
-                        sx={{
-                          cursor: 'pointer',
-                          fontSize: '0.875rem',
-                          '&:hover': {
-                            textDecoration: 'underline',
-                          },
-                        }}
-                      >
-                        Forgot Password?
-                      </Link>
-                    </Box>
                   </Grid>
                   <Grid item xs={12}>
                     <Button
@@ -145,6 +154,7 @@ const Login = () => {
                       color="primary"
                       fullWidth
                       size={isMobile ? 'medium' : 'large'}
+                      disabled={loading}
                       sx={{
                         py: { xs: 1.5, sm: 2 },
                         fontSize: { xs: '0.9375rem', sm: '1rem' },
@@ -152,8 +162,24 @@ const Login = () => {
                         mt: 1,
                       }}
                     >
-                      Login
+                      {loading ? 'Sending...' : 'Send Reset Link'}
                     </Button>
+                  </Grid>
+                  <Grid item xs={12}>
+                    <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
+                      <Link
+                        onClick={() => navigate('/login')}
+                        sx={{
+                          cursor: 'pointer',
+                          fontSize: '0.875rem',
+                          '&:hover': {
+                            textDecoration: 'underline',
+                          },
+                        }}
+                      >
+                        Back to Login
+                      </Link>
+                    </Box>
                   </Grid>
                 </Grid>
               </Box>
@@ -165,4 +191,4 @@ const Login = () => {
   );
 };
 
-export default Login;
+export default ForgotPassword;

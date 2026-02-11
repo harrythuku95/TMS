@@ -44,6 +44,10 @@ module.exports = function (sequelize, DataTypes) {
         type: DataTypes.DATE,
         allowNull: true,
       },
+      resolution: {
+        type: DataTypes.TEXT,
+        allowNull: true,
+      },
       openedAt: {
         type: DataTypes.DATE,
         allowNull: true,
@@ -99,6 +103,11 @@ module.exports = function (sequelize, DataTypes) {
 
     db.tickets.hasOne(db.closeRequest, {
       as: 'closeRequest',
+      foreignKey: 'ticketId',
+    });
+
+    db.tickets.hasMany(db.ticketNotes, {
+      as: 'notes',
       foreignKey: 'ticketId',
     });
   };

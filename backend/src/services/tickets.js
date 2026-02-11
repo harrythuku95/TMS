@@ -105,11 +105,20 @@ module.exports = class TicketsService {
         if (data.status === 'closed') {
           data.closedById = currentUser.id;
           data.closedAt = new Date();
+          // Save resolution if provided when closing
+          if (data.resolution !== undefined) {
+            data.resolution = data.resolution;
+          }
         } else if (data.status === 'open') {
           data.openedAt = new Date();
         } else if (data.status === 'pending') {
           data.pendingAt = new Date();
         }
+      }
+
+      // Allow standalone resolution updates (even for already closed tickets)
+      if (data.resolution !== undefined && (!data.status || data.status === currentTicket.status)) {
+        data.resolution = data.resolution;
       }
 
       await TicketsDBApi.update(
