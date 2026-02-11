@@ -150,9 +150,20 @@ const GlobalTicketDetailsPage = () => {
     <Container maxWidth="lg" sx={{ mt: { xs: 2, sm: 4 }, mb: 4 }}>
       <FadeInWrapper>
         <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-          <Typography variant="h4" gutterBottom align="center">
-            Ticket Details
-          </Typography>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%', mb: 2 }}>
+            <Typography variant="h4" gutterBottom align="center" sx={{ flex: 1 }}>
+              Ticket Details
+            </Typography>
+            {isAdminOrAgent && (
+              <Button
+                variant="outlined"
+                onClick={() => navigate(`/edit-ticket/${id}`)}
+                size={isSmallScreen ? 'small' : 'medium'}
+              >
+                Edit Ticket
+              </Button>
+            )}
+          </Box>
           <Paper sx={{ p: 3, width: '100%' }}>
             <Grid container spacing={{ xs: 2, sm: 3 }}>
             <Grid item xs={12} sm={6} md={4}>

@@ -13,6 +13,7 @@ import Signup from './pages/Signup';
 import ForgotPassword from './pages/ForgotPassword';
 import ResetPassword from './pages/ResetPassword';
 import TicketDetailsPage from './pages/TicketDetailsPage';
+import EditTicketPage from './pages/EditTicketPage';
 import TicketListPage from './pages/TicketListPage';
 import GlobalTicketListPage from './pages/GlobalTicketListPage';
 import GlobalTicketDetailsPage from './pages/GlobalTicketDetailsPage';
@@ -61,6 +62,7 @@ const App = () => {
               <Route path="/add-customer" element={<AddCustomerPage />} />
               <Route path="/edit-customer/:id" element={<EditCustomerPage />} />
               <Route path="/ticket-details/:id" element={<TicketDetailsPage />} />
+              <Route path="/edit-ticket/:id" element={<EditTicketPage />} />
               <Route path="/global-tickets/:id" element={<GlobalTicketDetailsPage />} />
               <Route path="/user-management" element={<UserManagementPage />} />
               <Route path="/send-close-request" element={<SendCloseRequestPage />} />
